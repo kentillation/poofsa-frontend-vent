@@ -1,0 +1,10 @@
+{
+  "appId": "com.example.poofsa_vent",
+  "appName": "Poofsa",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://poofsa-vent.vercel.app",
+    "cleartext": true
+  }
+}
