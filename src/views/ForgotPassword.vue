@@ -4,6 +4,10 @@
             <v-card class="pa-3 login-card">
                 <v-row>
                     <v-col cols="12" lg="6" md="6" sm="12" class="pa-8">
+                        <div @click="this.$router.push('/')" class="text-info mb-5" style="cursor: pointer;">
+                            <v-icon>mdi-arrow-left</v-icon>
+                            <span>&nbsp; Back</span>
+                        </div>
                         <div class="d-flex justify-center my-4">
                             <img :src="logo" style="width: 20%; min-width: 100px; border-radius: 50%;" loading="lazy" alt="Poofsa Logo" />
                         </div>
@@ -12,32 +16,15 @@
                             <span class="text-info">.vent</span>
                             <v-chip color="#0090b6" size="x-small" class="position-absolute">BETA</v-chip>
                         </h1>
-                        <p class="text-center mt-5">Only Admin personnel can log in.</p>
-                        <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-5">
+                        <p class="text-center mt-5">To continue, please enter your email below.</p>
+                        <v-form ref="form" @submit.prevent="submitEmail" v-model="isFormValid" class="pa-5">
                             <div class="text-subtitle-1 text-medium-emphasis">Email</div>
                             <v-text-field v-model="admin_email" :rules="[requiredRule, emailFormatRule]"
                                 placeholder="Type here..." prepend-inner-icon="mdi-email-outline" variant="outlined"
                                 density="compact" autocomplete="username" />
-                            <div class="text-subtitle-1 text-medium-emphasis">Password</div>
-                            <v-text-field v-model="admin_password" :rules="[requiredRule]" placeholder="Type here..."
-                                prepend-inner-icon="mdi-lock-outline" variant="outlined" density="compact"
-                                autocomplete="admin_password" :type="showPassword ? 'text' : 'password'"
-                                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'"
-                                @click:append-inner="showPassword = !showPassword" />
-
-                            <div class="forgot-pass-container">
-                                <p color="#0090b6" class="forgot-password" @click="$router.push('/forgot-password')">
-                                    Forgot password?
-                                </p>
-                            </div>
-
                             <v-btn :disabled="!isFormValid || loading" color="#0090b6" type="submit" size="large"
-                                class="mt-8" height="45" block rounded>
-                                Login
-                            </v-btn>
-                            <v-btn @click="this.$router.push('/register')" size="large" class="mt-3" style="border: 1px solid #0090b6;" height="45" block
-                                rounded>
-                                Register
+                                class="mt-5" height="45" block rounded>
+                                Continue
                             </v-btn>
                         </v-form>
                     </v-col>
@@ -58,7 +45,7 @@ import { useLoadingStore } from '@/stores/loading';
 import { shallowRef } from 'vue';
 
 export default {
-    name: 'LoginPage',
+    name: 'ForgotPassword',
     components: { Snackbar },
     setup() {
         const loadingStore = useLoadingStore();
@@ -71,8 +58,6 @@ export default {
         return {
             logo: require('@/assets/Poofsa-logo.png'),
             admin_email: '',
-            admin_password: '',
-            showPassword: false,
             isFormValid: false,
             loading: false,
             snackbar: {
@@ -90,7 +75,7 @@ export default {
             const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return pattern.test(v) || 'Invalid email format';
         },
-        async handleLogin() {
+        async submitEmail() {
             const isValid = await this.$refs.form.validate();
             if (!isValid) return;
 

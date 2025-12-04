@@ -181,13 +181,22 @@ export default {
   computed: {
     ...mapState(useStocksStore, ['stockNotificationQty']),
     showSidebar() {
-      return this.$route.name !== 'LoginPage' && !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' && 
+      this.$route.name !== 'ForgotPassword' && 
+      this.$route.name !== 'RegisterPage' && 
+      !this.isNotFoundPage;
     },
     showLogout() {
-      return this.$route.name !== 'LoginPage' && !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' && 
+      this.$route.name !== 'ForgotPassword' && 
+      this.$route.name !== 'RegisterPage' && 
+      !this.isNotFoundPage;
     },
     showMenu() {
-      return this.$route.name !== 'LoginPage' && !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' && 
+      this.$route.name !== 'ForgotPassword' && 
+      this.$route.name !== 'RegisterPage' && 
+      !this.isNotFoundPage;
     },
     themeText() {
       return this.theme.global.name.value === 'light' ? 'Dark Mode' : 'Light Mode';

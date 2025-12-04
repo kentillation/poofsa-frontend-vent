@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/views/Login.vue';
+import RegisterPage from '@/views/Register.vue';
+import ForgotPassword from '@/views/ForgotPassword.vue';
 import NotFound from '@/views/NotFound.vue';
-import Register from '@/views/Register.vue';
 import Home from '@/views/Home.vue';
 import NewBranch from '@/views/NewBranch.vue';
 import AddStock from '@/views/AddStock.vue';
@@ -16,8 +17,9 @@ import { useAuthStore } from '@/stores/auth';
 
 const routes = [
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+    { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
     { path: '/', name: 'LoginPage', component: LoginPage, meta: { requiresAuth: false } },
-    { path: '/register', name: 'Register', component: Register },
+    { path: '/register', name: 'RegisterPage', component: RegisterPage },
     { path: '/home', name: 'Home', component: Home, meta: { requiresAuth: true } },
     { path: '/new-branch', name: 'NewBranch', component: NewBranch, meta: { requiresAuth: true } },
     { path: '/branch/:branchName', name: 'BranchView', component: () => import('../views/BranchView.vue'), props: true, meta: { requiresAuth: true } },
