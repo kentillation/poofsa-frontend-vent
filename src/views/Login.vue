@@ -1,45 +1,51 @@
 <template>
-    <div class="login-bg">
-        <v-container class="fill-height d-flex align-center justify-center">
-            <v-sheet class="pa-6 mx-auto ma-4" max-width="500" rounded="lg" width="100%">
-                <div class="d-flex justify-center mb-4">
-                    <img :src="logo" loading="lazy" alt="Poofsa Logo" />
-                </div>
-                <h1 class="text-center">
-                    Poofsa 
-                    <span class="text-info">.vent</span>
-                    <v-chip color="#0090b6" size="x-small" class="position-absolute">BETA</v-chip>
-                </h1>
-                <p class="text-center my-3">Admin personnel only can log in.</p>
-                <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-4">
-                    <div class="text-subtitle-1 text-medium-emphasis">Email</div>
-                    <v-text-field v-model="admin_email" 
-                        :rules="[requiredRule, emailFormatRule]" 
-                        placeholder="Type here..."
-                        prepend-inner-icon="mdi-email-outline" 
-                        variant="outlined"
-                        density="compact" 
-                        autocomplete="username" />
-                    <div class="text-subtitle-1 text-medium-emphasis">Password</div>
-                    <v-text-field v-model="admin_password" 
-                        :rules="[requiredRule]" 
-                        placeholder="Type here..."
-                        prepend-inner-icon="mdi-lock-outline" 
-                        variant="outlined" 
-                        density="compact" 
-                        autocomplete="admin_password"
-                        :type="showPassword ? 'text' : 'password'"
-                        :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'"
-                        @click:append-inner="showPassword = !showPassword" />
+    <div class="login-container">
+        <v-container class="pa-7">
+            <v-card class="pa-5 login-card">
+                <v-row>
+                    <v-col cols="12" lg="6" md="6" sm="12" class="pa-8">
+                        <div class="d-flex justify-center my-4">
+                            <img :src="logo" style="width: 20%; min-width: 80px; border-radius: 50%;" loading="lazy" alt="Poofsa Logo" />
+                        </div>
+                        <h1 class="text-center">
+                            Poofsa
+                            <span class="text-info">.vent</span>
+                            <v-chip color="#0090b6" size="x-small" class="position-absolute">BETA</v-chip>
+                        </h1>
+                        <p class="text-center my-3">Only Admin personnel can log in.</p>
+                        <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-5">
+                            <div class="text-subtitle-1 text-medium-emphasis">Email</div>
+                            <v-text-field v-model="admin_email" :rules="[requiredRule, emailFormatRule]"
+                                placeholder="Type here..." prepend-inner-icon="mdi-email-outline" variant="outlined"
+                                density="compact" autocomplete="username" />
+                            <div class="text-subtitle-1 text-medium-emphasis">Password</div>
+                            <v-text-field v-model="admin_password" :rules="[requiredRule]" placeholder="Type here..."
+                                prepend-inner-icon="mdi-lock-outline" variant="outlined" density="compact"
+                                autocomplete="admin_password" :type="showPassword ? 'text' : 'password'"
+                                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'"
+                                @click:append-inner="showPassword = !showPassword" />
 
-                    <v-btn :disabled="!isFormValid || loading" type="submit" color="#0090b6" size="large" class="mt-5" height="45" block rounded>
-                        Proceed
-                    </v-btn>
-                </v-form>
-                <div class="text-center mb-5">
-                    <p color="#0090b6" style="cursor: pointer;" @click="$router.push('/forgot-password')">Forgot password?</p>
-                </div>
-            </v-sheet>
+                            <div class="forgot-pass-container">
+                                <p color="#0090b6" class="forgot-password" @click="$router.push('/forgot-password')">
+                                    Forgot password?
+                                </p>
+                            </div>
+
+                            <v-btn :disabled="!isFormValid || loading" color="#0090b6" type="submit" size="large"
+                                class="mt-8" height="45" block rounded>
+                                Login
+                            </v-btn>
+                            <v-btn size="large" class="mt-3" style="border: 1px solid #0090b6;" height="45" block
+                                rounded>
+                                Register
+                            </v-btn>
+                        </v-form>
+                    </v-col>
+                    <v-col cols="12" lg="6" md="6" sm="12">
+                        <div class="feature-bg"></div>
+                    </v-col>
+                </v-row>
+            </v-card>
             <Snackbar ref="snackbarRef" />
         </v-container>
     </div>
@@ -92,9 +98,9 @@ export default {
             try {
                 this.loadingStore.show('');
                 const authStore = useAuthStore();
-                const result = await authStore.login({ 
-                    admin_email: this.admin_email, 
-                    admin_password: this.admin_password 
+                const result = await authStore.login({
+                    admin_email: this.admin_email,
+                    admin_password: this.admin_password
                 });
                 if (result.success) {
                     window.location.href = '/about';
@@ -115,31 +121,15 @@ export default {
 </script>
 
 <style scoped>
-.login-bg {
+.login-container {
     min-height: 100vh;
     min-width: 100vw;
     width: 100vw;
     height: 100vh;
-    background: url('@/assets/Login-Bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-}
-
-.login-bg::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    z-index: 1;
-    pointer-events: none;
-    border-radius: inherit;
 }
 
 .v-container {
@@ -155,9 +145,40 @@ export default {
     z-index: 3;
 }
 
-img {
-    min-width: 70px;
-    width: 25%;
-    border-radius: 10px;
+.login-card {
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-bg {
+    background-image: url('@/assets/img/jpg/login-feature-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #0198c2;
+    background-blend-mode: hard-light;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+}
+
+.forgot-pass-container {
+    position: relative;
+    margin-top: -20px;
+}
+
+.forgot-password {
+    position: relative;
+    float: right;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+@media (max-width: 380px) {
+    .forgot-password {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
 }
 </style>
