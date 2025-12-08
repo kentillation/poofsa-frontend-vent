@@ -111,17 +111,7 @@ thead .v-data-table__th .v-data-table-header__content {
     display: none;
 }
 
-@media (max-width: 450px) {
-    .to-hide-head {
-        display: none;
-    }
-
-    .to-show-head {
-        display: flex;
-    }
-}
-
-@media (max-width: 530px) {
+@media (max-width: 700px) {
     .to-hide {
         display: none;
     }

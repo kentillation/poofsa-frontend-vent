@@ -5,28 +5,40 @@
         <h3>Add Product in <span class="text-warning">{{ branchName }}</span> Branch</h3>
         <v-form ref="productForm" @submit.prevent="showConfirmDialog">
             <v-container v-for="(row, index) in productRows" :key="index" class="parent border rounded my-3 pb-1 mx-auto">
-                <v-btn color="red" variant="tonal" class="d-flex align-center me-1 mb-5 pt-7 pb-7 ps-7" prepend-icon="mdi-trash-can-outline"
+                <v-btn color="red"
+                    style="width: 15%;"
+                    class="d-flex align-center me-1 mb-5 pt-5 pb-5 pe-2" 
+                    density="compact" 
+                    variant="flat" 
+                    prepend-icon="mdi-trash-can-outline"
                     @click="removeRow(index)">
                     <span class="to-hide">Remove</span>
                     <span class="to-show mt-5"></span>
                 </v-btn>
+
                 <v-text-field class="child" v-model="row.productName" label="Product name"
-                    :rules="[v => !!v || 'Required']" variant="outlined" />
+                    :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
+
                 <v-text-field class="child" v-model="row.productPrice" label="Price (₱)" type="text"
                     :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                    @input="e => row.productPrice = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.productTemp" @click="getProductTemperatureOption"
+                    @input="e => row.productPrice = e.target.value.replace(/[^0-9.]/g, '')" density="compact" variant="outlined" />
+
+                <v-autocomplete class="child" v-model="row.productTemp"
                     label="Temparature" :items="productTemperatureOption" :rules="[v => !!v || 'Required']"
-                    item-title="temp_label" item-value="temp_id" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.productSize" @click="getProductSizeOption" label="Size"
+                    item-title="temp_label" item-value="temp_id" density="compact" variant="outlined" />
+
+                <v-autocomplete class="child" v-model="row.productSize" label="Size"
                     :items="productSizeOption" :rules="[v => !!v || 'Required']" item-title="size_label"
-                    item-value="size_id" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.productCategory" @click="getProductCategoryOption"
+                    item-value="size_id" density="compact" variant="outlined" />
+
+                <v-autocomplete class="child" v-model="row.productCategory"
                     label="Category" :items="productCategoryOption" :rules="[v => !!v || 'Required']"
-                    item-title="category_label" item-value="category_id" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.productStation" @click="getProductStationOption"
+                    item-title="category_label" item-value="category_id" density="compact" variant="outlined" />
+
+                <v-autocomplete class="child" v-model="row.productStation"
                     label="Station" :items="productStationOption" :rules="[v => !!v || 'Required']"
-                    item-title="station_name" item-value="station_id" variant="outlined" />
+                    item-title="station_name" item-value="station_id" density="compact" variant="outlined" />
+                    
             </v-container>
             <v-row>
                 <v-col cols="12">
@@ -78,10 +90,12 @@ import { useProductOptionsStore } from '@/stores/productOptionsStore';
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'AddProduct',
+
     components: {
         Snackbar,
         LoaderUI
     },
+
     data() {
         return {
             shopID: null,
@@ -101,22 +115,30 @@ export default {
             ],
         };
     },
+
     setup() {
         const productsStore = useProductsStore();
         const productOptionsStore = useProductOptionsStore();
         return { 
             productsStore,
+            productOptionsStore,
             productTemperatureOption: computed(() => productOptionsStore.temperatureOptions),
             productSizeOption: computed(() => productOptionsStore.sizeOptions),
             productCategoryOption: computed(() => productOptionsStore.categoryOptions),
             productStationOption: computed(() => productOptionsStore.stationOptions),
         };
     },
+
     created() {
         this.shopID = this.$route.query.shop_id;
         this.branchID = this.$route.query.branch_id;
         this.branchName = this.$route.query.branch_name;
     },
+
+    mounted() {
+        this.fetchProductOptions();
+    },
+
     computed: {
         isFormValid() {
             return this.productRows.every(row => {
@@ -131,21 +153,31 @@ export default {
             });
         },
     },
+
     methods: {
+
         back() {
             this.$router.go(-1);
         },
+
+        async fetchProductOptions() {
+            await this.productOptionsStore.fetchAllOptions();
+        },
+
         removeRow(index) {
             if (this.productRows.length > 1) {
                 this.productRows.splice(index, 1);
             }
         },
+
         showConfirmDialog() {
             if (this.isFormValid) this.confirmDialog = true;
         },
+
         closeConfirmDialog() {
             this.confirmDialog = false;
         },
+
         addRow() {
             this.productRows.push({
                 productName: '',
@@ -156,6 +188,7 @@ export default {
                 productStation: null,
             });
         },
+
         async submitForm() {
             this.confirmDialog = false;
             try {
@@ -180,9 +213,11 @@ export default {
                 this.showError(error);
             }
         },
+
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },
+
         showSuccess(message) {
             this.$refs.snackbarRef.showSnackbar(message, "success");
         },
