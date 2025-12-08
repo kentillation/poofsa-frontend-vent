@@ -339,7 +339,7 @@
 </template>
 
 <script>
-import apiClient from '../axios';
+// import apiClient from '../axios';
 import { ref, computed, onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
@@ -657,19 +657,34 @@ export default {
             await this.fetchSalesByMonthReport(currentMonth);
         },
 
+        // async fetchBranchDetails() {
+        //     this.loadingBranchDetails = true;
+        //     try {
+        //         const response = await apiClient.get(`/admin/branch-details/${this.$route.params.branchName}`, {
+        //             headers: {
+        //                 Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+        //             }
+        //         });
+        //         if (response.status === 200) {
+        //             this.branchDetails = response.data;
+        //         } else {
+        //             this.$router.push('/about');
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //         this.showError(error);
+        //         this.$router.push('/about');
+        //     } finally {
+        //         this.loadingBranchDetails = false;
+        //     }
+        // },
+
         async fetchBranchDetails() {
             this.loadingBranchDetails = true;
             try {
-                const response = await apiClient.get(`/admin/branch-details/${this.$route.params.branchName}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                    }
-                });
-                if (response.status === 200) {
-                    this.branchDetails = response.data;
-                } else {
-                    this.$router.push('/about');
-                }
+                const response = await this.branchStore.fetchBranchDetailsStore(this.$route.params.branchName);
+                this.branchDetails = this.branchStore.currentBranch;
+                console.log('Data', response)
             } catch (error) {
                 console.error(error);
                 this.showError(error);

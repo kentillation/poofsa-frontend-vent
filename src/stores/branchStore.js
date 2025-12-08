@@ -63,8 +63,8 @@ export const useBranchStore = defineStore('branches', {
                     throw new Error('BRANCH_API service is not properly initialized');
                 }
                 const response = await BRANCH_API.fetchBranchDetails(branchName);
-                if (response && response.status === true) {
-                    this.currentBranch = response.data;
+                if (response && response.data && response.status === 200) {
+                    this.currentBranch = response.data.data;
                     return response.data;
                 }
             } catch (error) {
