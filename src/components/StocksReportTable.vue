@@ -198,7 +198,7 @@ export default {
             const stocksByDate = this.stocksStore.stocksByDate.map(stock => ({
                 'Ingredients': stock.stock_ingredient,
                 'Remaining_stock': stock.stock_in,
-                'Stock_out': parseFloat(stock.stock_out),
+                'Stock_out': Number(stock.stock_out, 2),
                 'Quantity_sold': stock.total_quantity,
                 'Total amount': stock.total_amount,
                 'Date': this.formatDateTime(stock.updated_at),
