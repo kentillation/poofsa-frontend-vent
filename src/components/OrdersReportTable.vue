@@ -21,11 +21,6 @@
         </template>
 
         <!--eslint-disable-next-line -->
-        <template v-slot:item.ewallet_evidence_img="{ item }">
-            <img :src="item.ewallet_evidence_img" width="50" height="50" alt="eWallet Image" loading="lazy" />
-        </template>
-
-        <!--eslint-disable-next-line -->
         <template v-slot:item.total_quantity="{ item }">
             {{ item.total_quantity }} {{ item.total_quantity > 1 ? 'items' : 'item' }}
         </template>
@@ -63,7 +58,6 @@ export default {
             dateFilter: 1,
             shopLogoLink: '-',
             transactionsHeaders: [
-                { title: 'eWalletImage', value: 'ewallet_evidence_img', sortable: 'true', width: '10%' },
                 { title: 'Reference', value: 'reference_number', sortable: 'true', width: '10%' },
                 { title: 'ModeOfPayment', value: 'payment_mode', sortable: 'true', width: '10%' },
                 { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
@@ -142,10 +136,6 @@ export default {
             type: String,
             required: true
         },
-        // shopLogoLink: {
-        //     type: String,
-        //     required: true
-        // },
         adminName: {
             type: String,
             required: true
@@ -337,8 +327,6 @@ export default {
             
             return {
                 ...order,
-                ewallet_evidence_img: `https://poofsa.kentillation.com/storage/e-Wallet_Evidence/${order.ewallet_evidence}`,
-                // ewallet_evidence_img: `http://127.0.0.1:8000/storage/e-Wallet_Evidence/${order.ewallet_evidence}`,
                 display_customer_cash: `₱${display_customer_cash}`,
                 display_total_due: `₱${display_total_due}`,
                 display_discount: `₱${order.customer_discount}`,
