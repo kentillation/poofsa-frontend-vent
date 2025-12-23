@@ -231,7 +231,7 @@ export default {
                 return;
             }
             this.loadingStore.show("Updating status...");
-            this.transactStore.updateVoidStatusStore(voidOrder.transaction_void_id, this.branchId, voidOrder.reference_number, newStatus)
+            this.transactStore.updateVoidStatusStore(voidOrder.order_void_id, this.branchId, voidOrder.reference_number)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Void has been ${statusName} successfully!`);
