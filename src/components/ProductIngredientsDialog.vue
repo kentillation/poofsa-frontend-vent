@@ -113,7 +113,7 @@ export default {
                 { title: 'Usage', value: 'unit', sortable: true },
                 { title: 'Capital', value: 'ingredient_capital', sortable: true },
                 { title: 'Availability', value: 'availability_label', sortable: true },
-                { title: 'Updated', value: 'updated_at', sortable: true },
+                { title: 'LastUpdate', value: 'updated_at', sortable: true },
                 { title: 'Action', value: 'actions', sortable: false },
             ]
         }
@@ -121,7 +121,7 @@ export default {
     methods: {
         toAddProductItems() {
             this.$router.push({
-                path: '/add-product-ingredients/',
+                path: '/add-product-items/',
                 query: {
                     shop_id: this.shopId,
                     branch_id: this.branchId,

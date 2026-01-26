@@ -2,18 +2,18 @@
 <template>
     <v-container>
         <v-icon @click="back" class="mb-4">mdi-arrow-left</v-icon>
-        <h3>Add Product Ingredients</h3>
+        <h3>Add Product Items</h3>
         <h4 class="text-grey mt-3">Branch name: {{ branchName }} Branch</h4>
         <h4 class="text-grey">Product name: {{ productName }}{{ productTemp }}{{ productSize }}</h4>
-        <v-form ref="productIngredientsForm" @submit.prevent="showConfirmDialog">
-            <v-row v-for="(row, index) in productIngredientsRows" :key="index"
+        <v-form ref="productItemsForm" @submit.prevent="showSubmitDialog">
+            <v-row v-for="(row, index) in productItemRows" :key="index"
                 class="d-flex align-center border rounded my-3 pt-3 mx-auto">
                 <v-col cols="12" lg="1" md="1" sm="6">
-                    <v-btn color="red" variant="tonal" class="pe-1 mb-4" prepend-icon="mdi-trash-can-outline"
+                    <v-btn color="red" class="pe-1 mb-4" prepend-icon="mdi-trash-can-outline"
                         @click="removeRow(index)"></v-btn>
                 </v-col>
                 <v-col cols="12" lg="4" md="3" sm="6">
-                    <v-autocomplete v-model="row.stock_id" @click="getStockOption" label="Ingredient Name"
+                    <v-autocomplete v-model="row.stock_id" @click="getStockOption" label="Item Name"
                         :items="stocksOption" :rules="[v => !!v || 'Required']" item-title="stock_ingredient"
                         item-value="stock_id" variant="outlined" />
                 </v-col>
@@ -23,40 +23,40 @@
                         @input="e => row.unit_usage = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
                 </v-col>
                 <v-col cols="12" lg="3" md="3" sm="6">
-                    <v-text-field v-model="row.ingredient_capital" label="Ingredient Capital (₱)" type="text"
+                    <v-text-field v-model="row.ingredient_capital" label="Capital (₱)" type="text"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
                         @input="e => row.ingredient_capital = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
                 </v-col>
             </v-row>
             <v-row>
                 <v-col cols="12">
-                    <v-btn color="primary" variant="tonal" class="mb-3" prepend-icon="mdi-plus"
-                        :disabled="validatingProductIngredients" @click="addRow">
+                    <v-btn color="primary" class="mb-3" prepend-icon="mdi-plus"
+                        :disabled="validatingProductItems" @click="addRow">
                         Add More
                     </v-btn>
-                    <v-btn color="green" variant="tonal" class="ms-3 mb-3" prepend-icon="mdi-check"
-                        :disabled="!isFormValid || validatingProductIngredients" @click="showConfirmDialog">
-                        Confirm
+                    <v-btn color="green" class="ms-3 mb-3" prepend-icon="mdi-check"
+                        :disabled="!isFormValid || validatingProductItems" @click="showSubmitDialog">
+                        Submit
                     </v-btn>
                 </v-col>
             </v-row>
         </v-form>
-        <v-dialog v-model="confirmDialog" max-width="500px">
+        <v-dialog v-model="submitDialog" max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">Confirmation</span>
                 </v-card-title>
                 <v-card-text>
-                    <p class="text-center">Do you want to save new ingredient for {{ productName }} {{ productTemp }} {{ productSize }} product in  {{ branchName }} Branch?</p>
+                    <p class="text-center">Do you want to save new {{ this.productItemRows > 1 ? 'items' : 'item' }} for {{ productName }} {{ productTemp }} {{ productSize }} product in  {{ branchName }} Branch?</p>
                 </v-card-text>
                 <v-card-actions class="mx-4 my-4">
                     <v-spacer></v-spacer>
-                    <v-btn color="red" variant="tonal" class="px-3" prepend-icon="mdi-close"
-                        @click="closeConfirmDialog">Check
+                    <v-btn color="red" variant="flat" class="px-3" prepend-icon="mdi-close"
+                        @click="closeSubmitDialog">Check
                         again</v-btn>
-                    <v-btn color="green" variant="tonal" class="px-3" prepend-icon="mdi-content-save"
+                    <v-btn color="green" variant="flat" class="px-3" prepend-icon="mdi-content-save"
                         @click="submitForm">
-                        <v-progress-circular v-if="validatingProductIngredients" size="20" color="white" label="Loading..."
+                        <v-progress-circular v-if="validatingProductItems" size="20" color="white" label="Loading..."
                             indeterminate />
                         <span v-else>Save</span>
                     </v-btn>
@@ -64,7 +64,7 @@
             </v-card>
         </v-dialog>
         <Snackbar ref="snackbarRef" />
-        <LoaderUI :visible="validatingProductIngredients" message="Saving..." />
+        <LoaderUI :visible="validatingProductItems" message="Saving..." />
     </v-container>
 </template>
 
@@ -90,9 +90,9 @@ export default {
             productName: null,
             productTemp: null,
             productSize: null,
-            validatingProductIngredients: false,
-            confirmDialog: false,
-            productIngredientsRows: [
+            validatingProductItems: false,
+            submitDialog: false,
+            productItemRows: [
                 {
                     unit_usage: '',
                     ingredient_capital: '',
@@ -122,7 +122,7 @@ export default {
     },
     computed: {
         isFormValid() {
-            return this.productIngredientsRows.every(row => {
+            return this.productItemRows.every(row => {
                 return (
                     row.stock_id &&
                     !isNaN(parseFloat(row.unit_usage)) &&
@@ -136,29 +136,29 @@ export default {
             this.$router.go(-1);
         },
         removeRow(index) {
-            if (this.productIngredientsRows.length > 1) {
-                this.productIngredientsRows.splice(index, 1);
+            if (this.productItemRows.length > 1) {
+                this.productItemRows.splice(index, 1);
             }
         },
-        showConfirmDialog() {
-            if (this.isFormValid) this.confirmDialog = true;
+        showSubmitDialog() {
+            if (this.isFormValid) this.submitDialog = true;
         },
-        closeConfirmDialog() {
-            this.confirmDialog = false;
+        closeSubmitDialog() {
+            this.submitDialog = false;
         },
         addRow() {
-            this.productIngredientsRows.push({
+            this.productItemRows.push({
                 stock_id: null,
                 unit_usage: '',
                 ingredient_capital: '',
             });
         },
         async submitForm() {
-            this.confirmDialog = false;
+            this.submitDialog = false;
             try {
-                if (!this.$refs.productIngredientsForm.validate()) return;
-                this.validatingProductIngredients = true;
-                const payload = this.productIngredientsRows.map(row => ({
+                if (!this.$refs.productItemsForm.validate()) return;
+                this.validatingProductItems = true;
+                const payload = this.productItemRows.map(row => ({
                     product_id: this.productID,
                     unit_usage: parseFloat(row.unit_usage.replace(/[^0-9.]/g, '')) || 0,
                     ingredient_capital: parseFloat(row.ingredient_capital.replace(/[^0-9.]/g, '')) || 0,
@@ -167,11 +167,11 @@ export default {
                     branch_id: this.branchID,
                 }));
                 await this.productsStore.saveProductIngredientsStore(payload);
-                this.validatingProductIngredients = false;
+                this.validatingProductItems = false;
                 this.showSuccess("Ingredients saved successfully!");
-                this.$refs.productIngredientsForm.reset();
+                this.$refs.productItemsForm.reset();
             } catch (error) {
-                this.validatingProductIngredients = false;
+                this.validatingProductItems = false;
                 this.showError("Failed to save ingredients. Please try again!");
                 console.error('Ingredients submission error:', error);
             }

@@ -25,7 +25,7 @@ const routes = [
     { path: '/branch/:branchName', name: 'BranchView', component: () => import('../views/BranchView.vue'), props: true, meta: { requiresAuth: true } },
     { path: '/add-stock', name: 'AddStock', component: AddStock, meta: { requiresAuth: true } },
     { path: '/add-product', name: 'AddProduct', component: AddProduct, meta: { requiresAuth: true } },
-    { path: '/add-product-ingredients', name: 'AddProductIngredients', component: AddProductIngredients, meta: { requiresAuth: true } },
+    { path: '/add-product-items', name: 'AddProductIngredients', component: AddProductIngredients, meta: { requiresAuth: true } },
     { path: '/edit-products', name: 'EditProducts', component: EditProducts, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },
