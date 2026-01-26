@@ -1008,6 +1008,7 @@ export default {
                 ...ingredient,
                 stock_ingredient: this.capitalizeFirstLetter(ingredient.stock_ingredient),
                 unit: `${ingredient.unit_usage}${ingredient.unit_avb}`,
+                display_capital: `₱${ingredient.ingredient_capital}`,
                 updated_at: this.formatDateTime(ingredient.updated_at),
             };
         },

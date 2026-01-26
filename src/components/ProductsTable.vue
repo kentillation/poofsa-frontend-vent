@@ -140,10 +140,10 @@ export default {
             searchProduct: '',
             productHeaders: [
                 { title: '', value: 'select', width: '5%' },
-                { title: 'Product', value: 'product_name', sortable: true, width: '20%' },
+                { title: 'ProductName', value: 'product_name', sortable: true, width: '20%' },
+                { title: 'Price', value: 'display_product_price', sortable: true, width: '10%' },
                 { title: 'Temp', value: 'temp_label', sortable: true, width: '10%' },
                 { title: 'Size', value: 'size_label', sortable: true, width: '10%' },
-                { title: 'Price', value: 'display_product_price', sortable: true, width: '10%' },
                 { title: 'Category', value: 'category_label', sortable: true, width: '10%' },
                 { title: 'Availability', value: 'availability_label', sortable: true, width: '15%' },
                 { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '20%' },

@@ -1,7 +1,7 @@
 <template>
     <v-dialog :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" class="pa-5"
         max-width="500px">
-        <v-card>
+        <v-card class="pa-2">
             <v-card-title class="text-h6">Edit Product</v-card-title>
             <v-card-text>
                 <v-form ref="form" :model-value="valid">
@@ -36,14 +36,14 @@
                     </span>
                 </v-form>
             </v-card-text>
-            <v-card-actions>
-                <v-btn color="green" class="ms-3 mb-2" variant="tonal" @click="$emit('update:confirm', true)"
-                    :disabled="!valid">
-                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
+            <v-card-actions class="mx-3">
+                <v-btn color="red" class="me-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="red" class="me-3 mb-2" variant="tonal" @click="$emit('update:modelValue', false)">
-                    <v-icon>mdi-close</v-icon>&nbsp; Close
+                <v-btn color="green" class="ms-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
+                    :disabled="!valid">
+                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
                 </v-btn>
             </v-card-actions>
 

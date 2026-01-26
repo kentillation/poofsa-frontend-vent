@@ -111,7 +111,7 @@ export default {
             headers: [
                 { title: 'ItemName', value: 'stock_ingredient', sortable: true },
                 { title: 'Usage', value: 'unit', sortable: true },
-                { title: 'Capital', value: 'ingredient_capital', sortable: true },
+                { title: 'Capital', value: 'display_capital', sortable: true },
                 { title: 'Availability', value: 'availability_label', sortable: true },
                 { title: 'LastUpdate', value: 'updated_at', sortable: true },
                 { title: 'Action', value: 'actions', sortable: false },
