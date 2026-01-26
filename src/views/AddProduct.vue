@@ -3,17 +3,10 @@
     <v-container>
         <v-icon @click="back" class="mb-4">mdi-arrow-left</v-icon>
         <h3>Add Product in <span class="text-warning">{{ branchName }}</span> Branch</h3>
-        <v-form ref="productForm" @submit.prevent="showConfirmDialog">
+        <v-form ref="productForm" @submit.prevent="showSubmitDialog">
             <v-container v-for="(row, index) in productRows" :key="index" class="parent border rounded my-3 pb-1 mx-auto">
-                <v-btn color="red"
-                    style="width: 15%;"
-                    class="d-flex align-center me-1 mb-5 pt-5 pb-5 pe-2" 
-                    density="compact" 
-                    variant="flat" 
-                    prepend-icon="mdi-trash-can-outline"
+                <v-btn color="red" class="pe-1 mb-4 me-1" prepend-icon="mdi-trash-can-outline"
                     @click="removeRow(index)">
-                    <span class="to-hide">Remove</span>
-                    <span class="to-show mt-5"></span>
                 </v-btn>
 
                 <v-text-field class="child" v-model="row.productName" label="Product name"
@@ -42,18 +35,18 @@
             </v-container>
             <v-row>
                 <v-col cols="12">
-                    <v-btn color="primary" variant="tonal" class="mb-3" prepend-icon="mdi-plus"
+                    <v-btn color="primary" class="mb-3" prepend-icon="mdi-plus"
                         :disabled="validatingProduct" @click="addRow">
                         Add More
                     </v-btn>
-                    <v-btn color="green" variant="tonal" class="ms-3 mb-3" prepend-icon="mdi-check"
-                        :disabled="!isFormValid || validatingProduct" @click="showConfirmDialog">
-                        Confirm
+                    <v-btn color="green" class="ms-3 mb-3" prepend-icon="mdi-check"
+                        :disabled="!isFormValid || validatingProduct" @click="showSubmitDialog">
+                        Submit
                     </v-btn>
                 </v-col>
             </v-row>
         </v-form>
-        <v-dialog v-model="confirmDialog" max-width="500px">
+        <v-dialog v-model="submitDialog" max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">Confirmation</span>
@@ -63,10 +56,10 @@
                 </v-card-text>
                 <v-card-actions class="mx-4 my-4">
                     <v-spacer></v-spacer>
-                    <v-btn color="red" variant="tonal" class="px-3" prepend-icon="mdi-close"
-                        @click="closeConfirmDialog">Check
+                    <v-btn color="red" variant="flat" class="px-3" prepend-icon="mdi-close"
+                        @click="closeSubmitDialog">Check
                         again</v-btn>
-                    <v-btn color="green" variant="tonal" class="px-3" prepend-icon="mdi-content-save"
+                    <v-btn color="green" variant="flat" class="px-3" prepend-icon="mdi-content-save"
                         @click="submitForm">
                         <v-progress-circular v-if="validatingProduct" size="20" color="white" label="Loading..."
                             indeterminate />
@@ -102,7 +95,7 @@ export default {
             branchID: null,
             branchName: null,
             validatingProduct: false,
-            confirmDialog: false,
+            submitDialog: false,
             productRows: [
                 {
                     productName: '',
@@ -170,12 +163,12 @@ export default {
             }
         },
 
-        showConfirmDialog() {
-            if (this.isFormValid) this.confirmDialog = true;
+        showSubmitDialog() {
+            if (this.isFormValid) this.submitDialog = true;
         },
 
-        closeConfirmDialog() {
-            this.confirmDialog = false;
+        closeSubmitDialog() {
+            this.submitDialog = false;
         },
 
         addRow() {
@@ -190,7 +183,7 @@ export default {
         },
 
         async submitForm() {
-            this.confirmDialog = false;
+            this.submitDialog = false;
             try {
                 if (!this.$refs.productForm.validate()) return;
                 this.validatingProduct = true;
