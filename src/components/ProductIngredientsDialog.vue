@@ -3,7 +3,7 @@
         <v-card>
             <v-card-title class="text-h6">{{ productName }}{{ productTemp }}{{ productSize }}</v-card-title>
             <v-card-text>
-                <v-data-table :headers="headers" :items="productIngredients" :loading="loading"
+                <v-data-table :headers="headers" :items="productItems" :loading="loading"
                     density="comfortable" class="elevation-1 hover-table">
                     <template v-slot:no-data>
                         <v-alert type="warning" variant="tonal" class="ma-4">
@@ -91,7 +91,7 @@ export default {
             type: String,
             default: ''
         },
-        productIngredients: {
+        productItems: {
             type: Array,
             default: () => []
         },
@@ -124,7 +124,7 @@ export default {
                 query: {
                     shop_id: this.shopId,
                     branch_id: this.branchId,
-                    product_id: this.productIngredients.length > 0 ? this.productIngredients[0].product_id : this.productId,
+                    product_id: this.productItems.length > 0 ? this.productItems[0].product_id : this.productId,
                     branch_name: this.branchName,
                     product_name: this.productName,
                     product_temp: this.productTemp,

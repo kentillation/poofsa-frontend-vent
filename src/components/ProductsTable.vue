@@ -25,8 +25,7 @@
                 <h2 class="ms-4 to-hide">List of all Products</h2>
                 <h2 class="ms-4 to-show">List</h2>
                 <v-spacer></v-spacer>
-                <AddProductDialog v-model="addProductDialog" />
-                <v-btn @click="openAddProductDialog" :disabled="loading" prepend-icon="mdi-plus" color="#0090b6"
+                <v-btn @click="toAddProduct" :disabled="loading" prepend-icon="mdi-plus" color="#0090b6"
                     class="me-2" variant="flat">
                     <span class="to-hide">Add products</span>
                     <span class="to-show">products</span>
@@ -96,17 +95,17 @@
         <!--eslint-disable-next-line -->
         <template v-slot:item.actions="{ item }">
             <div class="d-flex" style="gap: 8px;">
-                <v-tooltip text="View Ingredients" location="top">
+                <v-tooltip text="View Related Items" location="top">
                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" @click="$emit('view-ingredients', item)" color="blue" variant="tonal"
-                            size="small" icon="mdi-eye-outline"></v-btn>
+                        <v-btn v-bind="props" @click="$emit('view-ingredients', item)" color="blue"
+                            size="small" prepend-icon="mdi-eye-outline">Related Items</v-btn>
                     </template>
                 </v-tooltip>
 
                 <v-tooltip text="Edit Product" location="top">
                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" @click="$emit('edit-product', item)" color="green" variant="tonal"
-                            size="small" icon="mdi-pencil"></v-btn>
+                        <v-btn v-bind="props" @click="$emit('edit-product', item)" color="green"
+                            size="small" prepend-icon="mdi-pencil">Edit</v-btn>
                     </template>
                 </v-tooltip>
             </div>
@@ -131,7 +130,6 @@ import { useLoadingStore } from '@/stores/loading';
 import { useProductsStore } from '@/stores/productsStore';
 import { useProductOptionsStore } from '@/stores/productOptionsStore'; 
 import Snackbar from '@/components/Snackbar.vue';
-import AddProductDialog from '@/components/AddProductDialog.vue';
 
 export default {
     name: 'ProductsTable',
@@ -140,7 +138,6 @@ export default {
             debounceTimer: null,
             mappedProducts: [],
             searchProduct: '',
-            addProductDialog: false,
             productHeaders: [
                 { title: '', value: 'select', width: '5%' },
                 { title: 'Product', value: 'product_name', sortable: true, width: '20%' },
@@ -150,12 +147,11 @@ export default {
                 { title: 'Category', value: 'category_label', sortable: true, width: '10%' },
                 { title: 'Availability', value: 'availability_label', sortable: true, width: '15%' },
                 { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '20%' },
-                { title: '', value: 'actions', sortable: false, width: '15%' }
+                { title: '', value: 'actions', sortable: true, width: '15%' }
             ],
         };
     },
     components: {
-        AddProductDialog,
         Snackbar,
     },
     props: {
@@ -244,6 +240,7 @@ export default {
                 // The computed property will automatically update
             }, 300);
         },
+
         async fetchProducts() {
             this.loadingStore.show('Preparing...');
             try {
@@ -260,7 +257,8 @@ export default {
                 this.loadingStore.hide();
             }
         },
-        openAddProductDialog() {
+
+        toAddProduct() {
             this.$router.push({
                 path: '/add-product/',
                 query: {
@@ -270,6 +268,7 @@ export default {
                 }
             });
         },
+
         formatProduct(product) {
             const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id)); 
             const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id)); 
@@ -290,9 +289,11 @@ export default {
                 updated_at: this.formatDateTime(product.updated_at),
             };
         },
+
         capitalizeFirstLetter(text) {
             return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
         },
+
         formatDateTime(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
@@ -306,6 +307,7 @@ export default {
                 timeZone: 'Asia/Manila'
             });
         },
+        
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },

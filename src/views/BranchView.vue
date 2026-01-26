@@ -157,7 +157,7 @@
                                         :loading="isSaving" :confirm="confirmUpdatingProductDialog"
                                         :selected-product="currentProduct?.product_name || ''" />
                                     <ProductIngredientsDialog v-model="dialogIngredients"
-                                        :product-ingredients="ingredients" :loading="loadingIngredient"
+                                        :product-items="ingredients" :loading="loadingIngredient"
                                         @edit-ingredient="editIngredientDialog" :shop-id="branchDetails.shop_id"
                                         :branch-id="branchDetails.branch_id" :branch-name="branchDetails.branch_name"
                                         :product-id="productId" :product-name="productName" :product-temp="productTemp"
