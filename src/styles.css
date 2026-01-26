@@ -4,6 +4,7 @@ body {
 
 h2, h3, h4, h5, p, .v-list-item {
     color: #0090b6;
+    font-weight: normal !important;
 }
 
 .v-list-item {
@@ -29,6 +30,11 @@ h2, h3, h4, h5, p, .v-list-item {
 .v-messages {
     min-height: 16px !important;
     font-size: 10px !important;
+}
+
+.v-btn {
+    text-transform: none !important;
+    font-weight: normal !important;
 }
 
 .v-btn--size-default, .v-icon {

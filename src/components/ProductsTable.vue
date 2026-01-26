@@ -27,8 +27,8 @@
                 <v-spacer></v-spacer>
                 <v-btn @click="toAddProduct" :disabled="loading" prepend-icon="mdi-plus" color="#0090b6"
                     class="me-2" variant="flat">
-                    <span class="to-hide">Add products</span>
-                    <span class="to-show">products</span>
+                    <span class="to-hide">Add Products</span>
+                    <span class="to-show">Products</span>
                 </v-btn>
                 <v-btn @click="fetchProducts" :loading="loading" icon="mdi-refresh" color="#0090b6" variant="flat"
                     size="small" class="me-3"></v-btn>
@@ -95,10 +95,10 @@
         <!--eslint-disable-next-line -->
         <template v-slot:item.actions="{ item }">
             <div class="d-flex" style="gap: 8px;">
-                <v-tooltip text="View Related Items" location="top">
+                <v-tooltip text="View Items" location="top">
                     <template v-slot:activator="{ props }">
                         <v-btn v-bind="props" @click="$emit('view-ingredients', item)" color="blue"
-                            size="small" prepend-icon="mdi-eye-outline">Related Items</v-btn>
+                            size="small" prepend-icon="mdi-eye-outline">Items</v-btn>
                     </template>
                 </v-tooltip>
 
@@ -307,7 +307,7 @@ export default {
                 timeZone: 'Asia/Manila'
             });
         },
-        
+
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },
