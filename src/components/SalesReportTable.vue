@@ -38,7 +38,7 @@
 
         <template v-slot:no-data>
             <v-alert type="warning" variant="tonal" class="ma-4">
-                <span>&nbsp; No products report found
+                <span>&nbsp; No sales report found
                     <template v-if="selectedFilterLabel">
                         for <strong>{{ selectedFilterLabel }}</strong>
                     </template>
@@ -67,7 +67,7 @@ export default {
                 { title: 'Price', value: 'display_product_price', sortable: 'true', width: '10%' },
                 { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
                 { title: 'Category', value: 'category_label', sortable: 'true', width: '15%' },
-                { title: 'Gross_Sale', value: 'display_gross_sales', sortable: 'true', width: '15%' },
+                { title: 'GrossSale', value: 'display_gross_sales', sortable: 'true', width: '15%' },
                 { title: 'Date', value: 'updated_at', sortable: 'true', width: '25%' },
             ],
             dateFilterItems: [
@@ -198,7 +198,7 @@ export default {
                 await this.transactStore.fetchGrossSalesByDateStore(this.branchId, dateFilterId);
                 if (this.transactStore.grossSalesByDate.length === 0) {
                     this.loadingStore.hide();
-                    this.showError("No available products report to download.");
+                    this.showError("No available sales report to download.");
                     return;
                 } else {
                     this.loadingStore.show('Downloading sales...');
@@ -241,7 +241,7 @@ export default {
         async printSales(dateFilterId = null) {
             await this.transactStore.fetchGrossSalesByDateStore(this.branchId, dateFilterId);
             if (this.transactStore.grossSalesByDate.length === 0) {
-                this.showError("No available products report to print.");
+                this.showError("No available sales report to print.");
                 return;
             }
             const printWindow = window.open('', '_blank');

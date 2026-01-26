@@ -291,8 +291,8 @@
                                     <transition name="slide-x-transition" mode="out-in">
                                         <div :key="activeReportsTab">
                                             <SalesReportsTableSkeleton
-                                                v-if="loadingSalesReports && activeReportsTab === 'products'" />
-                                            <SalesReportTable v-else-if="activeReportsTab === 'products'"
+                                                v-if="loadingSalesReports && activeReportsTab === 'sales'" />
+                                            <SalesReportTable v-else-if="activeReportsTab === 'sales'"
                                                 :sales-by-date="transactStore.grossSalesByDate"
                                                 :loading="loadingSalesReports" :shop-id="branchDetails.shop_id"
                                                 :shop-name="branchDetails.shop_name"
@@ -566,7 +566,7 @@ export default {
 
         reportsTabs() {
             return [
-                { label: 'Products', value: 'products', },
+                { label: 'Sales', value: 'sales', },
                 { label: 'Orders', value: 'orders', },
                 { label: 'Stocks', value: 'stocks', },
             ];
@@ -614,16 +614,6 @@ export default {
             }
         },
 
-        activeReportsTab(newReportsTab) {
-            if (newReportsTab === 'products') {
-                console.log("Current Reports Tab: ", newReportsTab);
-            } else if (newReportsTab === 'orders') {
-                console.log("Current Reports Tab: ", newReportsTab);
-            } else if (newReportsTab === 'stocks') {
-                console.log("Current Reports Tab: ", newReportsTab);
-            }
-        },
-
         activeBranchInfoTab(newBranchInfoTab) {
             if (newBranchInfoTab === 'details') {
                 this.loadingStore.show("Preparing...");
@@ -635,11 +625,11 @@ export default {
                 this.loadingStore.hide();
             } else if (newBranchInfoTab === 'barista') {
                 this.loadingStore.show("Preparing...");
-                // this.fetchKitchenPersonnel();
+                // this.fetchBaristaPersonnel();
                 this.loadingStore.hide();
             } else if (newBranchInfoTab === 'kitchen') {
                 this.loadingStore.show("Preparing...");
-                // this.fetchCashierPersonnel();
+                // this.fetchKitchenPersonnel();
                 this.loadingStore.hide();
             }
         },
