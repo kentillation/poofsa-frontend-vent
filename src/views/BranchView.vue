@@ -647,37 +647,15 @@ export default {
     methods: {
 
         async onDashboard() {
-            await this.fetchBranchDetails();
             this.activeTab = "dashboard";
             const currentMonth = new Date().getMonth() + 1;
+            await this.fetchBranchDetails();
             await this.fetchSalesOnly(currentMonth);
             await this.fetchOrdersOnly(currentMonth);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
             await this.fetchSalesByMonthReport(currentMonth);
         },
-
-        // async fetchBranchDetails() {
-        //     this.loadingBranchDetails = true;
-        //     try {
-        //         const response = await apiClient.get(`/admin/branch-details/${this.$route.params.branchName}`, {
-        //             headers: {
-        //                 Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-        //             }
-        //         });
-        //         if (response.status === 200) {
-        //             this.branchDetails = response.data;
-        //         } else {
-        //             this.$router.push('/about');
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         this.showError(error);
-        //         this.$router.push('/about');
-        //     } finally {
-        //         this.loadingBranchDetails = false;
-        //     }
-        // },
 
         async fetchBranchDetails() {
             this.loadingBranchDetails = true;
@@ -715,20 +693,6 @@ export default {
                 this.loadingIngredient = false;
             }
         },
-
-        // async fetchProductAlone(productId) {
-        //     try {
-        //         await this.productsStore.fetchProductAloneStore(productId);
-        //         if (this.productsStore.productAlone.length === 0) {
-        //             this.product_alone = '';
-        //         } else {
-        //             this.product_alone = this.productsStore.productAlone.map(product => this.formatProduct(product));
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         this.showError(error);
-        //     }
-        // },
 
         async fetchSalesOnly(month = null) {
             this.loadingSalesOnly = true;
