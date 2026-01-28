@@ -144,10 +144,9 @@
                             <!-- Products -->
                             <v-tabs-window-item value="products">
                                 <v-container>
-                                    <ProductsTableSkeleton v-if="loadingProducts" />
-                                    <ProductsTable v-else @edit-product="editProductDialog"
+                                    <ProductsTable @edit-product="editProductDialog"
                                         @view-ingredients="ingredientsDialog" :products="products"
-                                        :loading="loadingProducts" :shop-id="branchDetails.shop_id"
+                                        :shop-id="branchDetails.shop_id"
                                         :branch-id="branchDetails.branch_id" :branch-name="branchDetails.branch_name" />
                                     <ProductEditDialog v-model="productEditDialog"
                                         @update:modelValue="productEditDialog = $event"
@@ -181,9 +180,8 @@
                             <!-- Stocks -->
                             <v-tabs-window-item value="stocks">
                                 <v-container>
-                                    <StocksTableSkeleton v-if="loadingStocks" />
-                                    <StocksTable v-else @edit-stock="openEditStockDialog" :stocks="stocks"
-                                        :loading="loadingStocks" :shop-id="branchDetails.shop_id"
+                                    <StocksTable @edit-stock="openEditStockDialog" :stocks="stocks"
+                                        :shop-id="branchDetails.shop_id"
                                         :branch-id="branchDetails.branch_id" :branch-name="branchDetails.branch_name" />
                                     <StockEditDialog v-model="stockEditDialog"
                                         @update:modelValue="stockEditDialog = $event"
@@ -203,12 +201,11 @@
                                 </v-container>
                             </v-tabs-window-item>
 
-                            <!-- Void Reversal -->
+                            <!-- Void Orders -->
                             <v-tabs-window-item value="void-orders">
                                 <v-container>
-                                    <VoidReversalTableSkeleton v-if="loadingVoidReversal" />
-                                    <VoidReversalTable v-else :void-by-date="transactStore.voidOrdersByDate"
-                                        :loading="loadingVoidReversal" :branch-id="branchDetails.branch_id" />
+                                    <VoidOrdersTable :void-by-date="transactStore.voidOrdersByDate"
+                                        :branch-id="branchDetails.branch_id" />
                                 </v-container>
                             </v-tabs-window-item>
 
@@ -351,12 +348,10 @@ import { useTransactStore } from '@/stores/transactStore';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
 import ProductsTable from '@/components/ProductsTable.vue';
-import ProductsTableSkeleton from '@/components/ProductsTableSkeleton.vue';
 import ProductEditDialog from '@/components/ProductEditDialog.vue';
 import IngredientEditDialog from '@/components/IngredientEditDialog.vue';
 import ProductIngredientsDialog from '@/components/ProductIngredientsDialog.vue';
 import StocksTable from '@/components/StocksTable.vue';
-import StocksTableSkeleton from '@/components/StocksTableSkeleton.vue';
 import StockEditDialog from '@/components/StockEditDialog.vue';
 import StocksHistoryDialog from '@/components/StocksHistoryDialog.vue';
 import ProductsHistoryDialog from '@/components/ProductsHistoryDialog.vue';
@@ -366,8 +361,7 @@ import OrdersReportTable from '@/components/OrdersReportTable.vue';
 import OrdersReportsTableSkeleton from '@/components/OrdersReportsTableSkeleton.vue';
 import SalesReportTable from '@/components/SalesReportTable.vue';
 import SalesReportsTableSkeleton from '@/components/SalesReportsTableSkeleton.vue';
-import VoidReversalTable from '@/components/VoidReversalTable.vue';
-import VoidReversalTableSkeleton from '@/components/VoidReversalTableSkeleton.vue';
+import VoidOrdersTable from '@/components/VoidOrdersTable.vue';
 import SalesChart from '@/components/SalesChart.vue';
 
 export default {
@@ -376,12 +370,10 @@ export default {
         Snackbar,
         Alert,
         ProductsTable,
-        ProductsTableSkeleton,
         ProductEditDialog,
         ProductIngredientsDialog,
         IngredientEditDialog,
         StocksTable,
-        StocksTableSkeleton,
         StockEditDialog,
         StocksHistoryDialog,
         ProductsHistoryDialog,
@@ -391,8 +383,7 @@ export default {
         OrdersReportsTableSkeleton,
         SalesReportTable,
         SalesReportsTableSkeleton,
-        VoidReversalTable,
-        VoidReversalTableSkeleton,
+        VoidOrdersTable,
         SalesChart,
     },
     data() {
@@ -417,7 +408,6 @@ export default {
             editProduct: [],
             selectedProduct: '',
             product_alone: '',
-            loadingProducts: false,
             productEditDialog: false,
             confirmUpdatingProductDialog: false,
             productsHistoryDialog: false,
@@ -441,7 +431,6 @@ export default {
             stocks: [],
             editStock: [],
             selectedStock: '',
-            loadingStocks: false,
             stockEditDialog: false,
             confirmUpdatingStockDialog: false,
             stockHistoryDialog: false,
@@ -449,7 +438,6 @@ export default {
             currentStock: null,
 
             // Void Blotter
-            loadingVoidReversal: false,
             voidByDate: [],
 
             // Reports

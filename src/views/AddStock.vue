@@ -3,53 +3,52 @@
     <v-container>
         <v-icon @click="back" class="mb-4">mdi-arrow-left</v-icon>
         <h3>Add Stock in <span class="text-warning">{{ branchName }}</span> Branch</h3>
-        <v-form ref="stockForm" @submit.prevent="showConfirmDialog">
+        <v-form ref="stockForm" @submit.prevent="showSubmitDialog">
             <v-container v-for="(row, index) in stockRows" :key="index" class="parent border rounded my-3 pb-1 mx-auto">
-                <v-btn color="red" class="d-flex align-center me-1 mb-5 pt-7 pb-7 ps-7" variant="tonal" prepend-icon="mdi-trash-can-outline"
+                <v-btn color="red" class="pe-1 mb-4 me-1" prepend-icon="mdi-trash-can-outline"
                     @click="removeRow(index)">
-                    <span class="to-hide">Remove</span>
-                    <span class="to-show mt-5"></span>
                 </v-btn>
-                <v-text-field class="child" v-model="row.stockIngredient" label="Stock name" :rules="[v => !!v || 'Required']"
-                    variant="outlined" />
-                <v-text-field class="child" v-model="row.stockIn" label="Stock In (qty)" :rules="[v => !!v || 'Required']"
-                    type="number" variant="outlined" />
-                <v-text-field class="child" v-model="row.stockAlertQty" label="Stock alert (qty)" :rules="[v => !!v || 'Required']"
-                    type="number" variant="outlined" />
+                <v-text-field class="child" v-model="row.stockIngredient" label="Stock name"
+                    :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
+                <v-text-field class="child" v-model="row.stockIn" label="Stock In (qty)"
+                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
+                <v-text-field class="child" v-model="row.stockAlertQty" label="Stock alert (qty)"
+                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
                 <v-autocomplete class="child" v-model="row.stockUnit" label="Unit" :items="unitOptions"
                     @click="getProductTemperatureOption" :rules="[v => !!v || 'Required']" item-title="unit_avb"
-                    item-value="unit_id" variant="outlined" />
-                <v-text-field class="child" v-model="row.costPerUnit" label="Cost Per Unit (₱)" type="text"
+                    item-value="unit_id" density="compact" variant="outlined" />
+                <v-text-field class="child" v-model="row.costPerUnit" label="Unit Cost (₱)" type="text"
                     :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                    @input="e => row.costPerUnit = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
+                    @input="e => row.costPerUnit = e.target.value.replace(/[^0-9.]/g, '')" density="compact"
+                    variant="outlined" />
             </v-container>
             <v-row>
                 <v-col cols="12">
-                    <v-btn color="primary" class="mb-3" variant="tonal" prepend-icon="mdi-plus"
+                    <v-btn color="primary" class="mb-3" prepend-icon="mdi-plus"
                         :disabled="validatingStock" @click="addRow">
                         Add More
                     </v-btn>
-                    <v-btn color="green" class="ms-3 mb-3" variant="tonal" prepend-icon="mdi-check"
-                        :disabled="!isFormValid || validatingStock" @click="showConfirmDialog">
-                        Confirm
+                    <v-btn color="green" class="ms-3 mb-3" prepend-icon="mdi-check"
+                        :disabled="!isFormValid || validatingStock" @click="showSubmitDialog">
+                        Submit
                     </v-btn>
                 </v-col>
             </v-row>
         </v-form>
-        <v-dialog v-model="confirmDialog" max-width="500px">
+        <v-dialog v-model="submitDialog" max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">Confirmation</span>
                 </v-card-title>
                 <v-card-text>
-                    <p class="text-center">Do you want to save new stocks?</p>
+                    <p class="text-center">Do you want to save new stocks in <span class="text-warning">{{ branchName }}</span> Branch?</p>
                 </v-card-text>
                 <v-card-actions class="mx-4 my-4">
                     <v-spacer></v-spacer>
-                    <v-btn color="red" class="px-3" variant="tonal" prepend-icon="mdi-close" text
-                        @click="closeConfirmDialog">Check
+                    <v-btn color="red" class="px-3" variant="flat" prepend-icon="mdi-close" text
+                        @click="closeSubmitDialog">Check
                         again</v-btn>
-                    <v-btn color="green" class="px-3" variant="tonal" prepend-icon="mdi-content-save"
+                    <v-btn color="green" class="px-3" variant="flat" prepend-icon="mdi-content-save"
                         @click="submitForm">
                         <v-progress-circular v-if="validatingStock" size="20" color="white" label="Loading..."
                             indeterminate />
@@ -82,7 +81,7 @@ export default {
             branchID: null,
             branchName: null,
             validatingStock: false,
-            confirmDialog: false,
+            submitDialog: false,
             stockRows: [
                 {
                     stockIngredient: '',
@@ -126,11 +125,11 @@ export default {
                 this.stockRows.splice(index, 1);
             }
         },
-        showConfirmDialog() {
-            if (this.isFormValid) this.confirmDialog = true;
+        showSubmitDialog() {
+            if (this.isFormValid) this.submitDialog = true;
         },
-        closeConfirmDialog() {
-            this.confirmDialog = false;
+        closeSubmitDialog() {
+            this.submitDialog = false;
         },
         addRow() {
             this.stockRows.push({
@@ -157,7 +156,7 @@ export default {
             this.getOptions('/admin/stock-unit-option', 'unitOptions', 'Failed to fetch unit options');
         },
         async submitForm() {
-            this.confirmDialog = false;
+            this.submitDialog = false;
             try {
                 if (!this.$refs.stockForm.validate()) return;
                 this.validatingStock = true;

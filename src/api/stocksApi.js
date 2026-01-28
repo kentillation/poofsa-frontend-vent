@@ -4,6 +4,7 @@ export const STOCK_API = {
     ENDPOINTS: {
         FETCH: '/admin/stocks',
         FETCH_STOCKS_BY_DATE: '/admin/stocks-report',
+        FETCH_STOCKS_HISTORY: '/admin/stocks-history',
         SAVE: '/admin/save-stock',
         UPDATE: '/admin/update-stock',
         FETCH_LOW_STOCKS: '/admin/low-stocks',
@@ -41,6 +42,34 @@ export const STOCK_API = {
             console.error('[StocksAPI] Error fetching stocks:', error);
 
             const enhancedError = new Error('Failed to fetch stocks');
+            throw enhancedError;
+        }
+    },
+
+    async fetchStocksHistoryApi(branchId) {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+            };
+            const response = await apiClient.get(
+                `${this.ENDPOINTS.FETCH_STOCKS_HISTORY}/${branchId}`,
+                config
+            );
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
+            return response.data;
+        } catch (error) {
+            console.error('[StocksAPI] Error fetching stocks history:', error);
+
+            const enhancedError = new Error('Failed to fetch stocks history');
             throw enhancedError;
         }
     },

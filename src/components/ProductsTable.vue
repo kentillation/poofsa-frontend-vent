@@ -13,10 +13,10 @@
             </v-text-field>
         </v-col>
     </v-row>
+    <SkeletonTable v-if="loadingVoidOrders" />
     <v-data-table 
         :headers="productHeaders" 
         :items="filteredProducts" 
-        :loading="loading" 
         :items-per-page="10"
         class="elevation-1 hover-table"
         density="comfortable">
@@ -25,12 +25,12 @@
                 <h2 class="ms-4 to-hide">List of all Products</h2>
                 <h2 class="ms-4 to-show">List</h2>
                 <v-spacer></v-spacer>
-                <v-btn @click="toAddProduct" :disabled="loading" prepend-icon="mdi-plus" color="#0090b6"
+                <v-btn @click="toAddProduct" prepend-icon="mdi-plus" color="#0090b6"
                     class="me-2" variant="flat">
                     <span class="to-hide">Add Products</span>
                     <span class="to-show">Products</span>
                 </v-btn>
-                <v-btn @click="fetchProducts" :loading="loading" icon="mdi-refresh" color="#0090b6" variant="flat"
+                <v-btn @click="fetchProducts" icon="mdi-refresh" color="#0090b6" variant="flat"
                     size="small" class="me-3"></v-btn>
             </v-toolbar>
 
@@ -116,25 +116,22 @@
                 <span>&nbsp; No products found for this branch.</span>
             </v-alert>
         </template>
-
-        <template v-slot:loading>
-            <v-skeleton-loader type="table-row@6"></v-skeleton-loader>
-        </template>
     </v-data-table>
     <Snackbar ref="snackbarRef" />
 </template>
 
 <script>
 import { computed } from 'vue';
-import { useLoadingStore } from '@/stores/loading';
 import { useProductsStore } from '@/stores/productsStore';
 import { useProductOptionsStore } from '@/stores/productOptionsStore'; 
 import Snackbar from '@/components/Snackbar.vue';
+import SkeletonTable from '@/components/SkeletonTable.vue';
 
 export default {
     name: 'ProductsTable',
     data() {
         return {
+            loadingVoidOrders: false,
             debounceTimer: null,
             mappedProducts: [],
             searchProduct: '',
@@ -147,21 +144,17 @@ export default {
                 { title: 'Category', value: 'category_label', sortable: true, width: '10%' },
                 { title: 'Availability', value: 'availability_label', sortable: true, width: '15%' },
                 { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '20%' },
-                { title: '', value: 'actions', sortable: true, width: '15%' }
+                { title: '', value: 'actions', width: '15%' }
             ],
         };
     },
     components: {
-        Snackbar,
+        Snackbar, SkeletonTable
     },
     props: {
         products: {
             type: Array,
             required: true,
-        },
-        loading: {
-            type: Boolean,
-            default: false
         },
         shopId: {
             type: Number,
@@ -216,7 +209,6 @@ export default {
         // }
     },
     setup() {
-        const loadingStore = useLoadingStore();
         const productsStore = useProductsStore();
         const productOptionsStore = useProductOptionsStore(); 
         const productTemperatureOption = computed(() => productOptionsStore.temperatureOptions); 
@@ -224,7 +216,6 @@ export default {
         const productCategoryOption = computed(() => productOptionsStore.categoryOptions); 
         const productAvailabilityOption = computed(() => productOptionsStore.availabilityOptions); 
         return {
-            loadingStore,
             productsStore,
             productOptionsStore,
             productTemperatureOption,
@@ -242,7 +233,7 @@ export default {
         },
 
         async fetchProducts() {
-            this.loadingStore.show('Preparing...');
+            this.loadingVoidOrders = true;
             try {
                 await this.productsStore.fetchAllProductsStore(this.branchId);
                 if (this.productsStore.products.length === 0) {
@@ -254,7 +245,7 @@ export default {
                 console.error(error);
                 this.showError(error);
             } finally {
-                this.loadingStore.hide();
+                this.loadingVoidOrders = false;
             }
         },
 

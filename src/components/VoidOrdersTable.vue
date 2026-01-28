@@ -1,19 +1,25 @@
 <template>
-    <v-data-table :headers="headersReversalOrders" :items="mappedReversalOrdersByDate" :loading="loading"
+    <SkeletonTable v-if="loadingVoidOrders" />
+    <v-data-table :headers="headerVoidOrders" :items="mappedVoidOrdersByDate"
         :items-per-page="10" :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="hover-table"
         density="comfortable">
         <template v-slot:top>
             <v-toolbar flat>
-                <h2 class="ms-4 to-hide">List of Reversal Orders</h2>
+                <h2 class="ms-4 to-hide">List of Void Orders</h2>
                 <h2 class="ms-4 to-show">List</h2>
                 <v-spacer></v-spacer>
                 <div class="w-75 w-sm-50 d-flex align-center justify-space-between">
                     <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
                         item-value="filter_date_id" label="Date Filter" class="mt-5 me-3"></v-autocomplete>
-                    <v-btn @click="fetchVoidOrders(dateFilter)" :loading="loading" icon="mdi-refresh"
+                    <v-btn @click="fetchVoidOrders(dateFilter)" icon="mdi-refresh"
                         color="#0090b6" variant="flat" size="small" class="me-3"></v-btn>
                 </div>
             </v-toolbar>
+        </template>
+
+        <!--eslint-disable-next-line -->
+        <template v-slot:item.from_quantity="{ item }">
+            {{ item.from_quantity }} {{ item.from_quantity > 1 ? 'items' : 'item' }}
         </template>
 
         <!--eslint-disable-next-line -->
@@ -34,7 +40,7 @@
                 <v-tooltip text="Confirm" location="top">
                     <template v-slot:activator="{ props }">
                         <v-btn :class="Number(item.void_status_id) === 1 ? 'd-flex' : 'd-none'" v-bind="props"
-                            @click="editReversal({ item })" color="green" variant="tonal" size="small"
+                            @click="editVoidOrder({ item })" color="green" variant="tonal" size="small"
                             icon="mdi-swap-horizontal"></v-btn>
                     </template>
                 </v-tooltip>
@@ -51,7 +57,7 @@
             </v-alert>
         </template>
     </v-data-table>
-    <v-dialog v-model="confirmReversalDialog" height="260" width="400" transition="dialog-bottom-transition">
+    <v-dialog v-model="confirmVoidDialog" height="260" width="400" transition="dialog-bottom-transition">
         <v-card class="pa-2">
             <v-card-title>
                 <h5>Confirmation</h5>
@@ -64,7 +70,7 @@
             </v-card-text>
             <v-card-actions class="d-flex">
                 <v-btn color="red" variant="tonal" class="px-3 pt-1 pb-1" prepend-icon="mdi-close"
-                    @click="confirmReversalDialog = false">No<span class="to-hide"> , I wont!</span>
+                    @click="confirmVoidDialog = false">No<span class="to-hide"> , I wont!</span>
                 </v-btn>
                 <v-spacer></v-spacer>
                 <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-1" prepend-icon="mdi-check"
@@ -80,23 +86,28 @@
 import { useLoadingStore } from '@/stores/loading';
 import { useTransactStore } from '@/stores/transactStore';
 import Snackbar from '@/components/Snackbar.vue';
+import SkeletonTable from '@/components/SkeletonTable.vue';
+
 
 export default {
-    name: 'VoidReversalTable',
+    name: 'VoidOrdersTable',
     components: {
         Snackbar,
+        SkeletonTable
     },
     data() {
         return {
             void_statuses: [],
-            mappedReversalOrdersByDate: [],
+            mappedVoidOrdersByDate: [],
             dateFilter: 1,
             searchStock: '',
-            headersReversalOrders: [
+            loadingVoidOrders: false,
+            headerVoidOrders: [
                 { title: 'Reference', value: 'reference_number', width: '10%' },
                 { title: 'Table#', value: 'table_number', width: '10%' },
-                { title: 'Product', value: 'display_product_name', width: '20%' },
-                { title: 'Quantity', value: 'to_quantity', width: '10%' },
+                { title: 'ProductName', value: 'display_product_name', width: '20%' },
+                { title: 'BeforeVoid(qty)', value: 'from_quantity', width: '10%' },
+                { title: 'AfterVoid(qty)', value: 'to_quantity', width: '10%' },
                 { title: 'Status', value: 'void_status', width: '10%' },
                 { title: 'DateCreated', value: 'updated_at', width: '20%' },
                 { title: '', value: 'actions', sortable: false, width: '10%' }
@@ -112,7 +123,7 @@ export default {
                 { filter_date_id: 8, filter_date_label: 'Last 7 days' },
             ],
             selectedProduct: null,
-            confirmReversalDialog: false,
+            confirmVoidDialog: false,
             snackbarRef: null,
         }
     },
@@ -123,7 +134,7 @@ export default {
     watch: {
         voidByDate: {
             handler(newVal) {
-                this.mappedReversalOrdersByDate = newVal.map(order => this.formatVoidOrders(order));
+                this.mappedVoidOrdersByDate = newVal.map(order => this.formatVoidOrders(order));
             },
             immediate: true
         },
@@ -148,10 +159,10 @@ export default {
             type: Array,
             default: () => []
         },
-        loading: {
-            type: Boolean,
-            default: false
-        },
+        // loading: {
+        //     type: Boolean,
+        //     default: true
+        // },
         branchId: {
             type: Number,
             required: true
@@ -184,14 +195,14 @@ export default {
     },
     methods: {
         async fetchVoidOrders(dateFilterId = null) {
-            this.loadingStore.show('Preparing...');
+            this.loadingVoidOrders = true;
             try {
                 await this.transactStore.fetchVoidByDateStore(this.branchId, dateFilterId);
-                this.mappedReversalOrdersByDate = this.transactStore.voidOrdersByDate.map(order => this.formatVoidOrders(order));
+                this.mappedVoidOrdersByDate = this.transactStore.voidOrdersByDate.map(order => this.formatVoidOrders(order));
             } catch (error) {
                 console.error('Error fetching void orders:', error);
             } finally {
-                this.loadingStore.hide();
+                this.loadingVoidOrders = false;
             }
         },
 
@@ -205,9 +216,9 @@ export default {
             }
         },
 
-        editReversal({ item }) {
+        editVoidOrder({ item }) {
             this.selectedProduct = { ...item };
-            this.confirmReversalDialog = true;
+            this.confirmVoidDialog = true;
         },
 
         changeStatus(voidOrder) {
@@ -244,7 +255,7 @@ export default {
                 })
                 .finally(() => {
                     this.loadingStore.hide();
-                    this.confirmReversalDialog = false;
+                    this.confirmVoidDialog = false;
                 });
         },
 

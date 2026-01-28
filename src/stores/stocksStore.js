@@ -4,6 +4,7 @@ import { STOCK_API } from '@/api/stocksApi';
 export const useStocksStore = defineStore('stocks', {
     state: () => ({
         stocks: [],
+        stocks_history: [],
         stocksByDate: [],
         lowStockBranches: [],
         totalLowStock: null,
@@ -12,6 +13,7 @@ export const useStocksStore = defineStore('stocks', {
     }),
 
     actions: {
+        
         async fetchAllStocksStore(branchId) {
             this.loading = true;
             this.error = null;
@@ -26,7 +28,29 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error('Failed to fetch stocks');
                 }
             } catch (error) {
-                console.error('Error in fetchAllStocksApi:', error);
+                console.error(error);
+                this.error = 'Failed to fetch stocks';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchStocksHistoryStore(branchId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!STOCK_API || typeof STOCK_API.fetchStocksHistoryApi !== 'function') {
+                    throw new Error('STOCK_API service is not properly initialized');
+                }
+                const response = await STOCK_API.fetchStocksHistoryApi(branchId);
+                if (response && response.status === true) {
+                    this.stocks_history = response.data;
+                } else {
+                    throw new Error('Failed to fetch stocks');
+                }
+            } catch (error) {
+                console.error(error);
                 this.error = 'Failed to fetch stocks';
                 throw error;
             } finally {
@@ -45,7 +69,7 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error(response?.message || 'Failed to fetch sales');
                 }
             } catch (error) {
-                console.error('Error in fetchStocksReportByDateApi:', error);
+                console.error(error);
                 this.error = error.message || 'Failed to fetch sales';
                 throw error;
             } finally {
@@ -67,7 +91,7 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error('Failed to save stocks');
                 }
             } catch (error) {
-                console.error('Error in saveStocksApi:', error);
+                console.error(error);
                 this.error = 'Failed to save stocks';
                 throw error;
             } finally {
@@ -89,7 +113,7 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error('Failed to update stocks');
                 }
             } catch (error) {
-                console.error('Error in updateStockApi:', error);
+                console.error(error);
                 this.error = 'Failed to update stocks';
                 throw error;
             } finally {
@@ -113,7 +137,7 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error(response?.message || 'Failed to fetch stocks');
                 }
             } catch (error) {
-                console.error('Error in fetchLowStocksApi:', error);
+                console.error(error);
                 this.error = error.message || 'Failed to fetch stocks';
                 throw error;
             } finally {

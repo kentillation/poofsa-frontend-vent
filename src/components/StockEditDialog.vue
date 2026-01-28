@@ -1,6 +1,6 @@
 <template>
     <v-dialog :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" max-width="500px">
-        <v-card>
+        <v-card class="pa-2">
             <v-card-title class="text-h6">Edit Stock</v-card-title>
             <v-card-text>
                 <v-form ref="form" :model-value="valid">
@@ -19,7 +19,7 @@
                     <v-text-field :model-value="stock.stock_cost_per_unit" type="number" inputmode="numeric"
                         @update:modelValue="handleCostUpdate($event)" label="Cost Per Unit (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" outlined dense />
-                    
+
                     <v-text-field :model-value="stock.stock_alert_qty" type="number" inputmode="numeric"
                         @update:modelValue="handleInputUpdate('stock_alert_qty', $event)" label="Alert quantity"
                         :rules="[v => !!v || 'Required']" outlined dense />
@@ -33,14 +33,14 @@
                     </span>
                 </v-form>
             </v-card-text>
-            <v-card-actions>
-                <v-btn color="green" class="ms-3 mb-2" variant="tonal" @click="$emit('update:confirm', true)"
-                    :disabled="!valid">
-                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
+            <v-card-actions class="mx-3">
+                <v-btn color="red" class="me-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="red" class="me-3 mb-2" variant="tonal" @click="$emit('update:modelValue', false)">
-                    <v-icon>mdi-close</v-icon>&nbsp; Close
+                <v-btn color="green" class="ms-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
+                    :disabled="!valid">
+                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
                 </v-btn>
             </v-card-actions>
 
@@ -86,8 +86,8 @@ export default {
     setup() {
         const stockOptionsStore = useStockOptionsStore();
         return {
-        stockUnitOption: computed(() => stockOptionsStore.unitOption),
-        stockAvailabilityOption: computed(() => stockOptionsStore.availabilityOption),
+            stockUnitOption: computed(() => stockOptionsStore.unitOption),
+            stockAvailabilityOption: computed(() => stockOptionsStore.availabilityOption),
         };
     },
     props: {

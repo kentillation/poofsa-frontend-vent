@@ -5,6 +5,7 @@ export const useProductsStore = defineStore('products', {
     state: () => ({
         products: [],
         product_ingredients: '',
+        product_history: [],
         productAlone: '',
         loading: false,
         error: null
@@ -62,6 +63,27 @@ export const useProductsStore = defineStore('products', {
                 const response = await PRODUCTS_API.fetchProductIngredientsApi(productId);
                 if (response && response.status === true) {
                     this.product_ingredients = response.data;
+                } else {
+                    throw new Error('Failed to fetch product ingredients');
+                }
+            } catch (error) {
+                console.error(error);
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchProductsHistoryStore(branchId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!PRODUCTS_API || typeof PRODUCTS_API.fetchProductsHistoryApi !== 'function') {
+                    throw new Error('PRODUCTS_API service is not properly initialized');
+                }
+                const response = await PRODUCTS_API.fetchProductsHistoryApi(branchId);
+                if (response && response.status === true) {
+                    this.product_history = response.data;
                 } else {
                     throw new Error('Failed to fetch product ingredients');
                 }

@@ -1,36 +1,25 @@
 <template>
     <v-row>
         <v-col cols="12" lg="4" md="4" sm="6">
-            <v-text-field
-                density="comfortable"
-                v-model="searchStock" 
-                placeholder="Search stock details" 
-                variant="outlined" 
-                label="Search stock details"
-                clearable
-                @click:clear="searchStock = ''"
+            <v-text-field density="comfortable" v-model="searchStock" placeholder="Search stock details"
+                variant="outlined" label="Search stock details" clearable @click:clear="searchStock = ''"
                 @update:modelValue="debounceSearch"></v-text-field>
         </v-col>
     </v-row>
-    <v-data-table 
-        :headers="stockHeaders" 
-        :items="filteredStocks" 
-        :loading="loading" 
-        :items-per-page="10"
-        class="elevation-1 hover-table" 
-        density="comfortable">
+    <SkeletonTable v-if="loadingVoidOrders" />
+    <v-data-table :headers="stockHeaders" :items="filteredStocks" :items-per-page="10"
+        class="elevation-1 hover-table" density="comfortable">
         <template v-slot:top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of all Stocks</h2>
                 <h2 class="ms-4 to-show">List</h2>
                 <v-spacer></v-spacer>
-                <AddStockDialog v-model="addStockDialog" />
-                <v-btn @click="openAddStockDialog" :disabled="loading" prepend-icon="mdi-plus" color="#0090b6"
-                    class="me-2" variant="flat">
-                    <span class="to-hide">Add stocks</span>
+                <v-btn @click="toAddStock" prepend-icon="mdi-plus" color="#0090b6" class="me-2"
+                    variant="flat">
+                    <span class="to-hide">Add Stocks</span>
                     <span class="to-show">Stocks</span>
                 </v-btn>
-                <v-btn @click="fetchStocks" :loading="loading" icon="mdi-refresh" color="#0090b6" variant="flat"
+                <v-btn @click="fetchStocks" icon="mdi-refresh" color="#0090b6" variant="flat"
                     size="small" class="me-3"></v-btn>
             </v-toolbar>
         </template>
@@ -68,7 +57,7 @@
                 {{ item.updated_at }}
             </span>
         </template>
-        
+
         <!--eslint-disable-next-line -->
         <template v-slot:item.display_stock_in="{ item }">
             <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
@@ -92,7 +81,7 @@
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.actions="{ item }">
-            <v-btn @click="$emit('edit-stock', item)" color="green" variant="tonal" size="small" icon="mdi-pencil"></v-btn>
+            <v-btn @click="$emit('edit-stock', item)" color="green" size="small" prepend-icon="mdi-pencil">Edit</v-btn>
         </template>
 
         <template v-slot:no-data>
@@ -105,19 +94,21 @@
 
 <script>
 import { computed } from 'vue';
-import { useLoadingStore } from '@/stores/loading';
 import { useStocksStore } from '@/stores/stocksStore';
 import { useStockOptionsStore } from '@/stores/stockOptionsStore';
-import AddStockDialog from '@/components/AddStockDialog.vue';
+import SkeletonTable from '@/components/SkeletonTable.vue';
 
 export default {
     name: 'StocksTable',
+    components: {
+        SkeletonTable
+    },
     data() {
         return {
+            loadingVoidOrders: false,
             searchStock: '',
             debounceTimer: null,
             mappedStocks: [],
-            addStockDialog: false,
             stockHeaders: [
                 { title: '', value: 'select', width: '5%' },
                 { title: 'Ingredients', value: 'stock_ingredient', sortable: 'true', width: '20%' },
@@ -131,17 +122,10 @@ export default {
             ],
         }
     },
-    components: {
-        AddStockDialog
-    },
     props: {
         stocks: {
             type: Array,
             required: true
-        },
-        loading: {
-            type: Boolean,
-            default: false
         },
         branchId: {
             type: Number,
@@ -178,11 +162,11 @@ export default {
             const searchTerm = this.searchStock.toLowerCase();
             return this.mappedStocks.filter(stock => {
                 return (stock.stock_ingredient.toLowerCase().includes(searchTerm)) ||
-                (stock.unit_label.toLowerCase().includes(searchTerm)) ||
-                (stock.availability_label.toLowerCase().includes(searchTerm)) ||
-                (stock.display_stock_in.toLowerCase().includes(searchTerm)) ||
-                (stock.display_unit_cost.toLowerCase().includes(searchTerm)) ||
-                (stock.updated_at.toLowerCase().includes(searchTerm));
+                    (stock.unit_label.toLowerCase().includes(searchTerm)) ||
+                    (stock.availability_label.toLowerCase().includes(searchTerm)) ||
+                    (stock.display_stock_in.toLowerCase().includes(searchTerm)) ||
+                    (stock.display_unit_cost.toLowerCase().includes(searchTerm)) ||
+                    (stock.updated_at.toLowerCase().includes(searchTerm));
             });
         },
         // hasCheck() {
@@ -192,15 +176,13 @@ export default {
     setup() {
         const stocksStore = useStocksStore();
         const stockOptionsStore = useStockOptionsStore();
-        const stockUnitOption = computed(() => stockOptionsStore.unitOption); 
-        const stockAvailabilityOption = computed(() => stockOptionsStore.availabilityOption); 
-        const loadingStore = useLoadingStore();
+        const stockUnitOption = computed(() => stockOptionsStore.unitOption);
+        const stockAvailabilityOption = computed(() => stockOptionsStore.availabilityOption);
         return {
             stocksStore,
             stockOptionsStore,
             stockUnitOption,
             stockAvailabilityOption,
-            loadingStore,
         };
     },
     methods: {
@@ -210,7 +192,7 @@ export default {
             }, 300);
         },
         async fetchStocks() {
-            this.loadingStore.show('Preparing...');
+            this.loadingVoidOrders = true
             try {
                 await this.stocksStore.fetchAllStocksStore(this.branchId);
                 if (this.stocksStore.stocks.length === 0) {
@@ -222,10 +204,10 @@ export default {
                 console.error(error);
                 this.showError(error);
             } finally {
-                this.loadingStore.hide();
+                this.loadingVoidOrders = false
             }
         },
-        openAddStockDialog() {
+        toAddStock() {
             this.$router.push({
                 path: '/add-stock/',
                 query: {
@@ -234,11 +216,10 @@ export default {
                     branch_name: this.branchName,
                 }
             });
-            // this.addStockDialog = true;
         },
         formatStock(stock) {
-            const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit)); 
-            const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id)); 
+            const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
+            const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
             return {
                 ...stock,
                 unit_label: unit?.unit_label,

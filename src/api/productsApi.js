@@ -5,6 +5,7 @@ export const PRODUCTS_API = {
         FETCH_ALL: '/admin/products',
         FETCH_PRODUCT_ALONE: '/admin/product-alone',
         FETCH_PRODUCT_INGREDIENTS: '/admin/ingredients',
+        FETCH_PRODUCTS_HISTORY: '/admin/products-history',
         SAVE: '/admin/save-product',
         SAVE_PRODUCT_INGREDIENTS: '/admin/save-product-ingredients',
         UPDATE: '/admin/update-product',
@@ -102,6 +103,40 @@ export const PRODUCTS_API = {
                 error.response?.data?.message ||
                 error.message ||
                 'Failed to fetch products'
+            );
+            enhancedError.response = error.response;
+            enhancedError.status = error.response?.status;
+            throw enhancedError;
+        }
+    },
+
+    async fetchProductsHistoryApi(branchId) {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+            };
+            const response = await apiClient.get(
+                `${this.ENDPOINTS.FETCH_PRODUCTS_HISTORY}/${branchId}`,
+                config
+            );
+
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
+            return response.data;
+        } catch (error) {
+            console.error('[PRODUCTS_API]: ', error);
+            const enhancedError = new Error(
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to fetch products history'
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;

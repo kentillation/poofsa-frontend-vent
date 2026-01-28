@@ -2,14 +2,15 @@
     <v-dialog v-model="dialog" max-width="1000px" persistent>
         <v-card>
             <v-card-text>
-                <v-data-table :headers="headers" :items="productsHistory" :loading="loading" :items-per-page="10"
+                <SkeletonTable v-if="loadingVoidOrders" />
+                <v-data-table :headers="headers" :items="productsHistory" :items-per-page="10"
                     :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="elevation-1 hover-table">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <h2 class="ms-3 to-hide">Products Management History</h2>
+                            <h2 class="ms-3 to-hide">Products History</h2>
                             <h2 class="ms-3 to-show">History</h2>
                             <v-spacer></v-spacer>
-                            <v-btn color="#0090b6" variant="flat" @click="fetchProductsHistory" :loading="loading"
+                            <v-btn color="#0090b6" variant="flat" @click="fetchProductsHistory"
                                 prepend-icon="mdi-refresh" class="ps-6 me-4">
                                 <span class="to-hide">Refresh</span>
                             </v-btn>
@@ -35,23 +36,24 @@
                 </v-data-table>
             </v-card-text>
             <v-card-actions>
-                <v-btn color="red" variant="tonal" class="me-3 mb-2" @click="closeDialog">
+                <v-btn color="red" variant="flat" class="me-3 mb-2" @click="closeDialog">
                     <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
             </v-card-actions>
-            <LoaderUI :visible="loading" message="Loading..." />
         </v-card>
     </v-dialog>
+    <Snackbar ref="snackbarRef" />
 </template>
 
 <script>
-import LoaderUI from '@/components/LoaderUI.vue';
-import apiClient from '@/axios';
+import { useProductsStore } from '@/stores/productsStore';
+import Snackbar from '@/components/Snackbar.vue';
+import SkeletonTable from '@/components/SkeletonTable.vue';
 
 export default {
     name: 'ProductsHistoryDialog',
     components: {
-        LoaderUI,
+        Snackbar, SkeletonTable
     },
     props: {
         modelValue: {
@@ -62,6 +64,12 @@ export default {
             type: Number,
             required: true
         },
+    },
+    setup() {
+        const productsStore = useProductsStore();
+        return {
+            productsStore,
+        };
     },
     emits: ['update:modelValue'],
     computed: {
@@ -76,7 +84,7 @@ export default {
     },
     data() {
         return {
-            loading: false,
+            loadingVoidOrders: false,
             productsHistory: [],
             headers: [
                 { title: 'ProductName', value: 'product_name', sortable: true },
@@ -95,26 +103,22 @@ export default {
         }
     },
     methods: {
-        async fetchProductsHistory() {
-            this.loading = true;
-            try {
-                const response = await apiClient.get(`/admin/products-history/${this.branchId}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                    }
-                });
 
-                if (response.data.status) {
-                    this.productsHistory = response.data.data;
-                } else {
+        async fetchProductsHistory() {
+            this.loadingVoidOrders = true;
+            try {
+                await this.productsStore.fetchProductsHistoryStore(this.branchId);
+                if (this.productsStore.product_history.length === 0) {
                     this.productsHistory = [];
-                    console.error('No products history found:', response.data.message);
+                } else {
+                    // this.productsHistory = this.productsStore.product_history.map(product => this.formatProduct(product));
+                    this.productsHistory = this.productsStore.product_history;
                 }
             } catch (error) {
-                console.error('Error fetching products history:', error);
-                this.productsHistory = [];
+                console.error(error);
+                this.showError(error);
             } finally {
-                this.loading = false;
+                this.loadingVoidOrders = false;
             }
         },
 
@@ -145,9 +149,14 @@ export default {
                 minute: '2-digit'
             });
         },
+
         closeDialog() {
             this.dialog = false;
-        }
+        },
+
+        showError(message) {
+            this.$refs.snackbarRef.showSnackbar(message, "error");
+        },
     }
 }
 </script>
