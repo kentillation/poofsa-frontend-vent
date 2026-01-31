@@ -15,13 +15,14 @@
           <span><strong>{{ authStore.shopName }}</strong></span>
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-badge :content="stockNotificationQty"
-              :class="{'d-none' : stockNotificationQty === 0}"
-              class="position-absolute" 
-              style="top: 10px; right: 12px;" 
-              color="error">
+            <v-badge :content="stockNotificationQty" :class="{ 'd-none': stockNotificationQty === 0 }"
+              class="position-absolute" style="top: 10px; right: 12px;" color="error">
             </v-badge>
             <v-icon>mdi-bell-outline</v-icon>
+            <v-tooltip v-if="stockNotificationQty >= 1" activator="parent" location="bottom">
+              <span class="text-white pa-3">{{ stockNotificationQty }} {{ stockNotificationQty === 1 ? 'stock' :
+                'stocks' }} has low quantity.</span>
+            </v-tooltip>
           </v-btn>
           <v-btn @click="toSettings" icon>
             <v-icon>mdi-account-circle-outline</v-icon>
@@ -32,10 +33,8 @@
             <v-list-subheader size="30">Menu</v-list-subheader>
             <v-list-item prepend-icon="mdi-home-plus-outline" @click="toNewBranch" class="ps-3">Add New
               Branch</v-list-item>
-            <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings"
-              class="ps-3">Settings</v-list-item>
-            <v-list-item prepend-icon="mdi-information-outline" @click="toAbout"
-              class="ps-3">About</v-list-item>
+            <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="ps-3">Settings</v-list-item>
+            <v-list-item prepend-icon="mdi-information-outline" @click="toAbout" class="ps-3">About</v-list-item>
             <!-- <v-list-item prepend-icon="mdi-help-circle-outline" @click="toHelp"
               class="ps-3">Help</v-list-item> -->
             <v-list-item prepend-icon="mdi-power" v-if="showLogout" @click="authStore.logout"
@@ -181,22 +180,22 @@ export default {
   computed: {
     ...mapState(useStocksStore, ['stockNotificationQty']),
     showSidebar() {
-      return this.$route.name !== 'LoginPage' && 
-      this.$route.name !== 'ForgotPassword' && 
-      this.$route.name !== 'RegisterPage' && 
-      !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' &&
+        this.$route.name !== 'ForgotPassword' &&
+        this.$route.name !== 'RegisterPage' &&
+        !this.isNotFoundPage;
     },
     showLogout() {
-      return this.$route.name !== 'LoginPage' && 
-      this.$route.name !== 'ForgotPassword' && 
-      this.$route.name !== 'RegisterPage' && 
-      !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' &&
+        this.$route.name !== 'ForgotPassword' &&
+        this.$route.name !== 'RegisterPage' &&
+        !this.isNotFoundPage;
     },
     showMenu() {
-      return this.$route.name !== 'LoginPage' && 
-      this.$route.name !== 'ForgotPassword' && 
-      this.$route.name !== 'RegisterPage' && 
-      !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' &&
+        this.$route.name !== 'ForgotPassword' &&
+        this.$route.name !== 'RegisterPage' &&
+        !this.isNotFoundPage;
     },
     themeText() {
       return this.theme.global.name.value === 'light' ? 'Dark Mode' : 'Light Mode';
