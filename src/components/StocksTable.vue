@@ -7,20 +7,19 @@
         </v-col>
     </v-row>
     <SkeletonTable v-if="loadingVoidOrders" />
-    <v-data-table :headers="stockHeaders" :items="filteredStocks" :items-per-page="10"
-        class="elevation-1 hover-table" density="comfortable">
+    <v-data-table :headers="stockHeaders" :items="filteredStocks" :items-per-page="10" class="elevation-1 hover-table"
+        density="comfortable">
         <template v-slot:top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of all Stocks</h2>
                 <h2 class="ms-4 to-show">List</h2>
                 <v-spacer></v-spacer>
-                <v-btn @click="toAddStock" prepend-icon="mdi-plus" color="#0090b6" class="me-2"
-                    variant="flat">
+                <v-btn @click="toAddStock" prepend-icon="mdi-plus" color="#0090b6" class="me-2" variant="flat">
                     <span class="to-hide">Add Stocks</span>
                     <span class="to-show">Stocks</span>
                 </v-btn>
-                <v-btn @click="fetchStocks" icon="mdi-refresh" color="#0090b6" variant="flat"
-                    size="small" class="me-3"></v-btn>
+                <v-btn @click="fetchStocks" icon="mdi-refresh" color="#0090b6" variant="flat" size="small"
+                    class="me-3"></v-btn>
             </v-toolbar>
         </template>
 
@@ -32,50 +31,50 @@
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.stock_ingredient="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.stock_ingredient }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.unit_label="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.unit_label }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.display_unit_cost="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.display_unit_cost }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.updated_at="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.updated_at }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.display_stock_in="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.display_stock_in }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.display_alert_qty="{ item }">
-            <span :class="Number(item.availability_id) === 2 ? 'text-red' : ''">
+            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
                 {{ item.display_alert_qty }}
             </span>
         </template>
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.availability_label="{ item }">
-            <v-chip :color="Number(item.availability_id) === 1 ? 'green' : 'red'" size="small" variant="tonal">
-                {{ item.availability_label }}
+            <v-chip :color="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'red' : 'green'" size="small" variant="tonal">
+                <span>{{ item.stock_in === 0 ? 'Unavailable' : item.availability_label }}</span>
             </v-chip>
         </template>
 
@@ -90,6 +89,7 @@
             </v-alert>
         </template>
     </v-data-table>
+    <Alert ref="snackbarRef" />
 </template>
 
 <script>
@@ -97,11 +97,12 @@ import { computed } from 'vue';
 import { useStocksStore } from '@/stores/stocksStore';
 import { useStockOptionsStore } from '@/stores/stockOptionsStore';
 import SkeletonTable from '@/components/SkeletonTable.vue';
+import Alert from '@/components/Alert.vue';
 
 export default {
     name: 'StocksTable',
     components: {
-        SkeletonTable
+        SkeletonTable, Alert
     },
     data() {
         return {
@@ -120,6 +121,8 @@ export default {
                 { title: 'LastUpdate', value: 'updated_at', sortable: 'true', width: '25%' },
                 { title: '', value: 'actions', width: '10%' },
             ],
+            lowStockBranches: [],
+            totalLowStock: null,
         }
     },
     props: {
@@ -142,6 +145,7 @@ export default {
     },
     mounted() {
         this.fetchStocks();
+        this.fetchLowStocks();
     },
     watch: {
         stocks: {
@@ -191,6 +195,7 @@ export default {
             this.debounceTimer = setTimeout(() => {
             }, 300);
         },
+
         async fetchStocks() {
             this.loadingVoidOrders = true
             try {
@@ -199,6 +204,8 @@ export default {
                     this.mappedStocks = [];
                 } else {
                     this.mappedStocks = this.stocksStore.stocks.map(stock => this.formatStock(stock));
+                    this.fetchLowStocks();
+
                 }
             } catch (error) {
                 console.error(error);
@@ -207,6 +214,28 @@ export default {
                 this.loadingVoidOrders = false
             }
         },
+
+        async fetchLowStocks() {
+            try {
+                const response = await this.stocksStore.fetchLowStocksStore();
+                const formattedBranches = {};
+                Object.entries(response.data.branches).forEach(([id, branch]) => {
+                    formattedBranches[id.toString()] = branch;
+                });
+                this.lowStockBranches = formattedBranches;
+                this.totalLowStock = response.data.total_count;
+                if (this.totalLowStock > 0) {
+                    const branchDetails = Object.values(this.lowStockBranches).map(
+                        branch => `${branch.name} branch (${branch.count} item${branch.count !== 1 ? 's' : ''})`
+                    );
+                    const message = `Low stock alert: ${branchDetails.join(', ')}`;
+                    this.showError(message);
+                }
+            } catch (error) {
+                console.error('Error fetching stocks:', error);
+            }
+        },
+
         toAddStock() {
             this.$router.push({
                 path: '/add-stock/',
@@ -217,6 +246,7 @@ export default {
                 }
             });
         },
+
         formatStock(stock) {
             const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
             const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
@@ -230,13 +260,15 @@ export default {
                 display_alert_qty: `≤ ${Number(stock.stock_alert_qty)}`,
                 availability_id: Number(stock.availability_id),
                 display_stock_in: `x${stock.stock_in}`,
-                display_unit_cost: `₱${stock.stock_cost_per_unit}`,
+                display_unit_cost: `₱${stock.stock_unit_cost}`,
                 updated_at: this.formatDateTime(stock.updated_at),
             };
         },
+
         capitalizeFirstLetter(text) {
             return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
         },
+
         formatDateTime(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
@@ -250,8 +282,9 @@ export default {
                 timeZone: 'Asia/Manila'
             });
         },
+
         showError(message) {
-            this.$refs.snackbarRef.showSnackbar(message, "error");
+            this.$refs.snackbarRef.showSnackbarAlert(message, "error");
         },
     }
 }

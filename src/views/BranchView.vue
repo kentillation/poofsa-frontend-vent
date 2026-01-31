@@ -792,7 +792,7 @@ export default {
                     stock_ingredient: this.currentStock.stock_ingredient,
                     stock_in: parseFloat(this.currentStock.stock_in),
                     stock_unit: Number(this.currentStock.stock_unit),
-                    stock_cost_per_unit: parseFloat(this.currentStock.stock_cost_per_unit),
+                    stock_unit_cost: parseFloat(this.currentStock.stock_unit_cost),
                     stock_alert_qty: parseFloat(this.currentStock.stock_alert_qty),
                     availability_id: Number(this.currentStock.availability_id),
                     branch_id: Number(this.currentStock.branch_id),
@@ -1023,7 +1023,7 @@ export default {
                 stock_alert_qty: Number(stock.stock_alert_qty),
                 availability_id: Number(stock.availability_id),
                 display_stock_in: `${stock.stock_in} ${stock.stock_in > 1 ? 'items' : 'item'}`,
-                display_unit_cost: `₱${stock.stock_cost_per_unit}`,
+                display_unit_cost: `₱${stock.stock_unit_cost}`,
                 updated_at: this.formatDateTime(stock.updated_at),
             };
         },
@@ -1041,7 +1041,7 @@ export default {
                 stock_alert_qty: Number(stock.stock_alert_qty),
                 availability_id: Number(stock.availability_id),
                 display_stock_in: `${stock.stock_in} ${stock.stock_in > 1 ? 'items' : 'item'}`,
-                display_unit_cost: `₱${stock.stock_cost_per_unit}`,
+                display_unit_cost: `₱${stock.stock_unit_cost}`,
                 updated_at: this.updated_at,
             };
         },

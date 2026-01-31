@@ -16,7 +16,7 @@
                         @update:modelValue="handleInputUpdate('stock_unit', $event)" label="Unit"
                         :items="stockUnitOption" item-title="unit_avb" item-value="unit_id" outlined dense />
 
-                    <v-text-field :model-value="stock.stock_cost_per_unit" type="number" inputmode="numeric"
+                    <v-text-field :model-value="stock.stock_unit_cost" type="number" inputmode="numeric"
                         @update:modelValue="handleCostUpdate($event)" label="Cost Per Unit (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" outlined dense />
 
@@ -131,7 +131,7 @@ export default {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
             this.$emit('update:stock', {
                 ...this.stock,
-                stock_cost_per_unit: cleanedValue
+                stock_unit_cost: cleanedValue
             });
         },
         handleInputUpdate(field, value) {

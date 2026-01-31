@@ -10,16 +10,16 @@
                 </v-btn>
                 <v-text-field class="child" v-model="row.stockIngredient" label="Stock name"
                     :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
-                <v-text-field class="child" v-model="row.stockIn" label="Stock In (qty)"
+                <v-text-field class="child" v-model="row.stockIn" label="Stock in (qty)"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
                 <v-text-field class="child" v-model="row.stockAlertQty" label="Stock alert (qty)"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
                 <v-autocomplete class="child" v-model="row.stockUnit" label="Unit" :items="unitOptions"
                     @click="getProductTemperatureOption" :rules="[v => !!v || 'Required']" item-title="unit_avb"
                     item-value="unit_id" density="compact" variant="outlined" />
-                <v-text-field class="child" v-model="row.costPerUnit" label="Unit Cost (₱)" type="text"
+                <v-text-field class="child" v-model="row.stockUnitCost" label="Unit Cost (₱)" type="text"
                     :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                    @input="e => row.costPerUnit = e.target.value.replace(/[^0-9.]/g, '')" density="compact"
+                    @input="e => row.stockUnitCost = e.target.value.replace(/[^0-9.]/g, '')" density="compact"
                     variant="outlined" />
             </v-container>
             <v-row>
@@ -88,7 +88,7 @@ export default {
                     stockIn: '',
                     stockAlertQty: '',
                     stockUnit: null,
-                    costPerUnit: '',
+                    stockUnitCost: '',
                 },
             ],
             unitOptions: [],
@@ -111,7 +111,7 @@ export default {
                     row.stockIn &&
                     row.stockAlertQty &&
                     row.stockUnit &&
-                    !isNaN(parseFloat(row.costPerUnit))
+                    !isNaN(parseFloat(row.stockUnitCost))
                 );
             });
         },
@@ -137,7 +137,7 @@ export default {
                 stockIn: '',
                 stockAlertQty: '',
                 stockUnit: null,
-                costPerUnit: '',
+                stockUnitCost: '',
             });
         },
         async getOptions(endpoint, targetArray, errorMessage) {
@@ -165,7 +165,7 @@ export default {
                     stock_in: row.stockIn,
                     stock_alert_qty: row.stockAlertQty,
                     stock_unit: row.stockUnit,
-                    stock_cost_per_unit: parseFloat(row.costPerUnit.replace(/[^0-9.]/g, '')) || 0,
+                    stock_unit_cost: parseFloat(row.stockUnitCost.replace(/[^0-9.]/g, '')) || 0,
                     branch_id: this.branchID
                 }));
                 await this.stocksStore.saveStocksStore(payload);
