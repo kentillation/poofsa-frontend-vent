@@ -65,9 +65,16 @@
         </template>
 
         <!--eslint-disable-next-line -->
-        <template v-slot:item.display_product_price="{ item }">
+        <template v-slot:item.display_base_price="{ item }">
             <span :class="item.availability_id === 2 ? 'text-red' : ''">
-                {{ item.display_product_price }}
+                {{ item.display_base_price }}
+            </span>
+        </template>
+
+        <!--eslint-disable-next-line -->
+        <template v-slot:item.display_estimated_cost="{ item }">
+            <span :class="item.availability_id === 2 ? 'text-red' : ''">
+                {{ item.display_estimated_cost }}
             </span>
         </template>
 
@@ -137,13 +144,12 @@ export default {
             searchProduct: '',
             productHeaders: [
                 { title: '', value: 'select', width: '5%' },
-                { title: 'ProductName', value: 'product_name', sortable: true, width: '20%' },
-                { title: 'Price', value: 'display_product_price', sortable: true, width: '10%' },
-                { title: 'Temp', value: 'temp_label', sortable: true, width: '10%' },
-                { title: 'Size', value: 'size_label', sortable: true, width: '10%' },
+                { title: 'ProductName', value: 'display_product_name', sortable: true, width: '20%' },
+                { title: 'BasePrice', value: 'display_base_price', sortable: true, width: '10%' },
+                { title: 'EstimatedCost', value: 'display_estimated_cost', sortable: true, width: '10%' },
                 { title: 'Category', value: 'category_label', sortable: true, width: '10%' },
-                { title: 'Availability', value: 'availability_label', sortable: true, width: '15%' },
-                { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '20%' },
+                { title: 'Availability', value: 'availability_label', sortable: true, width: '10%' },
+                { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '10%' },
                 { title: '', value: 'actions', width: '15%' }
             ],
         };
@@ -200,7 +206,8 @@ export default {
                     (product.size_label && product.size_label.toLowerCase().includes(searchTerm)) ||
                     (product.category_label && product.category_label.toLowerCase().includes(searchTerm)) ||
                     (product.availability_label && product.availability_label.toLowerCase().includes(searchTerm)) ||
-                    product.display_product_price.toLowerCase().includes(searchTerm) ||
+                    product.display_base_price.toLowerCase().includes(searchTerm) ||
+                    product.display_estimated_cost.toLowerCase().includes(searchTerm) ||
                     product.updated_at.toLowerCase().includes(searchTerm);
             });
         },
@@ -261,22 +268,21 @@ export default {
         },
 
         formatProduct(product) {
-            const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id)); 
-            const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id)); 
-            const category = this.productCategoryOption.find(c => c.category_id === Number(product.product_category_id)); 
+            const temp = this.productTemperatureOption.find(t => t.product_temp_id === Number(product.temp_id)); 
+            const size = this.productSizeOption.find(s => s.product_size_id === Number(product.size_id)); 
+            const category = this.productCategoryOption.find(c => c.product_category_id === Number(product.category_id)); 
             const availability = this.productAvailabilityOption.find(a => a.availability_id === Number(product.availability_id)); 
             return {
                 ...product,
-                temp_label: temp?.temp_label,
-                size_label: size?.size_label,
                 category_label: category?.category_label,
                 availability_label: availability?.availability_label,
-                product_temp_id: Number(product.product_temp_id),
-                product_size_id: Number(product.product_size_id),
-                product_category_id: Number(product.product_category_id),
+                product_temp_id: Number(product.temp_id),
+                product_size_id: Number(product.size_id),
+                product_category_id: Number(product.category_id),
                 availability_id: Number(product.availability_id),
-                product_name: this.capitalizeFirstLetter(product.product_name),
-                display_product_price: `₱${product.product_price}`,
+                display_product_name: this.capitalizeFirstLetter(product.product_name) + temp?.temp_label + size?.size_label,
+                display_base_price: `₱${product.base_price}`,
+                display_estimated_cost: `₱${product.cost_estimate}`,
                 updated_at: this.formatDateTime(product.updated_at),
             };
         },

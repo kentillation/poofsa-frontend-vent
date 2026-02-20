@@ -61,7 +61,6 @@
       <v-layout>
         <router-view />
         <GlobalLoader />
-        <Alert ref="snackbarRef" />
       </v-layout>
     </v-main>
   </v-app>
@@ -76,7 +75,6 @@ import { useStocksStore } from '@/stores/stocksStore';
 import { useLoadingStore } from '@/stores/loading';
 import { useRoute } from 'vue-router';
 import GlobalLoader from '@/components/GlobalLoader.vue';
-import Alert from '@/components/Alert.vue';
 
 export default {
   name: 'App',
@@ -89,7 +87,6 @@ export default {
   },
   components: {
     GlobalLoader,
-    Alert,
   },
   setup() {
     const authStore = useAuthStore();
@@ -245,35 +242,10 @@ export default {
       try {
         this.fetchingBranches = true;
         await this.branchStore.fetchAllBranch();
-        await this.fetchLowStocks();
+        // await this.fetchLowStocks();
       } catch (error) {
         console.error('Error fetching branches:', error);
       }
-    },
-
-    async fetchLowStocks() {
-      try {
-        const response = await this.stocksStore.fetchLowStocksStore();
-        const formattedBranches = {};
-        Object.entries(response.data.branches).forEach(([id, branch]) => {
-          formattedBranches[id.toString()] = branch;
-        });
-        this.lowStockBranches = formattedBranches;
-        this.totalLowStock = response.data.total_count;
-        if (this.totalLowStock > 0) {
-          const branchDetails = Object.values(this.lowStockBranches).map(
-            branch => `${branch.name} branch (${branch.count} item${branch.count !== 1 ? 's' : ''})`
-          );
-          const message = `Low stock alert: ${branchDetails.join(', ')}`;
-          this.showStockAlert(message);
-        }
-      } catch (error) {
-        console.error('Error fetching stocks:', error);
-      }
-    },
-
-    showStockAlert(message) {
-      this.$refs.snackbarRef.showSnackbarAlert(message, "error");
     },
   }
 };

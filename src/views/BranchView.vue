@@ -478,6 +478,7 @@ export default {
         const productTemperatureOption = computed(() => productOptionsStore.temperatureOptions);
         const productSizeOption = computed(() => productOptionsStore.sizeOptions);
         const productCategoryOption = computed(() => productOptionsStore.categoryOptions);
+        const shopStationOption = computed(() => productOptionsStore.stationOptions);
         const productAvailabilityOption = computed(() => productOptionsStore.availabilityOptions);
         const transactStore = useTransactStore();
         const activeTab = ref('dashboard');
@@ -501,6 +502,7 @@ export default {
             productTemperatureOption,
             productSizeOption,
             productCategoryOption,
+            shopStationOption,
             productAvailabilityOption,
             transactStore,
             activeTab,
@@ -839,10 +841,12 @@ export default {
                 const productData = {
                     product_id: this.currentProduct.product_id,
                     product_name: this.currentProduct.product_name?.trim(),
-                    product_price: Number(this.currentProduct.product_price),
-                    product_size_id: Number(this.currentProduct.product_size_id),
-                    product_temp_id: Number(this.currentProduct.product_temp_id),
-                    product_category_id: Number(this.currentProduct.product_category_id),
+                    base_price: Number(this.currentProduct.base_price),
+                    cost_estimate: Number(this.currentProduct.cost_estimate),
+                    temp_id: Number(this.currentProduct.temp_id),
+                    size_id: Number(this.currentProduct.size_id),
+                    category_id: Number(this.currentProduct.category_id),
+                    station_id: Number(this.currentProduct.station_id),
                     availability_id: Number(this.currentProduct.availability_id),
                     shop_id: this.currentProduct.shop_id,
                     branch_id: this.currentProduct.branch_id,
@@ -949,26 +953,27 @@ export default {
             this.stockHistoryDialog = true;
         },
 
-        formatProduct(product) {
-            const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id));
-            const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id));
-            const category = this.productCategoryOption.find(c => c.category_id === Number(product.product_category_id));
-            const availability = this.productAvailabilityOption.find(a => a.availability_id === Number(product.availability_id));
-            return {
-                ...product,
-                temp_label: temp?.temp_label,
-                size_label: size?.size_label,
-                category_label: category?.category_label,
-                availability_label: availability?.availability_label,
-                product_temp_id: Number(product.product_temp_id),
-                product_size_id: Number(product.product_size_id),
-                product_category_id: Number(product.product_category_id),
-                availability_id: Number(product.availability_id),
-                product_name: this.capitalizeFirstLetter(product.product_name),
-                display_product_price: `₱${product.product_price}`,
-                updated_at: this.formatDateTime(product.updated_at),
-            };
-        },
+        // formatProduct(product) {
+        //     const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id));
+        //     const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id));
+        //     const category = this.productCategoryOption.find(c => c.category_id === Number(product.product_category_id));
+        //     const availability = this.productAvailabilityOption.find(a => a.availability_id === Number(product.availability_id));
+        //     return {
+        //         ...product,
+        //         temp_label: temp?.temp_label,
+        //         size_label: size?.size_label,
+        //         category_label: category?.category_label,
+        //         availability_label: availability?.availability_label,
+        //         product_temp_id: Number(product.product_temp_id),
+        //         product_size_id: Number(product.product_size_id),
+        //         product_category_id: Number(product.product_category_id),
+        //         availability_id: Number(product.availability_id),
+        //         product_name: this.capitalizeFirstLetter(product.product_name),
+        //         display_base_price: `₱${product.base_price}`,
+        //         display_estimated_cost: `₱${product.estimated_cost}`,
+        //         updated_at: this.formatDateTime(product.updated_at),
+        //     };
+        // },
 
         formatProductWithISO(product) {
             const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id));
@@ -986,7 +991,8 @@ export default {
                 product_category_id: Number(product.product_category_id),
                 availability_id: Number(product.availability_id),
                 product_name: this.capitalizeFirstLetter(product.product_name),
-                display_product_price: `₱${product.product_price}`,
+                display_base_price: `₱${product.base_price}`,
+                display_estimated_cost: `₱${product.cost_estimate}`,
                 updated_at: this.updated_at,
             };
         },

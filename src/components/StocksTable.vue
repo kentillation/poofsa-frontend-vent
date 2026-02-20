@@ -145,7 +145,6 @@ export default {
     },
     mounted() {
         this.fetchStocks();
-        this.fetchLowStocks();
     },
     watch: {
         stocks: {
@@ -204,7 +203,6 @@ export default {
                     this.mappedStocks = [];
                 } else {
                     this.mappedStocks = this.stocksStore.stocks.map(stock => this.formatStock(stock));
-                    this.fetchLowStocks();
 
                 }
             } catch (error) {
@@ -215,26 +213,26 @@ export default {
             }
         },
 
-        async fetchLowStocks() {
-            try {
-                const response = await this.stocksStore.fetchLowStocksStore();
-                const formattedBranches = {};
-                Object.entries(response.data.branches).forEach(([id, branch]) => {
-                    formattedBranches[id.toString()] = branch;
-                });
-                this.lowStockBranches = formattedBranches;
-                this.totalLowStock = response.data.total_count;
-                if (this.totalLowStock > 0) {
-                    const branchDetails = Object.values(this.lowStockBranches).map(
-                        branch => `${branch.name} branch (${branch.count} item${branch.count !== 1 ? 's' : ''})`
-                    );
-                    const message = `Low stock alert: ${branchDetails.join(', ')}`;
-                    this.showError(message);
-                }
-            } catch (error) {
-                console.error('Error fetching stocks:', error);
-            }
-        },
+        // async fetchLowStocks() {
+        //     try {
+        //         const response = await this.stocksStore.fetchLowStocksStore();
+        //         const formattedBranches = {};
+        //         Object.entries(response.data.branches).forEach(([id, branch]) => {
+        //             formattedBranches[id.toString()] = branch;
+        //         });
+        //         this.lowStockBranches = formattedBranches;
+        //         this.totalLowStock = response.data.total_count;
+        //         if (this.totalLowStock > 0) {
+        //             const branchDetails = Object.values(this.lowStockBranches).map(
+        //                 branch => `${branch.name} branch (${branch.count} item${branch.count !== 1 ? 's' : ''})`
+        //             );
+        //             const message = `Low stock alert: ${branchDetails.join(', ')}`;
+        //             this.showError(message);
+        //         }
+        //     } catch (error) {
+        //         console.error('Error fetching stocks:', error);
+        //     }
+        // },
 
         toAddStock() {
             this.$router.push({
