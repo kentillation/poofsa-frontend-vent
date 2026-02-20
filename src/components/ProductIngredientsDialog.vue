@@ -109,12 +109,12 @@ export default {
         return {
             editItemDialog: false,
             headers: [
-                { title: 'ItemName', value: 'stock_ingredient', sortable: true },
-                { title: 'Usage', value: 'unit', sortable: true },
-                { title: 'Capital', value: 'display_capital', sortable: true },
-                { title: 'Availability', value: 'availability_label', sortable: true },
-                { title: 'LastUpdate', value: 'updated_at', sortable: true },
-                { title: 'Action', value: 'actions', sortable: false },
+                { title: 'ItemName', value: 'ingredient_name', sortable: true, width: '25%' },
+                { title: 'QuantityRequired', value: 'display_quantity_required', sortable: true, width: '15%' },
+                { title: 'IngredientCapital', value: 'display_ingredient_capital', sortable: true, width: '15%' },
+                { title: 'Availability', value: 'availability_label', sortable: true, width: '10%' },
+                { title: 'LastUpdate', value: 'updated_at', sortable: true, width: '25%' },
+                { title: 'Action', value: 'actions', sortable: false, width: '10%' },
             ]
         }
     },

@@ -189,7 +189,7 @@
                                         @update:confirm="confirmUpdatingStockDialog = $event" :stock="currentStock"
                                         @save="updatingStock" :valid="formValid" :loading="isSaving"
                                         :confirm="confirmUpdatingStockDialog"
-                                        :selected-stock="currentStock?.stock_ingredient || ''" />
+                                        :selected-stock="currentStock?.ingredient_name || ''" />
 
                                     <StocksHistoryDialog v-model="stockHistoryDialog"
                                         :branch-id="branchDetails.branch_id" />
@@ -791,7 +791,7 @@ export default {
                 const isoString = now.toISOString().replace(/\.\d{3}Z$/, '.000000Z');
                 const stockData = {
                     stock_id: Number(this.currentStock.stock_id),
-                    stock_ingredient: this.currentStock.stock_ingredient,
+                    ingredient_name: this.currentStock.ingredient_name,
                     stock_in: parseFloat(this.currentStock.stock_in),
                     stock_unit: Number(this.currentStock.stock_unit),
                     stock_unit_cost: parseFloat(this.currentStock.stock_unit_cost),
@@ -882,22 +882,18 @@ export default {
         async updatingIngredient() {
             this.isSaving = true;
             try {
-                const now = new Date();
-                const isoString = now.toISOString().replace(/\.\d{3}Z$/, '.000000Z');
                 const ingredientData = {
-                    product_ingredient_id: this.currentIngredient.product_ingredient_id,
                     product_id: this.currentIngredient.product_id,
-                    stock_id: this.currentIngredient.stock_id,
-                    unit_usage: this.currentIngredient.unit_usage,
+                    ingredient_id: this.currentIngredient.ingredient_id,
+                    quantity_required: this.currentIngredient.quantity_required,
                     ingredient_capital: parseFloat(this.currentIngredient.ingredient_capital),
-                    updated_at: isoString,
                 };
                 await this.productsStore.updateIngredientStore(ingredientData);
 
                 // For reactive effect
                 this.ingredients = await this.productsStore.products;
                 const index = this.ingredients.findIndex(
-                    i => i.product_ingredient_id === this.currentIngredient.product_ingredient_id
+                    i => i.ingredient_id === this.currentIngredient.ingredient_id
                 );
                 if (index !== -1) {
                     const updatedIngredient = this.formatIngredientWithISO({
@@ -1000,9 +996,9 @@ export default {
         formatIngredient(ingredient) {
             return {
                 ...ingredient,
-                stock_ingredient: this.capitalizeFirstLetter(ingredient.stock_ingredient),
-                unit: `${ingredient.unit_usage}${ingredient.unit_avb}`,
-                display_capital: `₱${ingredient.ingredient_capital}`,
+                ingredient_name: this.capitalizeFirstLetter(ingredient.ingredient_name),
+                display_quantity_required: `${ingredient.quantity_required}${ingredient.unit_avb}`,
+                display_ingredient_capital: `₱${ingredient.ingredient_capital}`,
                 updated_at: this.formatDateTime(ingredient.updated_at),
             };
         },
@@ -1010,8 +1006,9 @@ export default {
         formatIngredientWithISO(ingredient) {
             return {
                 ...ingredient,
-                stock_ingredient: this.capitalizeFirstLetter(ingredient.stock_ingredient),
-                unit: `${ingredient.unit_usage}${ingredient.unit_avb}`,
+                ingredient_name: this.capitalizeFirstLetter(ingredient.ingredient_name),
+                display_quantity_required: `${ingredient.quantity_required}${ingredient.unit_avb}`,
+                display_ingredient_capital: `${ingredient.ingredient_capital}`,
                 updated_at: ingredient.updated_at,
             };
         },
@@ -1023,7 +1020,7 @@ export default {
                 ...stock,
                 unit_label: unit?.unit_label,
                 availability_label: availability?.availability_label,
-                stock_ingredient: this.capitalizeFirstLetter(stock.stock_ingredient),
+                ingredient_name: this.capitalizeFirstLetter(stock.ingredient_name),
                 stock_unit: Number(stock.stock_unit),
                 stock_in: Number(stock.stock_in),
                 stock_alert_qty: Number(stock.stock_alert_qty),
@@ -1041,7 +1038,7 @@ export default {
                 ...stock,
                 unit_label: unit?.unit_label,
                 availability_label: availability?.availability_label,
-                stock_ingredient: this.capitalizeFirstLetter(stock.stock_ingredient),
+                ingredient_name: this.capitalizeFirstLetter(stock.ingredient_name),
                 stock_unit: Number(stock.stock_unit),
                 stock_in: Number(stock.stock_in),
                 stock_alert_qty: Number(stock.stock_alert_qty),

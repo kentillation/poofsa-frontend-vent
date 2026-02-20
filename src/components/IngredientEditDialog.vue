@@ -1,21 +1,22 @@
 <template>
     <v-dialog :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" class="pa-5"
         max-width="500px">
-        <v-card>
+        <v-card class="pa-2">
             <v-card-title class="text-h6">Edit Ingredient</v-card-title>
             <v-card-text>
                 <v-form ref="form" :model-value="valid">
                     <v-text-field :model-value="ingredient.product_name"
                         @update:modelValue="handleInputUpdate('product_id', $event)" label="Product Name"
                         :rules="[v => !!v || 'Required']" class="text-grey-darken-1" outlined dense readonly />
-                    <v-autocomplete :model-value="ingredient.stock_ingredient"
-                        @update:modelValue="handleInputUpdate('stock_id', $event)" label="Stock Name"
-                        item-title="stock_ingredient" item-value="stock_id"
+                        
+                    <v-autocomplete :model-value="ingredient.ingredient_name"
+                        @update:modelValue="handleInputUpdate('ingredient_id', $event)" label="Item Name"
+                        item-title="ingredient_name" item-value="ingredient_id"
                         :items="stocksOption" @click="getStocksOption" outlined dense>
                     </v-autocomplete>
                     
-                    <v-text-field :model-value="ingredient.unit_usage"
-                        @update:modelValue="handleUnitUpdate($event)" label="Unit usage"
+                    <v-text-field :model-value="ingredient.quantity_required"
+                        @update:modelValue="handleUnitUpdate($event)" label="Quantity Required"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
                     <v-text-field :model-value="ingredient.ingredient_capital"
@@ -28,13 +29,13 @@
                 </v-form>
             </v-card-text>
             <v-card-actions>
-                <v-btn color="green" class="ms-3 mb-2" variant="tonal" @click="$emit('update:confirm', true)"
-                    :disabled="!valid">
-                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
+                <v-btn color="red" class="ms-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="red" class="me-3 mb-2" variant="tonal" @click="$emit('update:modelValue', false)">
-                    <v-icon>mdi-close</v-icon>&nbsp; Close
+                <v-btn color="green" class="me-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
+                    :disabled="!valid">
+                    <v-icon>mdi-content-save</v-icon>&nbsp; Save
                 </v-btn>
             </v-card-actions>
 
@@ -43,7 +44,7 @@
                 <v-card>
                     <v-card-title class="text-h6">Confirm Update</v-card-title>
                     <v-card-text>
-                        Are you sure you want to save changes to <strong>{{ selectedIngredient }}</strong>?
+                        Are you sure you want to save changes to <strong>{{ ingredient.product_name }}</strong> items?
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
@@ -102,10 +103,6 @@ export default {
             type: Boolean,
             default: false
         },
-        selectedIngredient: {
-            type: String,
-            default: ''
-        },
     },
     emits: [
         'update:modelValue',
@@ -122,7 +119,7 @@ export default {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
             this.$emit('update:ingredient', {
                 ...this.ingredient,
-                unit_usage: cleanedValue,
+                quantity_required: cleanedValue,
             });
         },
         handleCapitalUpdate(value) {
@@ -133,7 +130,7 @@ export default {
             });
         },
         handleInputUpdate(field, value) {
-            const updatedValue = field === 'stock_id'
+            const updatedValue = field === 'ingredient_id'
                 ? Number(value)
                 : value;
 
@@ -157,7 +154,7 @@ export default {
             }
         },
         getStocksOption() {
-            this.getOptions(`/admin/stocks-name/${this.ingredient.branch_id}/${this.ingredient.stock_id}`, 'stocksOption', 'Failed to fetch stock names');
+            this.getOptions(`/admin/ingredients-name/${this.ingredient.branch_id}/${this.ingredient.ingredient_id}`, 'stocksOption', 'Failed to fetch stock names');
         },
     }
 }

@@ -4,12 +4,12 @@ export const PRODUCTS_API = {
     ENDPOINTS: {
         FETCH_ALL: '/admin/products',
         FETCH_PRODUCT_ALONE: '/admin/product-alone',
-        FETCH_PRODUCT_INGREDIENTS: '/admin/ingredients',
+        FETCH_PRODUCT_ITEMS: '/admin/product-items',
         FETCH_PRODUCTS_HISTORY: '/admin/products-history',
         SAVE: '/admin/save-product',
-        SAVE_PRODUCT_INGREDIENTS: '/admin/save-product-ingredients',
+        SAVE_PRODUCT_ITEMS: '/admin/save-product-items',
         UPDATE: '/admin/update-product',
-        UPDATE_PRODUCT_INGREDIENTS: '/admin/update-product-ingredients'
+        UPDATE_PRODUCT_ITEMS: '/admin/update-product-items'
     },
 
     /**
@@ -89,7 +89,7 @@ export const PRODUCTS_API = {
                 },
             };
             const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH_PRODUCT_INGREDIENTS}/${productId}`,
+                `${this.ENDPOINTS.FETCH_PRODUCT_ITEMS}/${productId}`,
                 config
             );
 
@@ -192,7 +192,7 @@ export const PRODUCTS_API = {
                 }
             };
             const response = await apiClient.post(
-                this.ENDPOINTS.SAVE_PRODUCT_INGREDIENTS,
+                this.ENDPOINTS.SAVE_PRODUCT_ITEMS,
                 products,
                 config
             );
@@ -256,7 +256,7 @@ export const PRODUCTS_API = {
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
-            if (!ingredient.product_ingredient_id) {
+            if (!ingredient.ingredient_id) {
                 throw new Error('Product Ingredient ID is required for update');
             }
             const config = {
@@ -266,7 +266,7 @@ export const PRODUCTS_API = {
                 }
             };
             const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE_PRODUCT_INGREDIENTS}/${ingredient.product_ingredient_id}`,
+                `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${ingredient.ingredient_id}`,
                 ingredient,
                 config
             );
