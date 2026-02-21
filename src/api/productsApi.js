@@ -3,6 +3,7 @@ import apiClient from '../axios';
 export const PRODUCTS_API = {
     ENDPOINTS: {
         FETCH_ALL: '/admin/products',
+        FETCH_TOTAL_PRODUCTS_COUNT: '/admin/total-products-count',
         FETCH_PRODUCT_ALONE: '/admin/product-alone',
         FETCH_PRODUCT_ITEMS: '/admin/product-items',
         FETCH_PRODUCTS_HISTORY: '/admin/products-history',
@@ -53,13 +54,13 @@ export const PRODUCTS_API = {
         }
     },
 
-    async fetchProductAloneApi(productId) {
+    async fetchTotalProductsCountApi(branchId) {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
-            let endpoint = `${this.ENDPOINTS.FETCH_PRODUCT_ALONE}/${productId}`;
+            let endpoint = `${this.ENDPOINTS.FETCH_TOTAL_PRODUCTS_COUNT}/${branchId}`;
             const response = await apiClient.get(endpoint, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -71,7 +72,7 @@ export const PRODUCTS_API = {
             }
             return response.data;
         } catch (error) {
-            console.error('[fetchProductsOnlyApi] Error fetching sales:', error);
+            console.error('[fetchTotalProductsCountApi] Error fetching sales:', error);
             throw error;
         }
     },

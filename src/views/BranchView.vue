@@ -725,11 +725,11 @@ export default {
                     this.totalProducts = '';
                     return;
                 }
-                await this.transactStore.fetchProductsOnlyStore(this.branchDetails.branch_id);
-                if (this.transactStore.productsOnly.length === 0) {
+                await this.productsStore.fetchTotalProductsCountStore(this.branchDetails.branch_id);
+                if (this.productsStore.productsOnly.length === 0) {
                     this.totalProducts = '';
                 } else {
-                    this.totalProducts = Number(this.transactStore.productsOnly.total_products).toLocaleString('en-PH') || '';
+                    this.totalProducts = Number(this.productsStore.productsOnly.total_products).toLocaleString('en-PH') || '';
                 }
             } catch (error) {
                 console.error(error);
