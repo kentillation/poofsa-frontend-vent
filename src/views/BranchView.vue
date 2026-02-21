@@ -856,19 +856,6 @@ export default {
 
                 await this.productsStore.updateProductStore(productData);
                 await this.productOptionsStore.fetchAllOptions();
-
-                // For reactive effect
-                this.products = await this.productsStore.products;
-                const index = this.products.findIndex(
-                    p => p.product_id === this.currentProduct.product_id
-                );
-                if (index !== -1) {
-                    const updatedProduct = this.formatProductWithISO({
-                        ...this.currentProduct,
-                        ...productData
-                    });
-                    this.products.splice(index, 1, updatedProduct);
-                }
                 this.productEditDialog = false;
                 this.showSuccess("Product updated successfully!");
             } catch (error) {

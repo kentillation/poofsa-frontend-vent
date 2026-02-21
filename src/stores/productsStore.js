@@ -13,19 +13,14 @@ export const useProductsStore = defineStore('products', {
     }),
 
     actions: {
+
         async fetchAllProductsStore(branchId) {
             this.loading = true;
             this.error = null;
             try {
-                if (!PRODUCTS_API || typeof PRODUCTS_API.fetchAllProductsApi !== 'function') {
-                    throw new Error('PRODUCTS_API service is not properly initialized');
-                }
                 const response = await PRODUCTS_API.fetchAllProductsApi(branchId);
-                if (response && response.status === true) {
-                    this.products = response.data;
-                } else {
-                    throw new Error('Failed to fetch products');
-                }
+                if (!response?.success) throw new Error(response?.message || 'Failed to fetch products');
+                this.products = response.data;
             } catch (error) {
                 console.error('Error in fetchAllProductsApi:', error);
                 this.error = 'Failed to fetch products';
@@ -143,19 +138,29 @@ export const useProductsStore = defineStore('products', {
         async updateProductStore(product) {
             this.loading = true;
             this.error = null;
+
             try {
-                if (!PRODUCTS_API || typeof PRODUCTS_API.updateProductApi !== 'function') {
-                    throw new Error('PRODUCTS_API service is not properly initialized');
-                }
                 const response = await PRODUCTS_API.updateProductApi(product);
-                if (response && (response.status === true || response.status === "true" || response.status === 1)) {
-                    return response;
-                } else {
-                    throw new Error('Failed to save product');
+
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to save product');
                 }
+
+                const updatedProduct = response.data;
+
+                const index = this.products.findIndex(p => p.product_id === updatedProduct.product_id);
+
+                if (index !== -1) {
+                    // Use splice to ensure reactivity
+                    this.products.splice(index, 1, updatedProduct);
+                } else {
+                    this.products.push(updatedProduct);
+                }
+
+                return updatedProduct;
+
             } catch (error) {
-                console.error('Error in updateProductApi:', error);
-                this.error = 'Failed to save product';
+                this.error = error.message || 'Failed to save product';
                 throw error;
             } finally {
                 this.loading = false;
