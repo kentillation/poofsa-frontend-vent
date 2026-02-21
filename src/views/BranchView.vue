@@ -145,7 +145,7 @@
                             <v-tabs-window-item value="products">
                                 <v-container>
                                     <ProductsTable @edit-product="editProductDialog"
-                                        @view-ingredients="ingredientsDialog" :products="products"
+                                        @view-ingredients="ingredientsDialog"
                                         :shop-id="branchDetails.shop_id"
                                         :branch-id="branchDetails.branch_id" :branch-name="branchDetails.branch_name" />
                                     <ProductEditDialog v-model="productEditDialog"
