@@ -27,10 +27,10 @@
         </template>
 
         <!--eslint-disable-next-line -->
-        <template v-slot:item.select="{ item }">
+        <!-- <template v-slot:item.select="{ item }">
             <v-checkbox v-model="item.selected" :value="true" color="primary"
                 class="d-flex justify-center"></v-checkbox>
-        </template>
+        </template> -->
 
         <!--eslint-disable-next-line -->
         <template v-slot:item.display_product_name="{ item }">
@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed,  useRouter } from 'vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useProductOptionsStore } from '@/stores/productOptionsStore';
 import Snackbar from '@/components/Snackbar.vue';
@@ -134,6 +134,7 @@ export default {
     name: 'ProductsTable',
     components: { Snackbar, SkeletonTable },
     props: {
+        products: { type: Array, required: true },
         shopId: { type: Number, required: true },
         branchId: { type: Number, required: true },
         branchName: { type: String, required: true }
@@ -224,8 +225,9 @@ export default {
             }
         };
 
+        const router = useRouter();
         const toAddProduct = () => {
-            window.$router.push({
+            router.push({
                 path: '/add-product/',
                 query: {
                     shop_id: props.shopId,
@@ -235,9 +237,9 @@ export default {
             });
         };
 
+        const snackbarRef = ref(null); // proper ref
         const showError = (message) => {
-            const snackbarRef = ref('snackbarRef');
-            snackbarRef.value?.showSnackbar(message, "error");
+            snackbarRef.value?.showSnackbar(message, 'error');
         };
 
         // Debounced search
@@ -252,6 +254,9 @@ export default {
         fetchProducts();
 
         return {
+            router,
+            snackbarRef,
+            showError,
             loadingVoidOrders,
             searchProduct,
             debounceSearch,

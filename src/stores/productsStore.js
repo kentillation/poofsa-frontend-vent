@@ -20,7 +20,9 @@ export const useProductsStore = defineStore('products', {
             try {
                 const response = await PRODUCTS_API.fetchAllProductsApi(branchId);
                 if (!response?.success) throw new Error(response?.message || 'Failed to fetch products');
-                this.products = response.data;
+                // Ensure reactivity
+                if (!Array.isArray(this.products)) this.products = [];
+                this.products.splice(0, this.products.length, ...response.data);
             } catch (error) {
                 console.error('Error in fetchAllProductsApi:', error);
                 this.error = 'Failed to fetch products';
@@ -141,23 +143,16 @@ export const useProductsStore = defineStore('products', {
 
             try {
                 const response = await PRODUCTS_API.updateProductApi(product);
+                const updated = response.data;
 
-                if (!response?.success) {
-                    throw new Error(response?.message || 'Failed to save product');
-                }
-
-                const updatedProduct = response.data;
-
-                const index = this.products.findIndex(p => p.product_id === updatedProduct.product_id);
-
+                const index = this.products.findIndex(p => p.product_id === updated.product_id);
                 if (index !== -1) {
-                    // Use splice to ensure reactivity
-                    this.products.splice(index, 1, updatedProduct);
+                    this.products.splice(index, 1, updated); // ensures reactivity
                 } else {
-                    this.products.push(updatedProduct);
+                    this.products.push(updated);
                 }
 
-                return updatedProduct;
+                return updated;
 
             } catch (error) {
                 this.error = error.message || 'Failed to save product';

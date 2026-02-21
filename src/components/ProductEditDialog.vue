@@ -48,14 +48,15 @@
                 </v-form>
             </v-card-text>
             <v-card-actions class="mx-3">
-                <v-btn color="red" class="me-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
-                    <v-icon>mdi-close</v-icon>&nbsp; Close
-                </v-btn>
-                <v-spacer></v-spacer>
                 <v-btn color="green" class="ms-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
                     :disabled="!valid">
                     <v-icon>mdi-content-save</v-icon>&nbsp; Save
                 </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn color="red" class="me-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
+                </v-btn>
+                
             </v-card-actions>
 
             <v-dialog :model-value="confirm" @update:modelValue="$emit('update:confirm', $event)" max-width="600px"
@@ -67,11 +68,11 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn color="red" variant="tonal" class="me-2 mb-2" :disabled="loading"
+                        <v-btn color="red" variant="flat" class="me-2 mb-2" :disabled="loading"
                             @click="$emit('update:confirm', false)">
                             <v-icon>mdi-cancel</v-icon>&nbsp; Cancel
                         </v-btn>
-                        <v-btn color="green" variant="tonal" class="me-2 mb-2" :disabled="loading"
+                        <v-btn color="green" variant="flat" class="me-2 mb-2" :disabled="loading"
                             @click="$emit('save')">
                             <v-icon>mdi-check</v-icon>&nbsp; Confirm
                         </v-btn>
