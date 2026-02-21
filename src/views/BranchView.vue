@@ -841,8 +841,8 @@ export default {
                 const productData = {
                     product_id: this.currentProduct.product_id,
                     product_name: this.currentProduct.product_name?.trim(),
-                    base_price: Number(this.currentProduct.base_price),
-                    cost_estimate: Number(this.currentProduct.cost_estimate),
+                    base_price: this.currentProduct.base_price,
+                    cost_estimate: this.currentProduct.cost_estimate || 0,
                     temp_id: Number(this.currentProduct.temp_id),
                     size_id: Number(this.currentProduct.size_id),
                     category_id: Number(this.currentProduct.category_id),

@@ -234,7 +234,7 @@ export default {
       const encodedName = encodeURIComponent(branchName);
       this.$router.push({
         path: `/branch/${encodedName}`,
-        query: { activeTab: 'home' }
+        query: { activeTab: 'dashboard' }
       });
     },
 

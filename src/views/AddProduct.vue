@@ -12,25 +12,25 @@
                 <v-text-field class="child" v-model="row.productName" label="Product name"
                     :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
 
-                <v-text-field class="child" v-model="row.productPrice" label="Price (₱)" type="text"
+                <v-text-field class="child" v-model="row.basePrice" label="Base price (₱)" type="text"
                     :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                    @input="e => row.productPrice = e.target.value.replace(/[^0-9.]/g, '')" density="compact" variant="outlined" />
-
-                <v-autocomplete class="child" v-model="row.productTemp"
-                    label="Temparature" :items="productTemperatureOption" :rules="[v => !!v || 'Required']"
-                    item-title="temp_label" item-value="temp_id" density="compact" variant="outlined" />
+                    @input="e => row.basePrice = e.target.value.replace(/[^0-9.]/g, '')" density="compact" variant="outlined" />
 
                 <v-autocomplete class="child" v-model="row.productSize" label="Size"
                     :items="productSizeOption" :rules="[v => !!v || 'Required']" item-title="size_label"
-                    item-value="size_id" density="compact" variant="outlined" />
+                    item-value="product_size_id" density="compact" variant="outlined" />
+
+                <v-autocomplete class="child" v-model="row.productTemp"
+                    label="Temparature" :items="productTemperatureOption" :rules="[v => !!v || 'Required']"
+                    item-value="product_temp_id" item-title="temp_label" density="compact" variant="outlined" />
 
                 <v-autocomplete class="child" v-model="row.productCategory"
                     label="Category" :items="productCategoryOption" :rules="[v => !!v || 'Required']"
-                    item-title="category_label" item-value="category_id" density="compact" variant="outlined" />
+                    item-value="product_category_id" item-title="category_label" density="compact" variant="outlined" />
 
                 <v-autocomplete class="child" v-model="row.productStation"
                     label="Station" :items="productStationOption" :rules="[v => !!v || 'Required']"
-                    item-title="station_name" item-value="station_id" density="compact" variant="outlined" />
+                    item-value="shop_station_id" item-title="station_name" density="compact" variant="outlined" />
                     
             </v-container>
             <v-row>
@@ -52,7 +52,7 @@
                     <span class="headline">Confirmation</span>
                 </v-card-title>
                 <v-card-text>
-                    <p class="text-center">Do you want to save new products in {{ branchName }} Branch?</p>
+                    <p class="text-center">Do you want to save new products in <span class="text-warning">{{ branchName }}</span> Branch?</p>
                 </v-card-text>
                 <v-card-actions class="mx-4 my-4">
                     <v-spacer></v-spacer>
@@ -99,7 +99,7 @@ export default {
             productRows: [
                 {
                     productName: '',
-                    productPrice: '',
+                    basePrice: '',
                     productTemp: null,
                     productSize: null,
                     productCategory: null,
@@ -137,7 +137,7 @@ export default {
             return this.productRows.every(row => {
                 return (
                     row.productName &&
-                    !isNaN(parseFloat(row.productPrice)) &&
+                    !isNaN(parseFloat(row.basePrice)) &&
                     row.productTemp &&
                     row.productSize &&
                     row.productCategory &&
@@ -174,7 +174,7 @@ export default {
         addRow() {
             this.productRows.push({
                 productName: '',
-                productPrice: '',
+                basePrice: '',
                 productTemp: null,
                 productSize: null,
                 productCategory: null,
@@ -189,21 +189,21 @@ export default {
                 this.validatingProduct = true;
                 const payload = this.productRows.map(row => ({
                     product_name: row.productName,
-                    product_price: parseFloat(row.productPrice.replace(/[^0-9.]/g, '')) || 0,
-                    product_temp_id: row.productTemp,
-                    product_size_id: row.productSize,
-                    product_category_id: row.productCategory,
+                    base_price: parseFloat(row.basePrice.replace(/[^0-9.]/g, '')) || 0,
+                    size_id: row.productSize,
+                    temp_id: row.productTemp,
+                    category_id: row.productCategory,
                     station_id: row.productStation,
-                    branch_id: this.branchID
+                    branch_id: Number(this.branchID),
                 }));
                 await this.productsStore.saveProductsStore(payload);
-                this.validatingProduct = false;
                 this.showSuccess("Product saved successfully!");
                 this.$refs.productForm.reset();
             } catch (error) {
-                this.validatingProduct = false;
                 console.error(error);
                 this.showError(error);
+            } finally {
+                this.validatingProduct = false;
             }
         },
 

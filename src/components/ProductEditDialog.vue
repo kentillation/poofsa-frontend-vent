@@ -9,31 +9,33 @@
                         @update:modelValue="handleInputUpdate('product_name', $event)" label="Product Name"
                         :rules="[v => !!v || 'Required']" outlined dense />
 
-                    <v-text-field :model-value="product.base_price" @update:modelValue="handleCostUpdate($event)"
-                        label="Base Price (₱)" :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']"
-                        type="text" outlined dense />
+                    <v-text-field :model-value="product.base_price"
+                        @update:modelValue="handleCostUpdate('base_price', $event)" label="Base Price (₱)"
+                        :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
-                    <v-text-field :model-value="product.cost_estimate" @update:modelValue="handleCostUpdate($event)"
-                        label="Estimated Cost (₱)" :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']"
-                        type="text" outlined dense />
+                    <v-text-field :model-value="product.cost_estimate ?? 0"
+                        @update:modelValue="handleCostUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
+                        :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
                     <v-autocomplete :model-value="product.temp_id"
                         @update:modelValue="handleInputUpdate('temp_id', $event)" label="Product Temparature"
-                        :items="productTemperatureOption" item-title="temp_label" item-value="product_temp_id" outlined dense />
+                        :items="productTemperatureOption" item-title="temp_label" item-value="product_temp_id" outlined
+                        dense />
 
                     <v-autocomplete :model-value="product.size_id"
                         @update:modelValue="handleInputUpdate('size_id', $event)" label="Product Size"
-                        :items="productSizeOption" item-title="size_label" item-value="product_size_id" outlined dense />
+                        :items="productSizeOption" item-title="size_label" item-value="product_size_id" outlined
+                        dense />
 
                     <v-autocomplete :model-value="product.category_id"
                         @update:modelValue="handleInputUpdate('category_id', $event)" label="Product Category"
-                        :items="productCategoryOption" item-title="category_label" item-value="product_category_id" outlined
-                        dense />
+                        :items="productCategoryOption" item-title="category_label" item-value="product_category_id"
+                        outlined dense />
 
                     <v-autocomplete :model-value="product.station_id"
                         @update:modelValue="handleInputUpdate('station_id', $event)" label="Station"
-                        :items="shopStationOption" item-title="station_name" item-value="shop_station_id"
-                        outlined dense />
+                        :items="shopStationOption" item-title="station_name" item-value="shop_station_id" outlined
+                        dense />
 
                     <v-autocomplete :model-value="product.availability_id"
                         @update:modelValue="handleInputUpdate('availability_id', $event)" label="Availability"
@@ -96,17 +98,18 @@ export default {
         return {
         }
     },
-     // added
+
     setup() {
         const productOptionsStore = useProductOptionsStore();
         return {
-        productTemperatureOption: computed(() => productOptionsStore.temperatureOptions),
-        productSizeOption: computed(() => productOptionsStore.sizeOptions),
-        productCategoryOption: computed(() => productOptionsStore.categoryOptions),
-        shopStationOption: computed(() => productOptionsStore.stationOptions),
-        productAvailabilityOption: computed(() => productOptionsStore.availabilityOptions),
+            productTemperatureOption: computed(() => productOptionsStore.temperatureOptions),
+            productSizeOption: computed(() => productOptionsStore.sizeOptions),
+            productCategoryOption: computed(() => productOptionsStore.categoryOptions),
+            shopStationOption: computed(() => productOptionsStore.stationOptions),
+            productAvailabilityOption: computed(() => productOptionsStore.availabilityOptions),
         };
     },
+
     props: {
         modelValue: {
             type: Boolean,
@@ -133,26 +136,29 @@ export default {
             default: ''
         },
     },
+
     emits: [
         'update:modelValue',
         'update:confirm',
         'update:product',
         'save'
     ],
+    
     methods: {
         formatDate(date) {
             if (!date) return 'Invalid date';
             return date
         },
-        handleCostUpdate(value) {
+        handleCostUpdate(field, value) {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
+
             this.$emit('update:product', {
                 ...this.product,
-                base_price: cleanedValue
+                [field]: cleanedValue
             });
         },
         handleInputUpdate(field, value) {
-            const updatedValue = field === 'temp_id' || field === 'product_size_id' || field === 'product_category_id'
+            const updatedValue = field === 'product_temp_id' || field === 'product_size_id' || field === 'product_category_id'
                 ? Number(value)
                 : value;
 

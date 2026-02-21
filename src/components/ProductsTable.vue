@@ -44,9 +44,16 @@
         </template> -->
 
         <!--eslint-disable-next-line -->
-        <template v-slot:item.product_name="{ item }">
+        <template v-slot:item.display_product_name="{ item }">
             <span :class="item.availability_id === 2 ? 'text-red' : ''">
-                {{ item.product_name }}
+                {{ item.display_product_name }}
+            </span>
+        </template>
+
+        <!--eslint-disable-next-line -->
+        <template v-slot:item.display_estimated_cost="{ item }">
+            <span :class="item.availability_id === 2 ? 'text-red' : ''">
+                {{ item.display_estimated_cost ? item.display_estimated_cost : 0 }}
             </span>
         </template>
 
@@ -68,13 +75,6 @@
         <template v-slot:item.display_base_price="{ item }">
             <span :class="item.availability_id === 2 ? 'text-red' : ''">
                 {{ item.display_base_price }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.display_estimated_cost="{ item }">
-            <span :class="item.availability_id === 2 ? 'text-red' : ''">
-                {{ item.display_estimated_cost }}
             </span>
         </template>
 
@@ -282,7 +282,7 @@ export default {
                 availability_id: Number(product.availability_id),
                 display_product_name: this.capitalizeFirstLetter(product.product_name) + temp?.temp_label + size?.size_label,
                 display_base_price: `₱${product.base_price}`,
-                display_estimated_cost: `₱${product.cost_estimate}`,
+                display_estimated_cost: product.cost_estimate ? `₱${product.cost_estimate}` : null,
                 updated_at: this.formatDateTime(product.updated_at),
             };
         },
