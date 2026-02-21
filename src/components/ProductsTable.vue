@@ -124,7 +124,7 @@
 </template>
 
 <script>
-import { ref, computed,  useRouter } from 'vue';
+import { ref, computed, useRouter } from 'vue';
 import { useProductsStore } from '@/stores/productsStore';
 import { useProductOptionsStore } from '@/stores/productOptionsStore';
 import Snackbar from '@/components/Snackbar.vue';
