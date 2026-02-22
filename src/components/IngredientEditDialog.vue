@@ -79,7 +79,6 @@ export default {
 
     data() {
         return {
-            stocksOption: [],
         }
     },
 
