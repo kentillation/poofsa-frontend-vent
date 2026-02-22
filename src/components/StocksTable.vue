@@ -95,7 +95,7 @@
 <script>
 import { computed } from 'vue';
 import { useStocksStore } from '@/stores/stocksStore';
-import { useStockOptionsStore } from '@/stores/stockOptionsStore';
+import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import SkeletonTable from '@/components/SkeletonTable.vue';
 import Alert from '@/components/Alert.vue';
 
@@ -178,14 +178,14 @@ export default {
     },
     setup() {
         const stocksStore = useStocksStore();
-        const stockOptionsStore = useStockOptionsStore();
-        const stockUnitOption = computed(() => stockOptionsStore.unitOption);
-        const stockAvailabilityOption = computed(() => stockOptionsStore.availabilityOption);
+        const ingredientsOptionsStore = useIngredientsOptionsStore();
+        const ingredentsUnitOption = computed(() => ingredientsOptionsStore.unitOption);
+        const ingredientsAvailabilityOption = computed(() => ingredientsOptionsStore.availabilityOption);
         return {
             stocksStore,
-            stockOptionsStore,
-            stockUnitOption,
-            stockAvailabilityOption,
+            ingredientsOptionsStore,
+            ingredentsUnitOption,
+            ingredientsAvailabilityOption,
         };
     },
     methods: {
@@ -246,8 +246,8 @@ export default {
         },
 
         formatStock(stock) {
-            const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
+            const unit = this.ingredentsUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
+            const availability = this.ingredientsAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
             return {
                 ...stock,
                 unit_label: unit?.unit_label,

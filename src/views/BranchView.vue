@@ -341,7 +341,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
 import { useStocksStore } from '@/stores/stocksStore';
-import { useStockOptionsStore } from '@/stores/stockOptionsStore';
+import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import { useProductsStore } from '@/stores/productsStore';
 import { useProductOptionsStore } from '@/stores/productOptionsStore';
 import { useTransactStore } from '@/stores/transactStore';
@@ -366,6 +366,7 @@ import SalesChart from '@/components/SalesChart.vue';
 
 export default {
     name: 'BranchView',
+
     components: {
         Snackbar,
         Alert,
@@ -386,6 +387,7 @@ export default {
         VoidOrdersTable,
         SalesChart,
     },
+
     data() {
         return {
             // Branch
@@ -455,24 +457,23 @@ export default {
             loadingSalesReports: false,
             salesByMonthReports: [],
             loadingSalesByMonthReports: false,
-
-
-
         };
     },
+
     props: {
         branchName: {
             type: String,
             required: true
         },
     },
+
     setup() {
         const branchStore = useBranchStore();
         const loadingStore = useLoadingStore();
         const stocksStore = useStocksStore();
-        const stockOptionsStore = useStockOptionsStore();
-        const stockUnitOption = computed(() => stockOptionsStore.unitOption);
-        const stockAvailabilityOption = computed(() => stockOptionsStore.availabilityOption);
+        const ingredientsOptionsStore = useIngredientsOptionsStore();
+        const ingredientUnitOption = computed(() => ingredientsOptionsStore.unitOption);
+        const ingredientAvailabilityOption = computed(() => ingredientsOptionsStore.availabilityOption);
         const productsStore = useProductsStore();
         const productOptionsStore = useProductOptionsStore();
         const productTemperatureOption = computed(() => productOptionsStore.temperatureOptions);
@@ -487,16 +488,16 @@ export default {
 
         onMounted(async () => {
         // await productOptionsStore.fetchAllOptions();
-        // await stockOptionsStore.fetchAllOptions();
+        // await ingredientsOptionsStore.fetchAllOptions();
         });
 
         return {
             branchStore,
             loadingStore,
             stocksStore,
-            stockOptionsStore,
-            stockUnitOption,
-            stockAvailabilityOption,
+            ingredientsOptionsStore,
+            ingredientUnitOption,
+            ingredientAvailabilityOption,
             productsStore,
             productOptionsStore,
             productTemperatureOption,
@@ -594,7 +595,7 @@ export default {
                 this.productOptionsStore.fetchAllOptions();
             } else if (newTab === 'stocks') {
                 console.log("Current Reports Tab: ", newTab);
-                this.stockOptionsStore.fetchAllOptions();
+                this.ingredientsOptionsStore.fetchAllOptions();
             } else if (newTab === 'void-orders') {
                 console.log("Current Reports Tab: ", newTab);
             } else if (newTab === 'branch-info') {
@@ -804,7 +805,7 @@ export default {
                 this.updated_at = isoString;
                 
                 await this.stocksStore.updateStockStore(stockData);
-                await this.stockOptionsStore.fetchAllOptions();
+                await this.ingredientsOptionsStore.fetchAllOptions();
 
                 // For reactive effect
                 this.stocks = await this.stocksStore.stocks;
@@ -836,8 +837,6 @@ export default {
             this.isSaving = true;
             this.confirmUpdatingProductDialog = false;
             try {
-                const now = new Date();
-                const isoString = now.toISOString().replace(/\.\d{3}Z$/, '.000000Z');
                 const productData = {
                     product_id: this.currentProduct.product_id,
                     product_name: this.currentProduct.product_name?.trim(),
@@ -850,9 +849,7 @@ export default {
                     availability_id: Number(this.currentProduct.availability_id),
                     shop_id: this.currentProduct.shop_id,
                     branch_id: this.currentProduct.branch_id,
-                    updated_at: isoString,
                 };
-                this.updated_at = isoString;
 
                 await this.productsStore.updateProductStore(productData);
                 await this.productOptionsStore.fetchAllOptions();
@@ -867,34 +864,23 @@ export default {
         },
 
         async updatingIngredient() {
+            if (!this.currentIngredient || !this.currentIngredient.product_id || !this.currentIngredient.ingredient_id) {
+                this.showError("Invalid ingredient data!");
+                return;
+            }
             this.isSaving = true;
             try {
                 const ingredientData = {
                     product_id: this.currentIngredient.product_id,
                     ingredient_id: this.currentIngredient.ingredient_id,
                     quantity_required: this.currentIngredient.quantity_required,
-                    ingredient_capital: parseFloat(this.currentIngredient.ingredient_capital),
+                    ingredient_capital: this.currentIngredient.ingredient_capital,
                 };
                 await this.productsStore.updateIngredientStore(ingredientData);
-
-                // For reactive effect
-                this.ingredients = await this.productsStore.products;
-                const index = this.ingredients.findIndex(
-                    i => i.ingredient_id === this.currentIngredient.ingredient_id
-                );
-                if (index !== -1) {
-                    const updatedIngredient = this.formatIngredientWithISO({
-                        ...this.currentIngredient,
-                        ...ingredientData
-                    });
-                    this.ingredients.splice(index, 1, updatedIngredient);
-                }
-                this.productEditDialog = false;
                 this.confirmUpdatingEditDialog = false;
                 this.ingredientEditDialog = false;
-                this.dialogIngredients = false;
                 this.confirmUpdatingIngredientDialog = false
-                this.showSuccess("Ingredient updated successfully!");
+                this.showSuccess("Product items updated successfully!");
             } catch (error) {
                 console.error(error);
                 this.showError(error);
@@ -936,50 +922,6 @@ export default {
             this.stockHistoryDialog = true;
         },
 
-        // formatProduct(product) {
-        //     const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id));
-        //     const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id));
-        //     const category = this.productCategoryOption.find(c => c.category_id === Number(product.product_category_id));
-        //     const availability = this.productAvailabilityOption.find(a => a.availability_id === Number(product.availability_id));
-        //     return {
-        //         ...product,
-        //         temp_label: temp?.temp_label,
-        //         size_label: size?.size_label,
-        //         category_label: category?.category_label,
-        //         availability_label: availability?.availability_label,
-        //         product_temp_id: Number(product.product_temp_id),
-        //         product_size_id: Number(product.product_size_id),
-        //         product_category_id: Number(product.product_category_id),
-        //         availability_id: Number(product.availability_id),
-        //         product_name: this.capitalizeFirstLetter(product.product_name),
-        //         display_base_price: `₱${product.base_price}`,
-        //         display_estimated_cost: `₱${product.estimated_cost}`,
-        //         updated_at: this.formatDateTime(product.updated_at),
-        //     };
-        // },
-
-        formatProductWithISO(product) {
-            const temp = this.productTemperatureOption.find(t => t.temp_id === Number(product.product_temp_id));
-            const size = this.productSizeOption.find(s => s.size_id === Number(product.product_size_id));
-            const category = this.productCategoryOption.find(c => c.category_id === Number(product.product_category_id));
-            const availability = this.productAvailabilityOption.find(a => a.availability_id === Number(product.availability_id));
-            return {
-                ...product,
-                temp_label: temp?.temp_label,
-                size_label: size?.size_label,
-                category_label: category?.category_label,
-                availability_label: availability?.availability_label,
-                product_temp_id: Number(product.product_temp_id),
-                product_size_id: Number(product.product_size_id),
-                product_category_id: Number(product.product_category_id),
-                availability_id: Number(product.availability_id),
-                product_name: this.capitalizeFirstLetter(product.product_name),
-                display_base_price: `₱${product.base_price}`,
-                display_estimated_cost: `₱${product.cost_estimate}`,
-                updated_at: this.updated_at,
-            };
-        },
-
         formatIngredient(ingredient) {
             return {
                 ...ingredient,
@@ -1001,8 +943,8 @@ export default {
         },
 
         formatStock(stock) {
-            const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
+            const unit = this.ingredientUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
+            const availability = this.ingredientAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
             return {
                 ...stock,
                 unit_label: unit?.unit_label,
@@ -1019,8 +961,8 @@ export default {
         },
 
         formatStockWithISO(stock) {
-            const unit = this.stockUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.stockAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
+            const unit = this.ingredientUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
+            const availability = this.ingredientAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
             return {
                 ...stock,
                 unit_label: unit?.unit_label,

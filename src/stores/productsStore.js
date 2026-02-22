@@ -140,20 +140,16 @@ export const useProductsStore = defineStore('products', {
         async updateProductStore(product) {
             this.loading = true;
             this.error = null;
-
             try {
                 const response = await PRODUCTS_API.updateProductApi(product);
                 const updated = response.data;
-
                 const index = this.products.findIndex(p => p.product_id === updated.product_id);
                 if (index !== -1) {
                     this.products.splice(index, 1, updated); // ensures reactivity
                 } else {
                     this.products.push(updated);
                 }
-
                 return updated;
-
             } catch (error) {
                 this.error = error.message || 'Failed to save product';
                 throw error;
@@ -166,15 +162,15 @@ export const useProductsStore = defineStore('products', {
             this.loading = true;
             this.error = null;
             try {
-                if (!PRODUCTS_API || typeof PRODUCTS_API.updateIngredientApi !== 'function') {
-                    throw new Error('PRODUCTS_API service is not properly initialized');
-                }
                 const response = await PRODUCTS_API.updateIngredientApi(ingredient);
-                if (response && (response.status === true || response.status === "true" || response.status === 1)) {
-                    return response;
+                const updated = response.data;
+                const index = this.product_ingredients.findIndex(p => p.product_id === updated.product_id);
+                if (index !== -1) {
+                    this.product_ingredients.splice(index, 1, updated); // ensures reactivity
                 } else {
-                    throw new Error('Failed to save ingredient');
+                    this.product_ingredients.push(updated);
                 }
+                return updated;
             } catch (error) {
                 console.error('Error in updateIngredientApi:', error);
                 this.error = 'Failed to save ingredient';

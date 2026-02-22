@@ -12,15 +12,15 @@
                     <v-autocomplete :model-value="ingredient.ingredient_name"
                         @update:modelValue="handleInputUpdate('ingredient_id', $event)" label="Item Name"
                         item-title="ingredient_name" item-value="ingredient_id"
-                        :items="stocksOption" @click="getStocksOption" outlined dense>
+                        :items="ingredientNames" outlined dense>
                     </v-autocomplete>
                     
                     <v-text-field :model-value="ingredient.quantity_required"
-                        @update:modelValue="handleUnitUpdate($event)" label="Quantity Required"
+                        @update:modelValue="handleDecimalUpdate('quantity_required', $event)" label="Quantity Required"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
                     <v-text-field :model-value="ingredient.ingredient_capital"
-                        @update:modelValue="handleCapitalUpdate($event)" label="Ingredient capital (₱)"
+                        @update:modelValue="handleDecimalUpdate('ingredient_capital', $event)" label="Ingredient capital (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
                     
                     <span style="font-size: small">
@@ -29,13 +29,13 @@
                 </v-form>
             </v-card-text>
             <v-card-actions>
-                <v-btn color="red" class="ms-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
-                    <v-icon>mdi-close</v-icon>&nbsp; Close
-                </v-btn>
-                <v-spacer></v-spacer>
                 <v-btn color="green" class="me-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
                     :disabled="!valid">
                     <v-icon>mdi-content-save</v-icon>&nbsp; Save
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn color="red" class="ms-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
             </v-card-actions>
 
@@ -48,11 +48,11 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer />
-                        <v-btn color="red" variant="tonal" class="me-2 mb-2" :disabled="loading"
+                        <v-btn color="red" variant="flat" class="me-2 mb-2" :disabled="loading"
                             @click="$emit('update:confirm', false)">
                             <v-icon>mdi-cancel</v-icon>&nbsp; Cancel
                         </v-btn>
-                        <v-btn color="green" variant="tonal" class="me-2 mb-2" :disabled="loading"
+                        <v-btn color="green" variant="flat" class="me-2 mb-2" :disabled="loading"
                             @click="$emit('save')">
                             <v-icon>mdi-check</v-icon>&nbsp; Confirm
                         </v-btn>
@@ -60,28 +60,37 @@
                 </v-card>
             </v-dialog>
             <LoaderUI :visible="loading" message="Saving..." />
-            <Snackbar ref="snackbarRef" />
         </v-card>
     </v-dialog>
 </template>
 
 <script>
-import apiClient from '../axios'
+import { computed } from 'vue';
+import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import LoaderUI from '@/components/LoaderUI.vue';
-import Snackbar from '@/components/Snackbar.vue';
 
 
 export default {
     name: 'IngredientEditDialog',
+
     components: {
         LoaderUI,
-        Snackbar,
     },
+
     data() {
         return {
             stocksOption: [],
         }
     },
+
+    setup() {
+        const ingredientsOptionsStore = useIngredientsOptionsStore();
+        return {
+            ingredientNames: computed(() => ingredientsOptionsStore.ingredientOptions),
+
+        };
+    },
+
     props: {
         modelValue: {
             type: Boolean,
@@ -104,57 +113,31 @@ export default {
             default: false
         },
     },
+
     emits: [
         'update:modelValue',
         'update:confirm',
         'update:ingredient',
         'save'
     ],
+
     methods: {
         formatDate(date) {
             if (!date) return 'Invalid date';
             return date
         },
-        handleUnitUpdate(value) {
+        handleDecimalUpdate(field, value) {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
             this.$emit('update:ingredient', {
                 ...this.ingredient,
-                quantity_required: cleanedValue,
-            });
-        },
-        handleCapitalUpdate(value) {
-            const cleanedValue = value.replace(/[^0-9.]/g, '');
-            this.$emit('update:ingredient', {
-                ...this.ingredient,
-                ingredient_capital: cleanedValue,
+                [field]: cleanedValue
             });
         },
         handleInputUpdate(field, value) {
-            const updatedValue = field === 'ingredient_id'
-                ? Number(value)
-                : value;
-
             this.$emit('update:ingredient', {
                 ...this.ingredient,
-                [field]: updatedValue
+                [field]: value
             });
-        },
-        async getOptions(endpoint, targetArray, errorMessage) {
-            try {
-                const response = await apiClient.get(endpoint, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-                    },
-                });
-                this[targetArray] = Array.isArray(response.data)
-            ? response.data
-            : (Array.isArray(response.data.data) ? response.data.data : []);
-            } catch (error) {
-                this.$refs.snackbarRef.showSnackbar(errorMessage, 'error');
-            }
-        },
-        getStocksOption() {
-            this.getOptions(`/admin/ingredients-name/${this.ingredient.branch_id}/${this.ingredient.ingredient_id}`, 'stocksOption', 'Failed to fetch stock names');
         },
     }
 }

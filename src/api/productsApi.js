@@ -255,27 +255,29 @@ export const PRODUCTS_API = {
     },
 
     async updateIngredientApi(ingredient) {
+        if (!ingredient.product_id) throw new Error('Product ID is required');
+        if (!ingredient.ingredient_id) throw new Error('Ingredient ID is required');
+
+        const authToken = localStorage.getItem('auth_token');
+        if (!authToken) throw new Error('No authentication token found');
+
         try {
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('No authentication token found');
-            }
-            if (!ingredient.ingredient_id) {
-                throw new Error('Product Ingredient ID is required for update');
-            }
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
+                timeout: 10000, // 10s timeout
             };
+
             const response = await apiClient.put(
                 `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${ingredient.ingredient_id}`,
                 ingredient,
                 config
             );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
+
+            if (!response?.data?.success || !response?.data?.data) {
+                throw new Error(response?.data?.message || 'Invalid server response');
             }
             return response.data;
         } catch (error) {

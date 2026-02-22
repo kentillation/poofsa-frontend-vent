@@ -10,11 +10,11 @@
                         :rules="[v => !!v || 'Required']" outlined dense />
 
                     <v-text-field :model-value="product.base_price"
-                        @update:modelValue="handleCostUpdate('base_price', $event)" label="Base Price (₱)"
+                        @update:modelValue="handleDecimalUpdate('base_price', $event)" label="Base Price (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
                     <v-text-field :model-value="product.cost_estimate ?? 0"
-                        @update:modelValue="handleCostUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
+                        @update:modelValue="handleDecimalUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
                     <v-autocomplete :model-value="product.temp_id"
@@ -85,8 +85,7 @@
 </template>
 
 <script>
-// import apiClient from '../axios'
-import { computed } from 'vue'; // added
+import { computed } from 'vue';
 import { useProductOptionsStore } from '@/stores/productOptionsStore';
 import LoaderUI from '@/components/LoaderUI.vue';
 
@@ -150,9 +149,8 @@ export default {
             if (!date) return 'Invalid date';
             return date
         },
-        handleCostUpdate(field, value) {
+        handleDecimalUpdate(field, value) {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
-
             this.$emit('update:product', {
                 ...this.product,
                 [field]: cleanedValue
@@ -162,7 +160,6 @@ export default {
             const updatedValue = field === 'product_temp_id' || field === 'product_size_id' || field === 'product_category_id'
                 ? Number(value)
                 : value;
-
             this.$emit('update:product', {
                 ...this.product,
                 [field]: updatedValue

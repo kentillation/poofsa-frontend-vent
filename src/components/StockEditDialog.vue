@@ -14,7 +14,7 @@
 
                     <v-autocomplete :model-value="stock.stock_unit"
                         @update:modelValue="handleInputUpdate('stock_unit', $event)" label="Unit"
-                        :items="stockUnitOption" item-title="unit_avb" item-value="unit_id" outlined dense />
+                        :items="ingredientsUnitOption" item-title="unit_avb" item-value="unit_id" outlined dense />
 
                     <v-text-field :model-value="stock.stock_unit_cost" type="number" inputmode="numeric"
                         @update:modelValue="handleCostUpdate($event)" label="Cost Per Unit (₱)"
@@ -26,7 +26,7 @@
 
                     <v-autocomplete :model-value="stock.availability_id"
                         @update:modelValue="handleInputUpdate('availability_id', $event)" label="Availability"
-                        :items="stockAvailabilityOption" item-title="availability_label" item-value="availability_id"
+                        :items="ingredientsAvailabilityOption" item-title="availability_label" item-value="availability_id"
                         outlined dense />
                     <span style="font-size: small">
                         Last changes: {{ formatDate(stock.updated_at) }}
@@ -71,7 +71,7 @@
 
 <script>
 import { computed } from 'vue'; // added
-import { useStockOptionsStore } from '@/stores/stockOptionsStore';
+import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import LoaderUI from '@/components/LoaderUI.vue';
 
 export default {
@@ -84,10 +84,10 @@ export default {
         }
     },
     setup() {
-        const stockOptionsStore = useStockOptionsStore();
+        const ingredientsOptionsStore = useIngredientsOptionsStore();
         return {
-            stockUnitOption: computed(() => stockOptionsStore.unitOption),
-            stockAvailabilityOption: computed(() => stockOptionsStore.availabilityOption),
+            ingredientsUnitOption: computed(() => ingredientsOptionsStore.unitOption),
+            ingredientsAvailabilityOption: computed(() => ingredientsOptionsStore.availabilityOption),
         };
     },
     props: {

@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import apiClient from '@/axios';
 
-export const useStockOptionsStore = defineStore('stockOptions', {
+export const useIngredientsOptionsStore = defineStore('ingredientsOptions', {
   state: () => ({
+    ingredientOptions: [],
     unitOption: [],
     availabilityOption: [],
     isLoading: false,
@@ -10,19 +11,15 @@ export const useStockOptionsStore = defineStore('stockOptions', {
   }),
 
   getters: {
-    // Optional: Add getters if you need computed properties
-    getTemperatureOptions: (state) => state.unitOption,
-    getSizeOptions: (state) => state.availabilityOption,
+    getIngredientOptions: (state) => state.ingredientOptions,
+    getUnitOptions: (state) => state.unitOption,
+    getAvailabilityOptions: (state) => state.availabilityOption,
   },
 
   actions: {
     async fetchOptions(endpoint) {
       try {
-        const response = await apiClient.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-          },
-        });
+        const response = await apiClient.get(endpoint);
         return response.data;
       } catch (error) {
         this.error = error;
@@ -44,6 +41,22 @@ export const useStockOptionsStore = defineStore('stockOptions', {
       } catch (error) {
         this.error = error;
         console.error('Failed to fetch all options:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchIngredientsOptions() {
+      this.isLoading = true;
+      try {
+        // Fetch all options in parallel (better performance)
+        const [ingredients] = await Promise.all([
+          this.fetchOptions('/admin/ingredients-name'),
+        ]);
+        this.ingredientOptions = ingredients;
+      } catch (error) {
+        this.error = error;
+        console.error('Failed to fetch ingredients options:', error);
       } finally {
         this.isLoading = false;
       }
