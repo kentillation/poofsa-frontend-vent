@@ -256,7 +256,7 @@ export const PRODUCTS_API = {
 
     async updateIngredientApi(ingredient) {
         if (!ingredient.product_id) throw new Error('Product ID is required');
-        if (!ingredient.ingredient_id) throw new Error('Ingredient ID is required');
+        if (!ingredient.product_item_id) throw new Error('Ingredient ID is required');
 
         const authToken = localStorage.getItem('auth_token');
         if (!authToken) throw new Error('No authentication token found');
@@ -271,7 +271,7 @@ export const PRODUCTS_API = {
             };
 
             const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${ingredient.ingredient_id}`,
+                `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${ingredient.product_item_id}`,
                 ingredient,
                 config
             );

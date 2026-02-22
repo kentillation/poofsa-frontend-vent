@@ -5,7 +5,7 @@ export const useProductsStore = defineStore('products', {
     state: () => ({
         products: [],
         productsOnly: null,
-        product_ingredients: '',
+        product_ingredients: [],
         product_history: [],
         productAlone: '',
         loading: false,
@@ -163,13 +163,17 @@ export const useProductsStore = defineStore('products', {
             this.error = null;
             try {
                 const response = await PRODUCTS_API.updateIngredientApi(ingredient);
-                const updated = response.data;
-                const index = this.product_ingredients.findIndex(p => p.product_id === updated.product_id);
+                const updated = response.data.data;
+
+                const index = this.product_ingredients.findIndex(p => p.product_item_id === updated.item_id );
+                
                 if (index !== -1) {
-                    this.product_ingredients.splice(index, 1, updated); // ensures reactivity
-                } else {
-                    this.product_ingredients.push(updated);
+                    // this.product_ingredients.splice(index, 1, updated); // ensures reactivity
+                    this.product_ingredients = this.product_ingredients.map(item =>
+                        item.product_item_id === updated.item_id ? updated : item
+                    );
                 }
+                
                 return updated;
             } catch (error) {
                 console.error('Error in updateIngredientApi:', error);

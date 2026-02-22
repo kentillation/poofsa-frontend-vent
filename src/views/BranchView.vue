@@ -871,6 +871,7 @@ export default {
             this.isSaving = true;
             try {
                 const ingredientData = {
+                    product_item_id: this.currentIngredient.product_item_id,
                     product_id: this.currentIngredient.product_id,
                     ingredient_id: this.currentIngredient.ingredient_id,
                     quantity_required: this.currentIngredient.quantity_required,

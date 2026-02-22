@@ -29,12 +29,12 @@
                 </v-form>
             </v-card-text>
             <v-card-actions>
-                <v-btn color="green" class="me-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
+                <v-btn color="green" class="ms-3 mb-2" variant="flat" @click="$emit('update:confirm', true)"
                     :disabled="!valid">
                     <v-icon>mdi-content-save</v-icon>&nbsp; Save
                 </v-btn>
                 <v-spacer></v-spacer>
-                <v-btn color="red" class="ms-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
+                <v-btn color="red" class="me-3 mb-2" variant="flat" @click="$emit('update:modelValue', false)">
                     <v-icon>mdi-close</v-icon>&nbsp; Close
                 </v-btn>
             </v-card-actions>
