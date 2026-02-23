@@ -23,12 +23,7 @@ export const useProductsStore = defineStore('products', {
 
     actions: {
 
-        clearError() {
-            this.error = null
-        },
-
         async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '', sortBy = [] }) {
-            // Validate inputs
             if (!branchId) {
                 this.error = 'Branch ID is required';
                 return;
@@ -46,7 +41,8 @@ export const useProductsStore = defineStore('products', {
                     sortBy
                 });
 
-                // Enterprise-level response validation
+                console.log('Raw API Response:', response); // Debug log
+
                 if (!response) {
                     throw new Error('No response from server');
                 }
@@ -55,57 +51,95 @@ export const useProductsStore = defineStore('products', {
                     throw new Error(response.message || 'Failed to fetch products');
                 }
 
-                // Handle nested data structure
-                let productsData = [];
+                // CRITICAL FIX: Extract data based on your actual response structure
+                let rawProducts = [];
                 let totalCount = 0;
 
-                if (response.data && Array.isArray(response.data.data)) {
-                    // If response has nested data property
-                    productsData = response.data.data;
-                    totalCount = response.data.total || productsData.length;
-                } else if (Array.isArray(response.data)) {
-                    // If response.data is directly the array
-                    productsData = response.data;
-                    totalCount = response.total || productsData.length;
-                } else if (response.data && typeof response.data === 'object') {
-                    // Handle object response
-                    productsData = response.data.data || [];
-                    totalCount = response.data.total || response.total || productsData.length;
+                // Based on your example response: { success: true, data: [...], total: 7 }
+                if (response.data && Array.isArray(response.data)) {
+                    // Direct array in data property
+                    rawProducts = response.data;
+                    totalCount = response.total || rawProducts.length;
+                }
+                // If data is nested: { success: true, data: { data: [...], total: 7 } }
+                else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+                    rawProducts = response.data.data;
+                    totalCount = response.data.total || rawProducts.length;
+                }
+                // If response itself is the array
+                else if (Array.isArray(response)) {
+                    rawProducts = response;
+                    totalCount = rawProducts.length;
+                }
+                // Handle the specific structure from your API
+                else if (response.data && typeof response.data === 'object') {
+                    // Try to find array anywhere in the response
+                    const possibleArray = Object.values(response.data).find(val => Array.isArray(val));
+                    if (possibleArray) {
+                        rawProducts = possibleArray;
+                        totalCount = response.total || response.data.total || rawProducts.length;
+                    }
                 }
 
-                // Update state with new data
-                this.products = productsData || [];
+                console.log('Raw Products Extracted:', rawProducts); // Debug log
+
+                // Transform data to ensure display fields exist
+                const transformedProducts = rawProducts.map(product => {
+                    // Create display_product_name if it doesn't exist
+                    const displayName = product.display_product_name ||
+                        product.product_name ||
+                        'Unnamed Product';
+
+                    // Create display_base_price if it doesn't exist
+                    const basePrice = product.display_base_price ||
+                        (product.base_price ? `₱${parseFloat(product.base_price).toFixed(2)}` : '₱0.00');
+
+                    // Create display_estimated_cost if it doesn't exist
+                    const estimatedCost = product.display_estimated_cost ||
+                        (product.cost_estimate ? `₱${parseFloat(product.cost_estimate).toFixed(2)}` : '₱0.00');
+
+                    return {
+                        // Ensure all required fields exist
+                        product_id: product.product_id,
+                        display_product_name: displayName,
+                        display_base_price: basePrice,
+                        display_estimated_cost: estimatedCost,
+                        availability_label: product.availability_label ||
+                            (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                        availability_id: product.availability_id,
+                        category_label: product.category_label || '',
+                        station_name: product.station_name || '',
+                        updated_at: product.updated_at || '',
+                        // Keep all original data
+                        ...product
+                    };
+                });
+
+                console.log('Transformed Products:', transformedProducts); // Debug log
+
+                // Update state
+                this.products = transformedProducts;
                 this.total = totalCount;
                 this.lastFetch = new Date().toISOString();
 
-                // Safe development logging - check if import.meta exists
-                if (typeof import.meta !== 'undefined' && import.meta.env) {
-                    console.log('Products fetched:', {
-                        count: this.products.length,
-                        total: this.total,
-                        page,
-                        itemsPerPage
-                    });
-                }
+                console.log('Store state after update:', {
+                    productsLength: this.products.length,
+                    total: this.total
+                });
 
             } catch (error) {
                 console.error('[ProductsStore] fetchProducts error:', error);
-
-                // Enhanced error handling
-                this.error = error.response?.data?.message ||
-                    error.message ||
-                    'Failed to fetch products';
-
-                // Clear data on error to prevent stale display
+                this.error = error.response?.data?.message || error.message || 'Failed to fetch products';
                 this.products = [];
                 this.total = 0;
-
-                // Re-throw for component handling
                 throw error;
-
             } finally {
                 this.loading = false;
             }
+        },
+
+        clearError() {
+            this.error = null
         },
 
         async fetchTotalProductsCountStore(branchId) {

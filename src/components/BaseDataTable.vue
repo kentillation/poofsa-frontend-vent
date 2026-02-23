@@ -10,6 +10,16 @@
     density="comfortable"
     class="elevation-1"
   >
+  <!-- eslint-disable -->
+    <template #body.prepend v-if="$attrs.isDev">
+      <tr>
+        <td :colspan="headers.length" style="background-color: #cce5ff; padding: 10px;">
+          <strong>BaseDataTable received:</strong> {{ items.length }} items
+          <pre style="background: #fff; padding: 5px; margin-top: 5px;">{{ JSON.stringify(items[0], null, 2) }}</pre>
+        </td>
+      </tr>
+    </template>
+
     <slot />
   </v-data-table-server>
 </template>

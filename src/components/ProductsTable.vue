@@ -16,6 +16,18 @@
     <!-- Products Table -->
     <BaseDataTable :headers="headers" :items="filteredProducts" :total-items="store.total" :loading="store.loading"
         :options="options" @update:options="updateOptions" class="elevation-1 hover-table">
+
+        <template #body.prepend v-if="isDev">
+            <tr>
+                <td :colspan="headers.length" class="debug-row">
+                    <div class="debug-info">
+                        <strong>Items passed to table:</strong> {{ filteredProducts.length }} products
+                        <pre v-if="filteredProducts.length">{{ JSON.stringify(filteredProducts[0], null, 2) }}</pre>
+                    </div>
+                </td>
+            </tr>
+        </template>
+
         <!-- Toolbar -->
         <template #top>
             <v-toolbar flat>
@@ -111,6 +123,9 @@ const emit = defineEmits(['edit-product', 'view-ingredients'])
 const router = useRouter()
 const store = useProductsStore()
 
+// Check if in development mode
+const isDev = import.meta.env?.DEV || false
+
 // Refs
 const snackbarRef = ref(null)
 const search = ref('')
@@ -144,8 +159,7 @@ const filteredProducts = computed(() => {
     )
 })
 
-// Debounced search - fixed unused variable issue
-// Replace the lodash import with this custom debounce
+// Simple debounce implementation
 const debouncedSearch = (() => {
     let timeoutId = null
     return () => {
@@ -173,6 +187,13 @@ const fetchProducts = async () => {
         return
     }
 
+    console.log('Fetching products with options:', {
+        branchId: props.branchId,
+        page: options.value.page,
+        itemsPerPage: options.value.itemsPerPage,
+        search: search.value
+    })
+
     try {
         await store.fetchAllProductsStore({
             branchId: props.branchId,
@@ -181,7 +202,12 @@ const fetchProducts = async () => {
             search: search.value,
             sortBy: options.value.sortBy
         })
+
+        console.log('Products after fetch:', store.products)
+        console.log('Total:', store.total)
+
     } catch (error) {
+        console.error('Error fetching products:', error)
         showSnackbar(error.message || 'Failed to load products', 'error')
     }
 }
@@ -198,14 +224,6 @@ watch(
     },
     { deep: true }
 )
-
-// Watch search for debugging (optional, can be removed)
-watch(search, (newValue) => {
-    // Log search changes in development only
-    if (import.meta.env.DEV) {
-        console.log('Search term:', newValue)
-    }
-})
 
 // Handle BaseDataTable options updates
 const updateOptions = (val) => {
@@ -248,6 +266,25 @@ const textClass = (item) => item.availability_id === 2 ? 'text-red' : ''
 
 .to-show {
     display: none;
+}
+
+.debug-row {
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+}
+
+.debug-info {
+    padding: 1rem;
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.debug-info pre {
+    background-color: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    font-size: 11px;
 }
 
 @media (max-width: 768px) {
