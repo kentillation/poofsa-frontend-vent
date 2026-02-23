@@ -10,39 +10,99 @@ export const useProductsStore = defineStore('products', {
         productAlone: '',
         total: 0,
         loading: false,
-        error: null
+        error: null,
+        lastFetch: null
     }),
+
+    getters: {
+        // Safe getters with fallbacks
+        hasProducts: (state) => state.products.length > 0,
+        isEmpty: (state) => state.products.length === 0 && !state.loading,
+        getProductById: (state) => (id) => state.products.find(p => p.product_id === id)
+    },
 
     actions: {
 
-        async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
+        clearError() {
+            this.error = null
+        },
+
+        async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '', sortBy = [] }) {
+            // Validate inputs
+            if (!branchId) {
+                this.error = 'Branch ID is required';
+                return;
+            }
+
             this.loading = true;
             this.error = null;
 
             try {
                 const response = await PRODUCTS_API.fetchAllProductsApi({
-                    branchId: branchId,
+                    branchId,
                     page,
-                    itemsPerPage: itemsPerPage,
+                    itemsPerPage,
                     search,
+                    sortBy
                 });
 
-                if (!response?.success) {
-                    throw new Error(response?.message || 'Failed to fetch products');
+                // Enterprise-level response validation
+                if (!response) {
+                    throw new Error('No response from server');
                 }
 
-                const data = response.data?.data ?? response.data ?? [];
-                const total = response.data?.total ?? data.length;
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to fetch products');
+                }
 
-                // Reactive safe update
-                // this.products.splice(0, this.products.length, ...data);
-                this.products = data || [];
-                this.total = total;
+                // Handle nested data structure
+                let productsData = [];
+                let totalCount = 0;
+
+                if (response.data && Array.isArray(response.data.data)) {
+                    // If response has nested data property
+                    productsData = response.data.data;
+                    totalCount = response.data.total || productsData.length;
+                } else if (Array.isArray(response.data)) {
+                    // If response.data is directly the array
+                    productsData = response.data;
+                    totalCount = response.total || productsData.length;
+                } else if (response.data && typeof response.data === 'object') {
+                    // Handle object response
+                    productsData = response.data.data || [];
+                    totalCount = response.data.total || response.total || productsData.length;
+                }
+
+                // Update state with new data
+                this.products = productsData || [];
+                this.total = totalCount;
+                this.lastFetch = new Date().toISOString();
+
+                // Safe development logging - check if import.meta exists
+                if (typeof import.meta !== 'undefined' && import.meta.env) {
+                    console.log('Products fetched:', {
+                        count: this.products.length,
+                        total: this.total,
+                        page,
+                        itemsPerPage
+                    });
+                }
 
             } catch (error) {
-                console.error('fetchProducts error:', error);
-                this.error = error.message || 'Failed to fetch products';
+                console.error('[ProductsStore] fetchProducts error:', error);
+
+                // Enhanced error handling
+                this.error = error.response?.data?.message ||
+                    error.message ||
+                    'Failed to fetch products';
+
+                // Clear data on error to prevent stale display
+                this.products = [];
+                this.total = 0;
+
+                // Re-throw for component handling
                 throw error;
+
             } finally {
                 this.loading = false;
             }

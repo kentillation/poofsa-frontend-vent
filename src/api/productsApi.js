@@ -20,37 +20,90 @@ export const PRODUCTS_API = {
      * @throws {Error} Enhanced error with server response details
      */
 
-    async fetchAllProductsApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
+    async fetchAllProductsApi({ branchId, page = 1, itemsPerPage = 10, search = '', sortBy = [] }) {
         try {
             const authToken = localStorage.getItem('auth_token');
-            if (!authToken) throw new Error('No authentication token found');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+
+            // Build params object
+            const params = {
+                branch_id: branchId,
+                page,
+                itemsPerPage,
+            };
+
+            // Only add search if it has value
+            if (search) {
+                params.search = search;
+            }
+
+            // Add sorting if provided
+            if (sortBy && sortBy.length > 0) {
+                params.sortBy = JSON.stringify(sortBy);
+            }
 
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Request-ID': crypto.randomUUID() // For request tracing
                 },
-                params: {
-                    branch_id: branchId,
-                    page,
-                    itemsPerPage,
-                    search
-                }
+                params,
+                timeout: 30000 // 30 second timeout
             };
 
             const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL, config);
 
-            if (!response.data) throw new Error('Invalid response from server');
+            // Log response structure in development
+            if (import.meta.env) {
+                console.log('API Response:', response.data);
+            }
 
-            return response.data;
+            // Standardize response format
+            if (!response.data) {
+                throw new Error('Empty response from server');
+            }
 
+            // Handle different response formats
+            let formattedResponse = {
+                success: response.data.success ?? true,
+                message: response.data.message ?? 'Products fetched successfully'
+            };
+
+            // Handle nested data structure
+            if (response.data.data && Array.isArray(response.data.data)) {
+                formattedResponse.data = response.data.data;
+                formattedResponse.total = response.data.total ?? response.data.data.length;
+                formattedResponse.page = response.data.page ?? page;
+                formattedResponse.perPage = response.data.perPage ?? itemsPerPage;
+            } else if (Array.isArray(response.data.data)) {
+                formattedResponse.data = response.data.data;
+                formattedResponse.total = response.data.total ?? response.data.data.length;
+            } else if (Array.isArray(response.data)) {
+                formattedResponse.data = response.data;
+                formattedResponse.total = response.total ?? response.data.length;
+            } else {
+                formattedResponse.data = [];
+                formattedResponse.total = 0;
+                formattedResponse.message = 'No products found';
+            }
+            return formattedResponse;
         } catch (error) {
-            console.error('[PRODUCTS_API] Error fetching products:', error);
+            console.error('[PRODUCTS_API] Error fetching products:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             const enhancedError = new Error(
-                error.response?.data?.message || error.message || 'Failed to fetch products'
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to fetch products'
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;
+            enhancedError.code = error.code;
             throw enhancedError;
         }
     },
