@@ -5,7 +5,7 @@ export const useProductsStore = defineStore('products', {
     state: () => ({
         products: [],
         productsOnly: null,
-        product_ingredients: [],
+        productItems: [],
         product_history: [],
         productAlone: '',
         loading: false,
@@ -60,7 +60,7 @@ export const useProductsStore = defineStore('products', {
                 }
                 const response = await PRODUCTS_API.fetchProductIngredientsApi(productId);
                 if (response && response.status === true) {
-                    this.product_ingredients = response.data;
+                    this.productItems = response.data;
                 } else {
                     throw new Error('Failed to fetch product ingredients');
                 }
@@ -158,19 +158,21 @@ export const useProductsStore = defineStore('products', {
             }
         },
 
-        async updateIngredientStore(ingredient) {
+        async updateIngredientStore(productItemData) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await PRODUCTS_API.updateIngredientApi(ingredient);
-                const updated = response.data.data;
+                const response = await PRODUCTS_API.updateIngredientApi(productItemData);
+                const updated = response.data;
 
-                const index = this.product_ingredients.findIndex(p => p.product_item_id === updated.item_id );
+                console.log("productItems:", this.productItems);
+                console.log("updated:", updated);
+
+                const index = this.productItems.findIndex(p => p.product_item_id === updated.product_item_id );
                 
                 if (index !== -1) {
-                    // this.product_ingredients.splice(index, 1, updated); // ensures reactivity
-                    this.product_ingredients = this.product_ingredients.map(item =>
-                        item.product_item_id === updated.item_id ? updated : item
+                    this.productItems = this.productItems.map(item =>
+                        item.product_item_id === updated.product_item_id ? updated : item
                     );
                 }
                 

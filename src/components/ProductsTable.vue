@@ -133,13 +133,17 @@ import SkeletonTable from '@/components/SkeletonTable.vue';
 
 export default {
     name: 'ProductsTable',
+
     components: { Snackbar, SkeletonTable },
+
     props: {
         shopId: { type: Number, required: true },
         branchId: { type: Number, required: true },
         branchName: { type: String, required: true }
     },
+
     emits: ['edit-product', 'view-ingredients'],
+
     setup(props) {
         const productsStore = useProductsStore();
         const productOptionsStore = useProductOptionsStore();
@@ -247,6 +251,7 @@ export default {
             snackbarRef
         };
     },
+    
     data() {
         return {
             productHeaders: [

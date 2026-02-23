@@ -254,9 +254,10 @@ export const PRODUCTS_API = {
         }
     },
 
-    async updateIngredientApi(ingredient) {
-        if (!ingredient.product_id) throw new Error('Product ID is required');
-        if (!ingredient.product_item_id) throw new Error('Ingredient ID is required');
+    async updateIngredientApi(productItemData) {
+        if (!productItemData.product_item_id) throw new Error('Product Item ID is required');
+        if (!productItemData.product_id) throw new Error('Product ID is required');
+        if (!productItemData.ingredient_id) throw new Error('Item ID is required');
 
         const authToken = localStorage.getItem('auth_token');
         if (!authToken) throw new Error('No authentication token found');
@@ -271,8 +272,8 @@ export const PRODUCTS_API = {
             };
 
             const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${ingredient.product_item_id}`,
-                ingredient,
+                `${this.ENDPOINTS.UPDATE_PRODUCT_ITEMS}/${productItemData.product_item_id}`,
+                productItemData,
                 config
             );
 
@@ -281,11 +282,11 @@ export const PRODUCTS_API = {
             }
             return response.data;
         } catch (error) {
-            console.error('[PRODUCTS_API] Error updating ingredient:', error);
+            console.error('[PRODUCTS_API] Error updating productItemData:', error);
             const enhancedError = new Error(
                 error.response?.data?.message ||
                 error.message ||
-                'Failed to update ingredient'
+                'Failed to update productItemData'
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;

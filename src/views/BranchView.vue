@@ -662,10 +662,10 @@ export default {
             this.loadingIngredient = true;
             try {
                 await this.productsStore.fetchProductIngredientsStore(this.productId);
-                if (this.productsStore.product_ingredients.length === 0) {
+                if (this.productsStore.productItems.length === 0) {
                     this.ingredients = [];
                 } else {
-                    this.ingredients = this.productsStore.product_ingredients.map(i => this.formatIngredient(i));
+                    this.ingredients = this.productsStore.productItems.map(i => this.formatIngredient(i));
                 }
             } catch (error) {
                 console.error(error);
@@ -870,14 +870,14 @@ export default {
             }
             this.isSaving = true;
             try {
-                const ingredientData = {
+                const productItemData = {
                     product_item_id: this.currentIngredient.product_item_id,
                     product_id: this.currentIngredient.product_id,
                     ingredient_id: this.currentIngredient.ingredient_id,
                     quantity_required: this.currentIngredient.quantity_required,
                     ingredient_capital: this.currentIngredient.ingredient_capital,
                 };
-                await this.productsStore.updateIngredientStore(ingredientData);
+                await this.productsStore.updateIngredientStore(productItemData);
                 this.confirmUpdatingEditDialog = false;
                 this.ingredientEditDialog = false;
                 this.confirmUpdatingIngredientDialog = false
