@@ -47,9 +47,6 @@ export const PRODUCTS_API = {
 
             const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL, config);
 
-            console.log('API Response:', response.data); // Debug log
-
-            // Return in a consistent format
             return {
                 success: response.data?.success ?? true,
                 data: response.data?.data ?? response.data ?? [],

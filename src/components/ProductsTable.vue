@@ -4,7 +4,7 @@
     <v-row>
         <v-col cols="12" lg="4" md="4" sm="6">
             <v-text-field v-model="search" label="Search product details" placeholder="Search product details"
-                variant="outlined" density="comfortable" clearable @update:model-value="debouncedSearch" />
+                variant="outlined" density="comfortable" clearable @update:model-value="onSearchChange" />
         </v-col>
     </v-row>
 
@@ -13,21 +13,11 @@
         {{ store.error }}
     </v-alert>
 
+    <SkeletonTable v-if="store.loading"  />
+
     <!-- Products Table -->
-    <BaseDataTable :headers="headers" :items="filteredProducts" :total-items="store.total" :loading="store.loading"
-        :options="options" @update:options="updateOptions" class="elevation-1 hover-table">
-
-        <template #body.prepend v-if="isDev">
-            <tr>
-                <td :colspan="headers.length" class="debug-row">
-                    <div class="debug-info">
-                        <strong>Items passed to table:</strong> {{ filteredProducts.length }} products
-                        <pre v-if="filteredProducts.length">{{ JSON.stringify(filteredProducts[0], null, 2) }}</pre>
-                    </div>
-                </td>
-            </tr>
-        </template>
-
+    <BaseDataTable :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
+        :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
         <!-- Toolbar -->
         <template #top>
             <v-toolbar flat>
@@ -39,7 +29,7 @@
                     <span class="to-show">Products</span>
                 </v-btn>
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
-                    @click="fetchProducts" :loading="store.loading" />
+                    @click="handleRefresh" :loading="store.loading" />
             </v-toolbar>
             <v-divider />
         </template>
@@ -93,14 +83,15 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+/* eslint-disable */
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductsStore } from '@/stores/productsStore'
+import SkeletonTable from '@/components/SkeletonTable.vue'
 import BaseDataTable from '@/components/BaseDataTable.vue'
 import Snackbar from '@/components/Snackbar.vue'
 
 // Props & emits
-// eslint-disable-next-line
 const props = defineProps({
     shopId: {
         type: Number,
@@ -116,17 +107,15 @@ const props = defineProps({
     }
 })
 
-// eslint-disable-next-line
 const emit = defineEmits(['edit-product', 'view-ingredients'])
 
 // Router & store
 const router = useRouter()
 const store = useProductsStore()
 
-// Check if in development mode
-const isDev = import.meta.env?.DEV || false
-
-// Refs
+// Local state
+const displayItems = ref([])
+const tableKey = ref(0)
 const snackbarRef = ref(null)
 const search = ref('')
 const options = ref({
@@ -134,6 +123,11 @@ const options = ref({
     itemsPerPage: 10,
     sortBy: []
 })
+
+// Track if we're currently fetching to prevent multiple requests
+const isFetching = ref(false)
+// Track last fetch params to prevent duplicate requests
+const lastFetchParams = ref('')
 
 // Table headers
 const headers = [
@@ -147,52 +141,68 @@ const headers = [
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]
 
-// Computed filtered products (client-side search enhancement)
-const filteredProducts = computed(() => {
-    if (!search.value) return store.products
+// Debounce timer
+let searchTimer = null
 
-    const searchTerm = search.value.toLowerCase()
-    return store.products.filter(p =>
-        p.display_product_name?.toLowerCase().includes(searchTerm) ||
-        p.category_label?.toLowerCase().includes(searchTerm) ||
-        p.station_name?.toLowerCase().includes(searchTerm)
-    )
-})
-
-// Simple debounce implementation
-const debouncedSearch = (() => {
-    let timeoutId = null
-    return () => {
+// Handle search change
+const onSearchChange = (value) => {
+    search.value = value
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
         options.value.page = 1
-        if (timeoutId) clearTimeout(timeoutId)
-        timeoutId = setTimeout(() => {
-            fetchProducts()
-        }, 300)
-    }
-})()
+        fetchProducts()
+    }, 300)
+}
 
-// Show snackbar message
-const showSnackbar = (message, color = 'error') => {
-    if (snackbarRef.value) {
-        snackbarRef.value.showSnackbar(message, color)
-    } else {
-        console.error('Snackbar not available:', message)
+// Handle options update from table
+const onOptionsUpdate = (val) => {
+    // Check if options actually changed
+    const optionsChanged =
+        val.page !== options.value.page ||
+        val.itemsPerPage !== options.value.itemsPerPage ||
+        JSON.stringify(val.sortBy) !== JSON.stringify(options.value.sortBy)
+
+    if (optionsChanged) {
+        options.value = val
+        fetchProducts()
     }
 }
 
-// Fetch products from store with error handling
-const fetchProducts = async () => {
-    if (!props.branchId) {
-        showSnackbar('Branch ID is required', 'error')
-        return
-    }
+// Handle refresh button
+const handleRefresh = () => {
+    options.value.page = 1
+    fetchProducts()
+}
 
-    console.log('Fetching products with options:', {
+// Update display items from store
+const updateDisplayItems = () => {
+    if (!store.products || store.products.length === 0) {
+        displayItems.value = []
+    } else {
+        // Create a deep copy to break reactivity
+        displayItems.value = store.products.map(item => ({ ...item }))
+    }
+    // Force table re-render
+    tableKey.value++
+}
+
+// Fetch products with duplicate prevention
+const fetchProducts = async () => {
+    if (!props.branchId || isFetching.value) return
+
+    // Create params string to check for duplicates
+    const params = JSON.stringify({
         branchId: props.branchId,
         page: options.value.page,
         itemsPerPage: options.value.itemsPerPage,
         search: search.value
     })
+
+    // Skip if same params as last fetch
+    if (params === lastFetchParams.value) return
+
+    isFetching.value = true
+    lastFetchParams.value = params
 
     try {
         await store.fetchAllProductsStore({
@@ -203,39 +213,27 @@ const fetchProducts = async () => {
             sortBy: options.value.sortBy
         })
 
-        console.log('Products after fetch:', store.products)
-        console.log('Total:', store.total)
+        updateDisplayItems()
 
     } catch (error) {
-        console.error('Error fetching products:', error)
-        showSnackbar(error.message || 'Failed to load products', 'error')
+        console.error('Fetch error:', error)
+        if (snackbarRef.value) {
+            snackbarRef.value.showSnackbar(error.message || 'Failed to load products', 'error')
+        }
+    } finally {
+        isFetching.value = false
     }
 }
 
-// Watch pagination changes
-watch(
-    () => [
-        options.value.page,
-        options.value.itemsPerPage,
-        options.value.sortBy
-    ],
-    () => {
-        fetchProducts()
-    },
-    { deep: true }
-)
-
-// Handle BaseDataTable options updates
-const updateOptions = (val) => {
-    options.value = val
-}
+// Watch for store changes
+watch(() => store.products, () => {
+    updateDisplayItems()
+}, { deep: false }) // Use shallow watch to avoid loops
 
 // Initial fetch
 onMounted(() => {
     if (props.branchId) {
         fetchProducts()
-    } else {
-        showSnackbar('Branch ID is missing', 'error')
     }
 })
 
@@ -266,25 +264,6 @@ const textClass = (item) => item.availability_id === 2 ? 'text-red' : ''
 
 .to-show {
     display: none;
-}
-
-.debug-row {
-    background-color: #fff3cd;
-    border: 2px solid #ffc107;
-}
-
-.debug-info {
-    padding: 1rem;
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.debug-info pre {
-    background-color: #fff;
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin-top: 0.5rem;
-    font-size: 11px;
 }
 
 @media (max-width: 768px) {

@@ -41,8 +41,6 @@ export const useProductsStore = defineStore('products', {
                     sortBy
                 });
 
-                console.log('Raw API Response:', response); // Debug log
-
                 if (!response) {
                     throw new Error('No response from server');
                 }
@@ -81,8 +79,6 @@ export const useProductsStore = defineStore('products', {
                     }
                 }
 
-                console.log('Raw Products Extracted:', rawProducts); // Debug log
-
                 // Transform data to ensure display fields exist
                 const transformedProducts = rawProducts.map(product => {
                     // Create display_product_name if it doesn't exist
@@ -115,17 +111,10 @@ export const useProductsStore = defineStore('products', {
                     };
                 });
 
-                console.log('Transformed Products:', transformedProducts); // Debug log
-
                 // Update state
                 this.products = transformedProducts;
                 this.total = totalCount;
                 this.lastFetch = new Date().toISOString();
-
-                console.log('Store state after update:', {
-                    productsLength: this.products.length,
-                    total: this.total
-                });
 
             } catch (error) {
                 console.error('[ProductsStore] fetchProducts error:', error);
@@ -274,9 +263,6 @@ export const useProductsStore = defineStore('products', {
             try {
                 const response = await PRODUCTS_API.updateIngredientApi(productItemData);
                 const updated = response.data;
-
-                console.log("productItems:", this.productItems);
-                console.log("updated:", updated);
 
                 const index = this.productItems.findIndex(p => p.product_item_id === updated.product_item_id);
 
