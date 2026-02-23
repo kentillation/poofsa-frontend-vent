@@ -26,6 +26,7 @@ export const useProductsStore = defineStore('products', {
     },
 
     actions: {
+
         /**
          * Generate cache key from fetch params
          */
@@ -50,13 +51,33 @@ export const useProductsStore = defineStore('products', {
                 availability_label: product.availability_label,
                 updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : '',
                 updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : '',
-                // Keep original fields for reference
                 ...product
             };
         },
 
+        /**
+         * Clearing error in a statement
+         */
         clearError() {
             this.error = null;
+        },
+
+        /**
+         * Enrich a product with missing display labels from the current product list
+         */
+        _enrichProductWithLabels(product) {
+            const existing = this.products.find(p => p.product_id === product.product_id);
+            
+            return {
+                ...product,
+                category_label: product.category_label || existing?.category_label || '',
+                station_name: product.station_name || existing?.station_name || '',
+                availability_label: product.availability_label || existing?.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                temp_label: product.temp_label || existing?.temp_label || '',
+                size_label: product.size_label || existing?.size_label || '',
+                updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : existing?.updatedAtFormatted || '',
+                updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : existing?.updatedAtShort || '',
+            };
         },
 
         /**
@@ -200,24 +221,6 @@ export const useProductsStore = defineStore('products', {
             } finally {
                 this.loading = false;
             }
-        },
-
-        /**
-         * Enrich a product with missing display labels from the current product list
-         */
-        _enrichProductWithLabels(product) {
-            const existing = this.products.find(p => p.product_id === product.product_id);
-            
-            return {
-                ...product,
-                category_label: product.category_label || existing?.category_label || '',
-                station_name: product.station_name || existing?.station_name || '',
-                availability_label: product.availability_label || existing?.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
-                temp_label: product.temp_label || existing?.temp_label || '',
-                size_label: product.size_label || existing?.size_label || '',
-                updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : existing?.updatedAtFormatted || '',
-                updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : existing?.updatedAtShort || '',
-            };
         },
 
         async updateProductStore(product) {
