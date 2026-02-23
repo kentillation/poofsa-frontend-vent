@@ -1,7 +1,7 @@
 <template>
   <v-data-table-server
     :headers="headers"
-    :items="items"
+    :items="safeItems"
     :items-length="totalItems"
     :loading="loading"
     :items-per-page="options.itemsPerPage"
@@ -10,7 +10,10 @@
     density="comfortable"
     class="elevation-1"
   >
-    <slot />
+    <!-- Forward all slots to v-data-table-server -->
+    <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+      <slot :name="slotName" v-bind="slotProps" />
+    </template>
   </v-data-table-server>
 </template>
 

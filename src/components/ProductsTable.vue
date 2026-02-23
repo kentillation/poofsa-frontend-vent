@@ -230,6 +230,11 @@ watch(() => store.products, () => {
     updateDisplayItems()
 }, { deep: false }) // Use shallow watch to avoid loops
 
+// Watch for branchId prop changes (fetch when it becomes available)
+watch(() => props.branchId, (newId) => {
+    if (newId) fetchProducts()
+}, { immediate: true })
+
 // Initial fetch
 onMounted(() => {
     if (props.branchId) {
