@@ -20,33 +20,34 @@ export const PRODUCTS_API = {
      * @throws {Error} Enhanced error with server response details
      */
 
-    async fetchAllProductsApi(branchId) {
+    async fetchAllProductsApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
         try {
             const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('No authentication token found');
-            }
+            if (!authToken) throw new Error('No authentication token found');
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 },
+                params: {
+                    branch_id: branchId,
+                    page,
+                    itemsPerPage,
+                    search
+                }
             };
-            const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH_ALL}/${branchId}`,
-                config
-            );
 
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL, config);
+
+            if (!response.data) throw new Error('Invalid response from server');
+
             return response.data;
+
         } catch (error) {
             console.error('[PRODUCTS_API] Error fetching products:', error);
             const enhancedError = new Error(
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to fetch products'
+                error.response?.data?.message || error.message || 'Failed to fetch products'
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;

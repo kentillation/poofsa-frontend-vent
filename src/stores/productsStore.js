@@ -8,24 +8,40 @@ export const useProductsStore = defineStore('products', {
         productItems: [],
         product_history: [],
         productAlone: '',
+        total: 0,
         loading: false,
         error: null
     }),
 
     actions: {
 
-        async fetchAllProductsStore(branchId) {
+        async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
             this.loading = true;
             this.error = null;
+
             try {
-                const response = await PRODUCTS_API.fetchAllProductsApi(branchId);
-                if (!response?.success) throw new Error(response?.message || 'Failed to fetch products');
-                // Ensure reactivity
-                if (!Array.isArray(this.products)) this.products = [];
-                this.products.splice(0, this.products.length, ...response.data);
+                const response = await PRODUCTS_API.fetchAllProductsApi({
+                    branchId: branchId,
+                    page,
+                    itemsPerPage: itemsPerPage,
+                    search,
+                });
+
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to fetch products');
+                }
+
+                const data = response.data?.data ?? response.data ?? [];
+                const total = response.data?.total ?? data.length;
+
+                // Reactive safe update
+                // this.products.splice(0, this.products.length, ...data);
+                this.products = data || [];
+                this.total = total;
+
             } catch (error) {
-                console.error('Error in fetchAllProductsApi:', error);
-                this.error = 'Failed to fetch products';
+                console.error('fetchProducts error:', error);
+                this.error = error.message || 'Failed to fetch products';
                 throw error;
             } finally {
                 this.loading = false;
@@ -168,14 +184,14 @@ export const useProductsStore = defineStore('products', {
                 console.log("productItems:", this.productItems);
                 console.log("updated:", updated);
 
-                const index = this.productItems.findIndex(p => p.product_item_id === updated.product_item_id );
-                
+                const index = this.productItems.findIndex(p => p.product_item_id === updated.product_item_id);
+
                 if (index !== -1) {
                     this.productItems = this.productItems.map(item =>
                         item.product_item_id === updated.product_item_id ? updated : item
                     );
                 }
-                
+
                 return updated;
             } catch (error) {
                 console.error('Error in updateIngredientApi:', error);
