@@ -132,9 +132,9 @@ const lastFetchParams = ref('')
 // Table headers
 const headers = [
     { title: 'Availability', value: 'availability_label', sortable: true, align: 'start' },
-    { title: 'Product Name', value: 'product_name', sortable: true },
-    { title: 'Base Price', value: 'base_price', sortable: true },
-    { title: 'Estimated Cost', value: 'cost_estimate', sortable: true },
+    { title: 'Product Name', value: 'display_product_name', sortable: true },
+    { title: 'Base Price', value: 'display_base_price', sortable: true },
+    { title: 'Estimated Cost', value: 'display_cost_estimate', sortable: true },
     { title: 'Category', value: 'category_label', sortable: true },
     { title: 'Station', value: 'station_name', sortable: true },
     { title: 'Updated At', value: 'updatedAtFormatted', sortable: true },

@@ -39,6 +39,9 @@ export const useProductsStore = defineStore('products', {
          */
         _transformProduct(product) {
             return {
+                display_product_name: `${product.product_name}${product.size_label}${product.temp_label}`,
+                display_base_price: `₱${product.base_price}`,
+                display_cost_estimate: `₱${product.cost_estimate}`,
                 product_id: product.product_id,
                 product_name: product.product_name,
                 base_price: product.base_price,
@@ -70,6 +73,9 @@ export const useProductsStore = defineStore('products', {
             
             return {
                 ...product,
+                display_product_name: `${product.product_name}${existing.size_label}${existing.temp_label}`,
+                display_base_price: `₱${product.base_price}`,
+                display_cost_estimate: `₱${product. cost_estimate}`,
                 category_label: product.category_label || existing?.category_label || '',
                 station_name: product.station_name || existing?.station_name || '',
                 availability_label: product.availability_label || existing?.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
