@@ -137,7 +137,7 @@ const headers = [
     { title: 'Estimated Cost', value: 'cost_estimate', sortable: true },
     { title: 'Category', value: 'category_label', sortable: true },
     { title: 'Station', value: 'station_name', sortable: true },
-    { title: 'Updated At', value: 'updated_at', sortable: true },
+    { title: 'Updated At', value: 'updatedAtFormatted', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]
 

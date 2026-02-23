@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { PRODUCTS_API } from '@/api/productsApi';
+import { formatDate, formatDateShort } from '@/utils/dateFormatter';
 
 export const useProductsStore = defineStore('products', {
     state: () => ({
@@ -46,7 +47,9 @@ export const useProductsStore = defineStore('products', {
                 category_id: product.category_id,
                 station_id: product.station_id,
                 availability_id: product.availability_id,
-                availability_label: product.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                availability_label: product.availability_label,
+                updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : '',
+                updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : '',
                 // Keep original fields for reference
                 ...product
             };
@@ -199,6 +202,24 @@ export const useProductsStore = defineStore('products', {
             }
         },
 
+        /**
+         * Enrich a product with missing display labels from the current product list
+         */
+        _enrichProductWithLabels(product) {
+            const existing = this.products.find(p => p.product_id === product.product_id);
+            
+            return {
+                ...product,
+                category_label: product.category_label || existing?.category_label || '',
+                station_name: product.station_name || existing?.station_name || '',
+                availability_label: product.availability_label || existing?.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                temp_label: product.temp_label || existing?.temp_label || '',
+                size_label: product.size_label || existing?.size_label || '',
+                updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : existing?.updatedAtFormatted || '',
+                updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : existing?.updatedAtShort || '',
+            };
+        },
+
         async updateProductStore(product) {
             this.loading = true;
             this.error = null;
@@ -207,14 +228,18 @@ export const useProductsStore = defineStore('products', {
                 if (!response?.data) {
                     throw new Error('Invalid server response');
                 }
-                const updated = this._transformProduct(response.data);
-                const index = this.products.findIndex(p => p.product_id === updated.product_id);
+                
+                // Enrich the response with labels from existing product
+                const enrichedProduct = this._enrichProductWithLabels(response.data);
+                const transformed = this._transformProduct(enrichedProduct);
+                
+                const index = this.products.findIndex(p => p.product_id === transformed.product_id);
                 if (index !== -1) {
-                    this.products.splice(index, 1, updated);
+                    this.products.splice(index, 1, transformed);
                 } else {
-                    this.products.push(updated);
+                    this.products.push(transformed);
                 }
-                return updated;
+                return transformed;
             } catch (error) {
                 this.error = error.message || 'Failed to update product';
                 throw error;
