@@ -35,12 +35,12 @@
         </template>
 
         <!-- Custom Columns -->
-        <template #item.display_product_name="{ item }">
-            <span :class="textClass(item)">{{ item.display_product_name }}</span>
+        <template #item.product_name="{ item }">
+            <span :class="textClass(item)">{{ item.product_name }}</span>
         </template>
 
-        <template #item.display_estimated_cost="{ item }">
-            <span :class="textClass(item)">{{ item.display_estimated_cost ?? '₱0' }}</span>
+        <template #item.cost_estimate="{ item }">
+            <span :class="textClass(item)">{{ item.cost_estimate ?? '₱0' }}</span>
         </template>
 
         <template #item.availability_label="{ item }">
@@ -132,9 +132,9 @@ const lastFetchParams = ref('')
 // Table headers
 const headers = [
     { title: 'Availability', value: 'availability_label', sortable: true, align: 'start' },
-    { title: 'Product Name', value: 'display_product_name', sortable: true },
-    { title: 'Base Price', value: 'display_base_price', sortable: true },
-    { title: 'Estimated Cost', value: 'display_estimated_cost', sortable: true },
+    { title: 'Product Name', value: 'product_name', sortable: true },
+    { title: 'Base Price', value: 'base_price', sortable: true },
+    { title: 'Estimated Cost', value: 'cost_estimate', sortable: true },
     { title: 'Category', value: 'category_label', sortable: true },
     { title: 'Station', value: 'station_name', sortable: true },
     { title: 'Updated At', value: 'updated_at', sortable: true },
@@ -171,6 +171,7 @@ const onOptionsUpdate = (val) => {
 // Handle refresh button
 const handleRefresh = () => {
     options.value.page = 1
+    lastFetchParams.value = '' // Clear cache to force fresh fetch
     fetchProducts()
 }
 

@@ -38,14 +38,22 @@ export const useProductsStore = defineStore('products', {
         _transformProduct(product) {
             return {
                 product_id: product.product_id,
-                display_product_name: product.product_name || 'Unnamed Product',
-                display_base_price: product.base_price ? `₱${parseFloat(product.base_price).toFixed(2)}` : '₱0.00',
-                display_estimated_cost: product.cost_estimate ? `₱${parseFloat(product.cost_estimate).toFixed(2)}` : '₱0.00',
-                availability_label: product.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                product_name: product.product_name,
+                base_price: product.base_price,
+                cost_estimate: product.cost_estimate,
+                temp_id: product.temp_id,
+                size_id: product.size_id,
+                category_id: product.category_id,
+                station_id: product.station_id,
                 availability_id: product.availability_id,
+                availability_label: product.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
                 // Keep original fields for reference
                 ...product
             };
+        },
+
+        clearError() {
+            this.error = null;
         },
 
         /**
@@ -99,10 +107,6 @@ export const useProductsStore = defineStore('products', {
             } finally {
                 this.loading = false;
             }
-        },
-
-        clearError() {
-            this.error = null;
         },
 
         async fetchTotalProductsCountStore(branchId) {
