@@ -35,14 +35,18 @@
         </template>
 
         <!-- Custom Columns -->
-        <template #item.product_name="{ item }">
-            <span :class="textClass(item)">{{ item.product_name }}</span>
+
+        <!-- eslint-disable  -->
+        <template #item.display_product_name="{ item }">
+            <span :class="textClass(item)">{{ item.display_product_name }}</span>
         </template>
 
+        <!-- eslint-disable  -->
         <template #item.cost_estimate="{ item }">
             <span :class="textClass(item)">{{ item.cost_estimate ?? '₱0' }}</span>
         </template>
 
+        <!--  eslint-disable -->
         <template #item.availability_label="{ item }">
             <v-chip :color="item.availability_id === 2 ? 'red' : 'green'" size="small" variant="tonal">
                 {{ item.availability_label }}
@@ -177,13 +181,13 @@ const handleRefresh = () => {
 
 // Update display items from store
 const updateDisplayItems = () => {
-    if (!store.products || store.products.length === 0) {
+    if (!Array.isArray(store.products)) {
         displayItems.value = []
     } else {
-        // Create a deep copy to break reactivity
-        displayItems.value = store.products.map(item => ({ ...item }))
+        displayItems.value = store.products
+            .filter(item => item && typeof item === 'object')
+            .map(item => ({ ...item }))
     }
-    // Force table re-render
     tableKey.value++
 }
 

@@ -37,11 +37,36 @@ export const useProductsStore = defineStore('products', {
         /**
          * Transform raw product from API to display format
          */
-        _transformProduct(product) {
+        _transformProduct(product = {}) {
+            // defensive: if the API returned a falsy value (null/undefined) we still
+            // want to return a harmless object so that downstream code and the
+            // table renderer don't blow up.  Vue was warning because one of the
+            // items passed to <v-data-table> was `undefined` and the render
+            // function attempted to read a property from it.
+            if (!product || typeof product !== 'object') {
+                return {
+                    display_product_name: '',
+                    display_base_price: '₱0',
+                    display_cost_estimate: '₱0',
+                    product_id: null,
+                    product_name: '',
+                    base_price: 0,
+                    cost_estimate: 0,
+                    temp_id: null,
+                    size_id: null,
+                    category_id: null,
+                    station_id: null,
+                    availability_id: null,
+                    availability_label: '',
+                    updatedAtFormatted: '',
+                    updatedAtShort: '',
+                };
+            }
+
             return {
-                display_product_name: `${product.product_name}${product.size_label}${product.temp_label}`,
-                display_base_price: `₱${product.base_price}`,
-                display_cost_estimate: `₱${product.cost_estimate}`,
+                display_product_name: `${product.product_name || ''}${product.size_label || ''}${product.temp_label || ''}`,
+                display_base_price: `₱${product.base_price ?? 0}`,
+                display_cost_estimate: `₱${product.cost_estimate ?? 0}`,
                 product_id: product.product_id,
                 product_name: product.product_name,
                 base_price: product.base_price,
@@ -119,8 +144,23 @@ export const useProductsStore = defineStore('products', {
                 }
 
                 // Extract data (API returns { success, data: [...], total, ... })
-                const rawProducts = Array.isArray(response.data) ? response.data : [];
+                let rawProducts = Array.isArray(response.data) ? response.data : [];
                 const totalCount = response.total ?? rawProducts.length;
+
+                // defensive: filter out any falsy entries that could slip through the
+                // API (search queries sometimes return `[null]` or similar when there
+                // are no matches).  mapping `null` would have thrown inside
+                // `_transformProduct` and triggered the render warning you saw.
+                const beforeLen = rawProducts.length;
+                rawProducts = rawProducts.filter(p => p && typeof p === 'object');
+                if (rawProducts.length !== beforeLen) {
+                    console.warn('[productsStore] removed invalid items from API response', {
+                        before: beforeLen,
+                        after: rawProducts.length,
+                        branchId,
+                        search
+                    });
+                }
 
                 // Transform products once and store
                 this.products = rawProducts.map(p => this._transformProduct(p));
