@@ -21,13 +21,9 @@
         <!-- Toolbar -->
         <template #top>
             <v-toolbar flat>
-                <h2 class="ms-4 to-hide">List of all Products</h2>
-                <h2 class="ms-4 to-show">List</h2>
+                <h2 class="ms-4 to-hide">Modified Products History</h2>
+                <h2 class="ms-4 to-show">Modified Products</h2>
                 <v-spacer />
-                <v-btn prepend-icon="mdi-plus" color="#0090b6" variant="flat" class="me-2" @click="toAddProduct">
-                    <span class="to-hide">Add Products</span>
-                    <span class="to-show">Products</span>
-                </v-btn>
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
                     @click="handleRefresh" :loading="store.loading" />
             </v-toolbar>
@@ -38,46 +34,19 @@
 
         <!-- eslint-disable  -->
         <template #item.display_product_name="{ item }">
-            <span :class="textClass(item)">{{ item.display_product_name }}</span>
-        </template>
-
-        <!-- eslint-disable  -->
-        <template #item.cost_estimate="{ item }">
-            <span :class="textClass(item)">{{ item.cost_estimate ?? '₱0' }}</span>
+            <span>{{ item.display_product_name }}</span>
         </template>
 
         <!--  eslint-disable -->
-        <template #item.availability_label="{ item }">
-            <v-chip :color="item.availability_id === 2 ? 'red' : 'green'" size="small" variant="tonal">
-                {{ item.availability_label }}
+        <template #item.modified_type="{ item }">
+            <v-chip :color="item.modified_type_id === 2 ? 'blue' : 'green'" size="small" variant="tonal">
+                {{ item.modified_type }}
             </v-chip>
-        </template>
-
-        <template #item.actions="{ item }">
-            <div class="d-flex" style="gap: 8px;">
-                <v-tooltip text="View Items" location="top">
-                    <template #activator="{ props }">
-                        <v-btn v-bind="props" color="blue" size="small" prepend-icon="mdi-eye-outline"
-                            @click="$emit('view-ingredients', item)">
-                            Items
-                        </v-btn>
-                    </template>
-                </v-tooltip>
-
-                <v-tooltip text="Edit Product" location="top">
-                    <template #activator="{ props }">
-                        <v-btn v-bind="props" color="green" size="small" prepend-icon="mdi-pencil"
-                            @click="$emit('edit-product', item)">
-                            Edit
-                        </v-btn>
-                    </template>
-                </v-tooltip>
-            </div>
         </template>
 
         <template #no-data>
             <v-alert type="warning" variant="tonal" class="ma-4">
-                No products found for this branch.
+                No modified products found for this branch.
             </v-alert>
         </template>
     </BaseDataTable>
@@ -89,7 +58,6 @@
 <script setup>
 /* eslint-disable */
 import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useProductsStore } from '@/stores/productsStore'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import BaseDataTable from '@/components/BaseDataTable.vue'
@@ -97,24 +65,14 @@ import Snackbar from '@/components/Snackbar.vue'
 
 // Props & emits
 const props = defineProps({
-    shopId: {
-        type: Number,
-        required: true
-    },
     branchId: {
         type: Number,
         required: true
     },
-    branchName: {
-        type: String,
-        default: ''
-    }
 })
 
-const emit = defineEmits(['edit-product', 'view-ingredients'])
 
 // Router & store
-const router = useRouter()
 const store = useProductsStore()
 
 // Local state
@@ -129,19 +87,17 @@ const options = ref({
 
 // Track if we're currently fetching to prevent multiple requests
 const isFetching = ref(false)
+
 // Track last fetch params to prevent duplicate requests
 const lastFetchParams = ref('')
 
 // Table headers
 const headers = [
-    { title: 'Availability', value: 'availability_label', sortable: true, align: 'start' },
-    { title: 'ProductName', value: 'display_product_name', sortable: true },
-    { title: 'BasePrice', value: 'display_base_price', sortable: true },
-    { title: 'EstimatedCost', value: 'display_cost_estimate', sortable: true },
-    { title: 'Category', value: 'category_label', sortable: true },
-    { title: 'Station', value: 'station_name', sortable: true },
+    { title: 'ProductName', value: 'display_product_name', sortable: true, align: 'start' },
+    { title: 'Description', value: 'description', sortable: true },
+    { title: 'ModifiedType', value: 'modified_type', sortable: true },
+    { title: 'PerformedBy', value: 'admin_name', sortable: true },
     { title: 'LastUpdate', value: 'updatedAtFormatted', sortable: true },
-    { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]
 
 // Debounce timer
@@ -153,7 +109,7 @@ const onSearchChange = (value) => {
     if (searchTimer) clearTimeout(searchTimer)
     searchTimer = setTimeout(() => {
         options.value.page = 1
-        fetchProducts()
+        fetchProductsHistory()
     }, 300)
 }
 
@@ -166,7 +122,7 @@ const onOptionsUpdate = (val) => {
 
     if (optionsChanged) {
         options.value = val
-        fetchProducts()
+        fetchProductsHistory()
     }
 }
 
@@ -174,7 +130,7 @@ const onOptionsUpdate = (val) => {
 const handleRefresh = () => {
     options.value.page = 1
     lastFetchParams.value = '' // Clear cache to force fresh fetch
-    fetchProducts()
+    fetchProductsHistory()
 }
 
 // Update display items from store
@@ -190,7 +146,7 @@ const updateDisplayItems = () => {
 }
 
 // Fetch products with duplicate prevention
-const fetchProducts = async () => {
+const fetchProductsHistory = async () => {
     if (!props.branchId || isFetching.value) return
 
     // Create params string to check for duplicates
@@ -208,7 +164,7 @@ const fetchProducts = async () => {
     lastFetchParams.value = params
 
     try {
-        await store.fetchAllProductsStore({
+        await store.fetchProductsHistoryStore({
             branchId: props.branchId,
             page: options.value.page,
             itemsPerPage: options.value.itemsPerPage,
@@ -220,7 +176,7 @@ const fetchProducts = async () => {
     } catch (error) {
         console.error('Fetch error:', error)
         if (snackbarRef.value) {
-            snackbarRef.value.showSnackbar(error.message || 'Failed to load products', 'error')
+            snackbarRef.value.showSnackbar(error.message || 'Failed to load modified products history', 'error')
         }
     } finally {
         isFetching.value = false
@@ -234,30 +190,15 @@ watch(() => store.products, () => {
 
 // Watch for branchId prop changes (fetch when it becomes available)
 watch(() => props.branchId, (newId) => {
-    if (newId) fetchProducts()
+    if (newId) fetchProductsHistory()
 }, { immediate: true })
 
 // Initial fetch
 onMounted(() => {
     if (props.branchId) {
-        fetchProducts()
+        fetchProductsHistory()
     }
 })
-
-// Navigate to add product page
-const toAddProduct = () => {
-    router.push({
-        path: '/add-product/',
-        query: {
-            shop_id: props.shopId,
-            branch_id: props.branchId,
-            branch_name: props.branchName
-        }
-    })
-}
-
-// Row text color for availability
-const textClass = (item) => item.availability_id === 2 ? 'text-red' : ''
 </script>
 
 <style scoped>

@@ -83,6 +83,25 @@ export const useProductsStore = defineStore('products', {
             };
         },
 
+        _transformProductsHistory(productHistory = {}) {
+            if (!productHistory || typeof productHistory !== 'object') {
+                return {
+                    display_product_name: '',
+                    product_name: '',
+                    updatedAtFormatted: '',
+                    updatedAtShort: '',
+                };
+            }
+
+            return {
+                display_product_name: `${productHistory.product_name || ''}${productHistory.size_label || ''}${productHistory.temp_label || ''}`,
+                product_name: productHistory.product_name,
+                updatedAtFormatted: productHistory.updated_at ? formatDate(productHistory.updated_at) : '',
+                updatedAtShort: productHistory.updated_at ? formatDateShort(productHistory.updated_at) : '',
+                ...productHistory
+            };
+        },
+
         /**
          * Clearing error in a statement
          */
@@ -214,23 +233,80 @@ export const useProductsStore = defineStore('products', {
             }
         },
 
-        async fetchProductsHistoryStore(branchId) {
+        async fetchProductsHistoryStore({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
+            if (!branchId) {
+                this.error = 'Branch ID is required';
+                return;
+            }
+
+            const cacheKey = this._getCacheKey(branchId, page, itemsPerPage, search);
+
+            if (this._lastFetchHash === cacheKey && this.products.length > 0) {
+                return;
+            }
+
             this.loading = true;
             this.error = null;
+
             try {
-                const response = await PRODUCTS_API.fetchProductsHistoryApi(branchId);
-                if (response?.status === true) {
-                    this.product_history = response.data;
-                } else {
-                    throw new Error('Failed to fetch products history');
+                const response = await PRODUCTS_API.fetchProductsHistoryApi({
+                    branchId,
+                    page,
+                    itemsPerPage,
+                    search
+                });
+
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to fetch modified products history');
                 }
+
+                let rawProducts = Array.isArray(response.data) ? response.data : [];
+                const totalCount = response.total ?? rawProducts.length;
+
+                const beforeLen = rawProducts.length;
+                rawProducts = rawProducts.filter(p => p && typeof p === 'object');
+                if (rawProducts.length !== beforeLen) {
+                    console.warn('[productsStore] removed invalid items from API response', {
+                        before: beforeLen,
+                        after: rawProducts.length,
+                        branchId,
+                        search
+                    });
+                }
+
+                this.products = rawProducts.map(p => this._transformProductsHistory(p));
+                this.total = totalCount;
+                this._lastFetchHash = cacheKey;
+                this._fetchCache = { rawProducts, totalCount };
+
             } catch (error) {
-                this.error = error.message || 'Failed to fetch products history';
+                this.error = error.message || 'Failed to fetch products';
+                this.products = [];
+                this.total = 0;
+                this._lastFetchHash = null;
                 throw error;
             } finally {
                 this.loading = false;
             }
         },
+
+        // async fetchProductsHistoryStore(branchId) {
+        //     this.loading = true;
+        //     this.error = null;
+        //     try {
+        //         const response = await PRODUCTS_API.fetchProductsHistoryApi(branchId);
+        //         if (response?.status === true) {
+        //             this.product_history = response.data;
+        //         } else {
+        //             throw new Error('Failed to fetch products history');
+        //         }
+        //     } catch (error) {
+        //         this.error = error.message || 'Failed to fetch products history';
+        //         throw error;
+        //     } finally {
+        //         this.loading = false;
+        //     }
+        // },
 
         async saveProductsStore(products) {
             this.loading = true;

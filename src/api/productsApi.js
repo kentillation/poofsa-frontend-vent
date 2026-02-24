@@ -2,7 +2,7 @@ import apiClient from '../axios';
 
 export const PRODUCTS_API = {
     ENDPOINTS: {
-        FETCH_ALL: '/admin/products',
+        FETCH_ALL_PRODUCTS: '/admin/products',
         FETCH_TOTAL_PRODUCTS_COUNT: '/admin/total-products-count',
         FETCH_PRODUCT_ALONE: '/admin/product-alone',
         FETCH_PRODUCT_ITEMS: '/admin/product-items',
@@ -45,7 +45,7 @@ export const PRODUCTS_API = {
                 params
             };
 
-            const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL, config);
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL_PRODUCTS, config);
 
             return {
                 success: response.data?.success ?? true,
@@ -117,39 +117,79 @@ export const PRODUCTS_API = {
         }
     },
 
-    async fetchProductsHistoryApi(branchId) {
+    async fetchProductsHistoryApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
+
+            const params = {
+                branch_id: branchId,
+                page,
+                itemsPerPage,
+            };
+
+            if (search) {
+                params.search = search;
+            }
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 },
+                params
             };
-            const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH_PRODUCTS_HISTORY}/${branchId}`,
-                config
-            );
 
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_PRODUCTS_HISTORY, config);
+
+            return {
+                success: response.data?.success ?? true,
+                data: response.data?.data ?? response.data ?? [],
+                total: response.data?.total ?? (response.data?.data?.length ?? 0),
+                message: response.data?.message ?? 'Success'
+            };
+
         } catch (error) {
-            console.error('[PRODUCTS_API]: ', error);
-            const enhancedError = new Error(
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to fetch products history'
-            );
-            enhancedError.response = error.response;
-            enhancedError.status = error.response?.status;
-            throw enhancedError;
+            console.error('[PRODUCTS_API] Error fetching modified products:', error);
+            throw error;
         }
     },
+
+    // async fetchProductsHistoryApi(branchId) {
+    //     try {
+    //         const authToken = localStorage.getItem('auth_token');
+    //         if (!authToken) {
+    //             throw new Error('No authentication token found');
+    //         }
+    //         const config = {
+    //             headers: {
+    //                 Authorization: `Bearer ${authToken}`,
+    //                 'Content-Type': 'application/json'
+    //             },
+    //         };
+    //         const response = await apiClient.get(
+    //             `${this.ENDPOINTS.FETCH_PRODUCTS_HISTORY}/${branchId}`,
+    //             config
+    //         );
+
+    //         if (!response.data) {
+    //             throw new Error('Invalid response from server');
+    //         }
+    //         return response.data;
+    //     } catch (error) {
+    //         console.error('[PRODUCTS_API]: ', error);
+    //         const enhancedError = new Error(
+    //             error.response?.data?.message ||
+    //             error.message ||
+    //             'Failed to fetch products history'
+    //         );
+    //         enhancedError.response = error.response;
+    //         enhancedError.status = error.response?.status;
+    //         throw enhancedError;
+    //     }
+    // },
 
     async saveProductsApi(products) {
         try {
