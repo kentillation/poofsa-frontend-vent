@@ -177,6 +177,15 @@ const handleRefresh = () => {
     options.value.page = 1
     lastFetchParams.value = '' // Clear cache to force fresh fetch
     fetchProducts()
+
+    // Manually set loading state
+    // store.loading = true
+    
+    // try {
+    //     fetchProducts()
+    // } finally {
+    //     store.loading = false
+    // }
 }
 
 // Update display items from store
@@ -233,7 +242,7 @@ const fetchProducts = async () => {
 // Watch for store changes
 watch(() => store.products, () => {
     updateDisplayItems()
-}, { deep: false }) // Use shallow watch to avoid loops
+}, { deep: true }) // Use shallow watch to avoid loops
 
 // Watch for branchId prop changes (fetch when it becomes available)
 watch(() => props.branchId, (newId) => {

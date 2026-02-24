@@ -284,9 +284,14 @@ export const useProductsStore = defineStore('products', {
                 
                 const index = this.products.findIndex(p => p.product_id === transformed.product_id);
                 if (index !== -1) {
-                    this.products.splice(index, 1, transformed);
+                    // Use Vue.set or create a new array to ensure reactivity
+                    this.products = [
+                        ...this.products.slice(0, index),
+                        transformed,
+                        ...this.products.slice(index + 1)
+                    ];
                 } else {
-                    this.products.push(transformed);
+                    this.products = [...this.products, transformed];
                 }
                 return transformed;
             } catch (error) {
