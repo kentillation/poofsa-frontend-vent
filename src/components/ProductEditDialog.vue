@@ -145,9 +145,19 @@ export default {
     ],
     
     methods: {
-        formatDate(date) {
-            if (!date) return 'Invalid date';
-            return date
+
+        formatDate(dateString) {
+            if (!dateString) return 'Invalid date';
+            const date = new Date(dateString);
+            return date.toLocaleString('en-PH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+                timeZone: 'Asia/Manila'
+            });
         },
         handleDecimalUpdate(field, value) {
             const cleanedValue = value.replace(/[^0-9.]/g, '');
