@@ -2,7 +2,7 @@
     <v-dialog v-model="dialog" max-width="1000px" persistent>
         <v-card>
             <v-card-text>
-                <SkeletonTable v-if="loadingVoidOrders" />
+                <SkeletonTable v-if="loadingProducts" />
                 <v-data-table :headers="headers" :items="productsHistory" :items-per-page="10"
                     :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="elevation-1 hover-table">
                     <template v-slot:top>
@@ -84,7 +84,7 @@ export default {
     },
     data() {
         return {
-            loadingVoidOrders: false,
+            loadingProducts: false,
             productsHistory: [],
             headers: [
                 { title: 'ProductName', value: 'product_name', sortable: true },
@@ -105,7 +105,7 @@ export default {
     methods: {
 
         async fetchProductsHistory() {
-            this.loadingVoidOrders = true;
+            this.loadingProducts = true;
             try {
                 await this.productsStore.fetchProductsHistoryStore(this.branchId);
                 if (this.productsStore.product_history.length === 0) {
@@ -118,7 +118,7 @@ export default {
                 console.error(error);
                 this.showError(error);
             } finally {
-                this.loadingVoidOrders = false;
+                this.loadingProducts = false;
             }
         },
 
