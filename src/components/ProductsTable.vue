@@ -125,7 +125,6 @@ const search = ref('')
 const options = ref({
     page: 1,
     itemsPerPage: 10,
-    sortBy: []
 })
 
 // Track if we're currently fetching to prevent multiple requests
@@ -163,8 +162,7 @@ const onOptionsUpdate = (val) => {
     // Check if options actually changed
     const optionsChanged =
         val.page !== options.value.page ||
-        val.itemsPerPage !== options.value.itemsPerPage ||
-        JSON.stringify(val.sortBy) !== JSON.stringify(options.value.sortBy)
+        val.itemsPerPage !== options.value.itemsPerPage
 
     if (optionsChanged) {
         options.value = val
@@ -215,7 +213,6 @@ const fetchProducts = async () => {
             page: options.value.page,
             itemsPerPage: options.value.itemsPerPage,
             search: search.value,
-            sortBy: options.value.sortBy
         })
 
         updateDisplayItems()

@@ -114,7 +114,7 @@ export const useProductsStore = defineStore('products', {
         /**
          * Fetch all products with smart caching
          */
-        async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '', sortBy = [] }) {
+        async fetchAllProductsStore({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
             if (!branchId) {
                 this.error = 'Branch ID is required';
                 return;
@@ -135,8 +135,7 @@ export const useProductsStore = defineStore('products', {
                     branchId,
                     page,
                     itemsPerPage,
-                    search,
-                    sortBy
+                    search
                 });
 
                 if (!response?.success) {
