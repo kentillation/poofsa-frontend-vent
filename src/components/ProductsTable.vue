@@ -177,15 +177,6 @@ const handleRefresh = () => {
     options.value.page = 1
     lastFetchParams.value = '' // Clear cache to force fresh fetch
     fetchProducts()
-
-    // Manually set loading state
-    // store.loading = true
-    
-    // try {
-    //     fetchProducts()
-    // } finally {
-    //     store.loading = false
-    // }
 }
 
 // Update display items from store
