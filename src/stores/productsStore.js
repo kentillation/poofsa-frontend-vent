@@ -5,9 +5,9 @@ import { formatDate, formatDateShort } from '@/utils/dateFormatter';
 export const useProductsStore = defineStore('products', {
     state: () => ({
         products: [],
+        productsHistory: [],
         productsOnly: null,
         productItems: [],
-        product_history: [],
         productAlone: '',
         total: 0,
         loading: false,
@@ -274,14 +274,14 @@ export const useProductsStore = defineStore('products', {
                     });
                 }
 
-                this.products = rawProducts.map(p => this._transformProductsHistory(p));
+                this.productsHistory = rawProducts.map(p => this._transformProductsHistory(p));
                 this.total = totalCount;
                 this._lastFetchHash = cacheKey;
                 this._fetchCache = { rawProducts, totalCount };
 
             } catch (error) {
                 this.error = error.message || 'Failed to fetch products';
-                this.products = [];
+                this.productsHistory = [];
                 this.total = 0;
                 this._lastFetchHash = null;
                 throw error;
@@ -296,7 +296,7 @@ export const useProductsStore = defineStore('products', {
         //     try {
         //         const response = await PRODUCTS_API.fetchProductsHistoryApi(branchId);
         //         if (response?.status === true) {
-        //             this.product_history = response.data;
+        //             this.productsHistory = response.data;
         //         } else {
         //             throw new Error('Failed to fetch products history');
         //         }

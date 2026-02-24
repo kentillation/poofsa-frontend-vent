@@ -1,57 +1,63 @@
 <!-- eslint-disable -->
 <template>
-    <!-- Search -->
-    <v-row>
-        <v-col cols="12" lg="4" md="4" sm="6">
-            <v-text-field v-model="search" label="Search product details" placeholder="Search product details"
-                variant="outlined" density="comfortable" clearable @update:model-value="onSearchChange" />
-        </v-col>
-    </v-row>
+    <v-dialog v-model="productHistoryDialog" max-width="1000px" persistent>
+        <v-card>
+            <v-card-text>
+                <v-row>
+                    <v-col cols="12" lg="4" md="4" sm="6">
+                        <v-text-field v-model="search" label="Search product details" placeholder="Search product details"
+                            variant="outlined" density="comfortable" clearable @update:model-value="onSearchChange" />
+                    </v-col>
+                </v-row>
 
-    <!-- Error Alert -->
-    <v-alert v-if="store.error" type="error" variant="tonal" class="mb-4" dismissible @click:close="store.clearError">
-        {{ store.error }}
-    </v-alert>
+                <v-alert v-if="store.error" type="error" variant="tonal" class="mb-4" dismissible @click:close="store.clearError">
+                    {{ store.error }}
+                </v-alert>
 
-    <SkeletonTable v-if="store.loading && !store.products.length"  />
+                <SkeletonTable v-if="store.loading && !store.products.length"  />
 
-    <!-- Products Table -->
-    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
-        :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
-        <!-- Toolbar -->
-        <template #top>
-            <v-toolbar flat>
-                <h2 class="ms-4 to-hide">Modified Products History</h2>
-                <h2 class="ms-4 to-show">Modified Products</h2>
-                <v-spacer />
-                <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
-                    @click="handleRefresh" :loading="store.loading" />
-            </v-toolbar>
-            <v-divider />
-        </template>
+                <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
+                    :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
+                    
+                    <template #top>
+                        <v-toolbar flat>
+                            <h2 class="ms-4 to-hide">Modified Products History</h2>
+                            <h2 class="ms-4 to-show">Modified Products</h2>
+                            <v-spacer />
+                            <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
+                                @click="handleRefresh" :loading="store.loading" />
+                        </v-toolbar>
+                        <v-divider />
+                    </template>
 
-        <!-- Custom Columns -->
 
-        <!-- eslint-disable  -->
-        <template #item.display_product_name="{ item }">
-            <span>{{ item.display_product_name }}</span>
-        </template>
+                    <!-- eslint-disable  -->
+                    <template #item.display_product_name="{ item }">
+                        <span>{{ item.display_product_name }}</span>
+                    </template>
 
-        <!--  eslint-disable -->
-        <template #item.modified_type="{ item }">
-            <v-chip :color="item.modified_type_id === 2 ? 'blue' : 'green'" size="small" variant="tonal">
-                {{ item.modified_type }}
-            </v-chip>
-        </template>
+                    <!--  eslint-disable -->
+                    <template #item.modified_type="{ item }">
+                        <v-chip :color="item.modified_type_id === 2 ? 'blue' : 'green'" size="small" variant="tonal">
+                            {{ item.modified_type }}
+                        </v-chip>
+                    </template>
 
-        <template #no-data>
-            <v-alert type="warning" variant="tonal" class="ma-4">
-                No modified products found for this branch.
-            </v-alert>
-        </template>
-    </BaseDataTable>
+                    <template #no-data>
+                        <v-alert type="warning" variant="tonal" class="ma-4">
+                            No modified products found for this branch.
+                        </v-alert>
+                    </template>
+                </BaseDataTable>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn color="red" variant="flat" class="me-3 mb-2" @click="closeDialog">
+                    <v-icon>mdi-close</v-icon>&nbsp; Close
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 
-    <!-- Snackbar -->
     <Snackbar ref="snackbarRef" />
 </template>
 
@@ -65,12 +71,17 @@ import Snackbar from '@/components/Snackbar.vue'
 
 // Props & emits
 const props = defineProps({
+    modelValue: {
+        type: Boolean,
+        required: true
+    },
     branchId: {
         type: Number,
         required: true
     },
 })
 
+const emit = defineEmits(['update:modelValue'])
 
 // Router & store
 const store = useProductsStore()
@@ -84,6 +95,8 @@ const options = ref({
     page: 1,
     itemsPerPage: 10,
 })
+
+const productHistoryDialog = ref(false)
 
 // Track if we're currently fetching to prevent multiple requests
 const isFetching = ref(false)
@@ -111,6 +124,10 @@ const onSearchChange = (value) => {
         options.value.page = 1
         fetchProductsHistory()
     }, 300)
+}
+
+const closeDialog = () => {
+    productHistoryDialog.value = false
 }
 
 // Handle options update from table
