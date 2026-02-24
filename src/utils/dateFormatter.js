@@ -43,7 +43,7 @@ export const formatDate = (dateString, locale = 'en-US') => {
             }
         });
         
-        return `${dateStr.trim()} at ${timeStr.trim()}`;
+        return `${dateStr.trim()} ${timeStr.trim()}`;
     } catch (error) {
         console.warn('Date formatting error:', error);
         return dateString;

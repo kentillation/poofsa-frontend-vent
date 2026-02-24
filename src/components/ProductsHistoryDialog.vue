@@ -1,7 +1,7 @@
 <!-- eslint-disable -->
 <template>
     <v-dialog v-model="productsHistoryDialog" max-width="1000px" persistent>
-        <v-card>
+        <v-card class="pa-3">
             <v-card-text>
                 <v-row>
                     <v-col cols="12" lg="4" md="4" sm="6">
