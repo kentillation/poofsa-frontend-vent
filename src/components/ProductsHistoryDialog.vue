@@ -63,7 +63,7 @@
 
 <script setup>
 /* eslint-disable */
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useProductsStore } from '@/stores/productsStore'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import BaseDataTable from '@/components/BaseDataTable.vue'
@@ -93,7 +93,10 @@ const options = ref({
     itemsPerPage: 10,
 })
 
-const productsHistoryDialog = ref(false)
+const productsHistoryDialog = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val)
+})
 
 const isFetching = ref(false)
 
