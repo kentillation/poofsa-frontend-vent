@@ -36,21 +36,35 @@
 
         <!-- Custom Columns -->
 
-        <!-- eslint-disable  -->
-        <template #item.display_product_name="{ item }">
-            <span :class="textClass(item)">{{ item.display_product_name }}</span>
-        </template>
-
-        <!-- eslint-disable  -->
-        <template #item.cost_estimate="{ item }">
-            <span :class="textClass(item)">{{ item.cost_estimate ?? '₱0' }}</span>
-        </template>
-
         <!--  eslint-disable -->
         <template #item.availability_label="{ item }">
             <v-chip :color="item.availability_id === 2 ? 'red' : 'green'" size="small" variant="tonal">
                 {{ item.availability_label }}
             </v-chip>
+        </template>
+
+        <template #item.display_product_name="{ item }">
+            <span :class="textClass(item)">{{ item.display_product_name }}</span>
+        </template>
+
+        <template #item.display_base_price="{ item }">
+            <span :class="textClass(item)">{{ item.display_base_price ?? '₱0' }}</span>
+        </template>
+        
+        <template #item.display_cost_estimate="{ item }">
+            <span :class="textClass(item)">{{ item.display_cost_estimate ?? '₱0' }}</span>
+        </template>
+
+        <template #item.category_label="{ item }">
+            <span :class="textClass(item)">{{ item.category_label }}</span>
+        </template>
+
+        <template #item.station_name="{ item }">
+            <span :class="textClass(item)">{{ item.station_name }}</span>
+        </template>
+
+        <template #item.updatedAtFormatted="{ item }">
+            <span :class="textClass(item)">{{ item.updatedAtFormatted }}</span>
         </template>
 
         <template #item.actions="{ item }">

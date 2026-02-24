@@ -10,6 +10,7 @@ export const useProductsStore = defineStore('products', {
         productItems: [],
         productAlone: '',
         total: 0,
+        productsHistoryTotal: 0,
         loading: false,
         error: null,
         // Cache tracking
@@ -53,11 +54,15 @@ export const useProductsStore = defineStore('products', {
                     base_price: 0,
                     cost_estimate: 0,
                     temp_id: null,
+                    temp_label: '',
                     size_id: null,
+                    size_label: '',
                     category_id: null,
-                    station_id: null,
+                    category_label: '',
                     availability_id: null,
                     availability_label: '',
+                    station_id: null,
+                    station_name: '',
                     updatedAtFormatted: '',
                     updatedAtShort: '',
                 };
@@ -72,9 +77,13 @@ export const useProductsStore = defineStore('products', {
                 base_price: product.base_price,
                 cost_estimate: product.cost_estimate,
                 temp_id: product.temp_id,
+                temp_label: product.temp_label,
                 size_id: product.size_id,
+                size_label: product.size_label,
                 category_id: product.category_id,
+                category_label: product.category_label,
                 station_id: product.station_id,
+                station_name: product.station_name,
                 availability_id: product.availability_id,
                 availability_label: product.availability_label,
                 updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : '',
@@ -119,12 +128,17 @@ export const useProductsStore = defineStore('products', {
                 ...product,
                 display_product_name: `${product.product_name}${existing.size_label}${existing.temp_label}`,
                 display_base_price: `₱${product.base_price}`,
-                display_cost_estimate: `₱${product. cost_estimate}`,
-                category_label: product.category_label || existing?.category_label || '',
-                station_name: product.station_name || existing?.station_name || '',
-                availability_label: product.availability_label || existing?.availability_label || (product.availability_id === 1 ? 'Available' : 'Unavailable'),
+                display_cost_estimate: `₱${product.cost_estimate ?? 0}`,
+                temp_id: product.temp_id || existing?.temp_id || '',
                 temp_label: product.temp_label || existing?.temp_label || '',
+                size_id: product.size_id || existing?.size_id || null,
                 size_label: product.size_label || existing?.size_label || '',
+                category_id: product.category_id || existing?.category_id || null,
+                category_label: product.category_label || existing?.category_label || '',
+                station_id: product.station_id || existing?.station_id || null,
+                station_name: product.station_name || existing?.station_name || '',
+                availability_id: product.availability_id || existing?.availability_id || 0,
+                availability_label: product.availability_label || existing?.availability_label || '',
                 updatedAtFormatted: product.updated_at ? formatDate(product.updated_at) : existing?.updatedAtFormatted || '',
                 updatedAtShort: product.updated_at ? formatDateShort(product.updated_at) : existing?.updatedAtShort || '',
             };
@@ -275,38 +289,20 @@ export const useProductsStore = defineStore('products', {
                 }
 
                 this.productsHistory = rawProducts.map(p => this._transformProductsHistory(p));
-                this.total = totalCount;
+                this.productsHistoryTotal = totalCount;
                 this._lastFetchHash = cacheKey;
                 this._fetchCache = { rawProducts, totalCount };
 
             } catch (error) {
                 this.error = error.message || 'Failed to fetch products';
                 this.productsHistory = [];
-                this.total = 0;
+                this.productsHistoryTotal = 0;
                 this._lastFetchHash = null;
                 throw error;
             } finally {
                 this.loading = false;
             }
         },
-
-        // async fetchProductsHistoryStore(branchId) {
-        //     this.loading = true;
-        //     this.error = null;
-        //     try {
-        //         const response = await PRODUCTS_API.fetchProductsHistoryApi(branchId);
-        //         if (response?.status === true) {
-        //             this.productsHistory = response.data;
-        //         } else {
-        //             throw new Error('Failed to fetch products history');
-        //         }
-        //     } catch (error) {
-        //         this.error = error.message || 'Failed to fetch products history';
-        //         throw error;
-        //     } finally {
-        //         this.loading = false;
-        //     }
-        // },
 
         async saveProductsStore(products) {
             this.loading = true;
@@ -368,6 +364,7 @@ export const useProductsStore = defineStore('products', {
                 } else {
                     this.products = [...this.products, transformed];
                 }
+                console.log('[store] Updated product:', enrichedProduct);
                 return transformed;
             } catch (error) {
                 this.error = error.message || 'Failed to update product';
