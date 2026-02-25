@@ -6,7 +6,7 @@ export const STOCK_API = {
         FETCH_STOCKS_BY_DATE: '/admin/stocks-report',
         FETCH_STOCKS_HISTORY: '/admin/stocks-history',
         SAVE: '/admin/save-stock',
-        UPDATE: '/admin/update-stock',
+        UPDATE_STOCK: '/admin/update-stock',
         FETCH_LOW_STOCKS: '/admin/low-stocks',
     },
 
@@ -147,31 +147,34 @@ export const STOCK_API = {
     },
 
     async updateStockApi(stock) {
+        if (!stock.ingredient_id) throw new Error('Ingredient ID is required');
+
+        const authToken = localStorage.getItem('auth_token');
+        if (!authToken) throw new Error('No authentication token found');
+
         try {
-            if (!stock?.stock_id) {
-                throw new Error('Stock ID is required for update');
-            }
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('Authentication token not found');
-            }
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
+                timeout: 10000, // 10s timeout
             };
+
             const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE}/${stock.stock_id}`,
+                `${this.ENDPOINTS.UPDATE_STOCK}/${stock.ingredient_id}`,
                 stock,
                 config
             );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
+
+            if (!response?.data?.success || !response?.data?.data) {
+                throw new Error(response?.data?.message || 'Invalid server response');
             }
-            return response.data;
+
+            return response.data; // contains success, message, data, changes
         } catch (error) {
-            console.error('[StockAPI] Error updating stock:', error);
+            console.error('[STOCK_API] Error updating stock:', error);
+
             const enhancedError = new Error(
                 error.response?.data?.message ||
                 error.message ||
@@ -179,7 +182,6 @@ export const STOCK_API = {
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;
-            enhancedError.isApiError = true;
             throw enhancedError;
         }
     },

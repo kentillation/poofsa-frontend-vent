@@ -124,7 +124,7 @@ const headers = [
     { title: 'Availability', value: 'availability_label', sortable: true, align: 'start' },
     { title: 'StockName', value: 'ingredient_name', sortable: true },
     { title: 'BaseUnit', value: 'unit_label', sortable: true },
-    { title: 'AlertQuantity', value: 'alert_quantity', sortable: true },
+    { title: 'AlertQuantity', value: 'display_alert_quantity', sortable: true },
     { title: 'LastUpdate', value: 'updatedAtFormatted', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]

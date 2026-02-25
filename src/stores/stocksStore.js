@@ -41,6 +41,7 @@ export const useStocksStore = defineStore('stocks', {
                     unit_label: '',
                     unit_avb: '',
                     alert_quantity: '',
+                    display_alert_quantity: '',
                     availability_id: null,
                     availability_label: '',
                     updatedAtFormatted: '',
@@ -55,6 +56,7 @@ export const useStocksStore = defineStore('stocks', {
                 unit_label: stock.unit_label,
                 unit_avb: stock.unit_avb,
                 alert_quantity: stock.alert_quantity,
+                display_alert_quantity: `${stock.alert_quantity || 0}${stock.unit_avb || ''}`,
                 availability_id: stock.availability_id,
                 availability_label: stock.availability_label,
                 updatedAtFormatted: stock.updated_at ? formatDate(stock.updated_at) : '',
@@ -84,7 +86,7 @@ export const useStocksStore = defineStore('stocks', {
             this.error = null;
         },
 
-        _enrichstockWithLabels(stock) {
+        _enrichStockWithLabels(stock) {
             const existing = this.stocks.find(s => s.ingredient_id === stock.ingredient_id);
 
             return {
@@ -95,6 +97,7 @@ export const useStocksStore = defineStore('stocks', {
                 unit_label: stock.unit_label || existing?.unit_label || '',
                 unit_avb: stock.unit_avb || existing?.unit_avb || '',
                 alert_quantity: stock.alert_quantity || existing?.alert_quantity || '',
+                display_alert_quantity: `${stock.alert_quantity || 0}${stock.unit_avb || ''}` || `${existing?.alert_quantity || 0}${existing?.unit_avb || ''}` || '',
                 availability_id: stock.availability_id || existing?.availability_id || 0,
                 availability_label: stock.availability_label || existing?.availability_label || '',
                 updatedAtFormatted: stock.updated_at ? formatDate(stock.updated_at) : existing?.updatedAtFormatted || '',
@@ -222,22 +225,56 @@ export const useStocksStore = defineStore('stocks', {
             }
         },
 
-        async updateStockStore(stocks) {
+        // async updateStockStore(stocks) {
+        //     this.loading = true;
+        //     this.error = null;
+        //     try {
+        //         if (!STOCK_API || typeof STOCK_API.updateStockApi !== 'function') {
+        //             throw new Error('STOCK_API service is not properly initialized');
+        //         }
+        //         const response = await STOCK_API.updateStockApi(stocks);
+        //         if (response && response.status === true) {
+        //             return response;
+        //         } else {
+        //             throw new Error('Failed to update stocks');
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //         this.error = 'Failed to update stocks';
+        //         throw error;
+        //     } finally {
+        //         this.loading = false;
+        //     }
+        // },
+
+        async updateStockStore(stock) {
             this.loading = true;
             this.error = null;
             try {
-                if (!STOCK_API || typeof STOCK_API.updateStockApi !== 'function') {
-                    throw new Error('STOCK_API service is not properly initialized');
+                const response = await STOCK_API.updateStockApi(stock);
+                if (!response?.data) {
+                    throw new Error('Invalid server response');
                 }
-                const response = await STOCK_API.updateStockApi(stocks);
-                if (response && response.status === true) {
-                    return response;
+
+                // Enrich the response with labels from existing product
+                const enrichedStock = this._enrichStockWithLabels(response.data);
+                const transformed = this._transformStocks(enrichedStock);
+
+                const index = this.stocks.findIndex(s => s.ingredient_id === transformed.ingredient_id);
+                if (index !== -1) {
+                    // Use Vue.set or create a new array to ensure reactivity
+                    this.stocks = [
+                        ...this.stocks.slice(0, index),
+                        transformed,
+                        ...this.stocks.slice(index + 1)
+                    ];
                 } else {
-                    throw new Error('Failed to update stocks');
+                    this.stocks = [...this.stocks, transformed];
                 }
+                console.log('[store] Updated stock:', enrichedStock);
+                return transformed;
             } catch (error) {
-                console.error(error);
-                this.error = 'Failed to update stocks';
+                this.error = error.message || 'Failed to update stock';
                 throw error;
             } finally {
                 this.loading = false;

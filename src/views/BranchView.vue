@@ -788,37 +788,17 @@ export default {
             this.isSaving = true;
             this.confirmUpdatingStockDialog = false;
             try {
-                const now = new Date();
-                const isoString = now.toISOString().replace(/\.\d{3}Z$/, '.000000Z');
                 const stockData = {
-                    stock_id: Number(this.currentStock.stock_id),
+                    ingredient_id: Number(this.currentStock.ingredient_id),
                     ingredient_name: this.currentStock.ingredient_name,
-                    stock_in: parseFloat(this.currentStock.stock_in),
-                    stock_unit: Number(this.currentStock.stock_unit),
-                    stock_unit_cost: parseFloat(this.currentStock.stock_unit_cost),
-                    stock_alert_qty: parseFloat(this.currentStock.stock_alert_qty),
+                    alert_quantity: parseFloat(this.currentStock.alert_quantity),
+                    base_unit_id: Number(this.currentStock.base_unit_id),
                     availability_id: Number(this.currentStock.availability_id),
-                    branch_id: Number(this.currentStock.branch_id),
                     shop_id: Number(this.currentStock.shop_id),
-                    updated_at: isoString,
+                    branch_id: Number(this.currentStock.branch_id),
                 };
-                this.updated_at = isoString;
-                
                 await this.stocksStore.updateStockStore(stockData);
                 await this.ingredientsOptionsStore.fetchAllOptions();
-
-                // For reactive effect
-                this.stocks = await this.stocksStore.stocks;
-                const index = this.stocks.findIndex(
-                    p => p.stock_id === this.currentStock.stock_id
-                );
-                if (index !== -1) {
-                    const updatedStock = this.formatStockWithISO({
-                        ...this.currentStock,
-                        ...stockData
-                    });
-                    this.stocks.splice(index, 1, updatedStock);
-                }
                 this.stockEditDialog = false;
                 this.showSuccess("Stock updated successfully!");
             } catch (error) {
@@ -850,7 +830,6 @@ export default {
                     shop_id: this.currentProduct.shop_id,
                     branch_id: this.currentProduct.branch_id,
                 };
-
                 await this.productsStore.updateProductStore(productData);
                 await this.productOptionsStore.fetchAllOptions();
                 this.productEditDialog = false;
