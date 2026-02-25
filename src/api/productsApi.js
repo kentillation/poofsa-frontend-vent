@@ -9,7 +9,7 @@ export const PRODUCTS_API = {
         FETCH_PRODUCTS_HISTORY: '/admin/products-history',
         SAVE: '/admin/save-product',
         SAVE_PRODUCT_ITEMS: '/admin/save-product-items',
-        UPDATE: '/admin/update-product',
+        UPDATE_PRODUCT: '/admin/update-product',
         UPDATE_PRODUCT_ITEMS: '/admin/update-product-items'
     },
 
@@ -157,40 +157,6 @@ export const PRODUCTS_API = {
         }
     },
 
-    // async fetchProductsHistoryApi(branchId) {
-    //     try {
-    //         const authToken = localStorage.getItem('auth_token');
-    //         if (!authToken) {
-    //             throw new Error('No authentication token found');
-    //         }
-    //         const config = {
-    //             headers: {
-    //                 Authorization: `Bearer ${authToken}`,
-    //                 'Content-Type': 'application/json'
-    //             },
-    //         };
-    //         const response = await apiClient.get(
-    //             `${this.ENDPOINTS.FETCH_PRODUCTS_HISTORY}/${branchId}`,
-    //             config
-    //         );
-
-    //         if (!response.data) {
-    //             throw new Error('Invalid response from server');
-    //         }
-    //         return response.data;
-    //     } catch (error) {
-    //         console.error('[PRODUCTS_API]: ', error);
-    //         const enhancedError = new Error(
-    //             error.response?.data?.message ||
-    //             error.message ||
-    //             'Failed to fetch products history'
-    //         );
-    //         enhancedError.response = error.response;
-    //         enhancedError.status = error.response?.status;
-    //         throw enhancedError;
-    //     }
-    // },
-
     async saveProductsApi(products) {
         try {
             const authToken = localStorage.getItem('auth_token');
@@ -276,7 +242,7 @@ export const PRODUCTS_API = {
             };
 
             const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE}/${product.product_id}`,
+                `${this.ENDPOINTS.UPDATE_PRODUCT}/${product.product_id}`,
                 product,
                 config
             );

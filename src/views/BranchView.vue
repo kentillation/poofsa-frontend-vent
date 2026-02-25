@@ -180,7 +180,7 @@
                             <!-- Stocks -->
                             <v-tabs-window-item value="stocks">
                                 <v-container>
-                                    <StocksTable @edit-stock="openEditStockDialog" :stocks="stocks"
+                                    <StocksTable @edit-stock="openEditStockDialog"
                                         :shop-id="branchDetails.shop_id"
                                         :branch-id="branchDetails.branch_id" :branch-name="branchDetails.branch_name" />
                                     <StockEditDialog v-model="stockEditDialog"

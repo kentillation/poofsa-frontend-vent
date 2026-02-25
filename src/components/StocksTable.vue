@@ -1,289 +1,256 @@
+<!-- eslint-disable -->
 <template>
     <v-row>
         <v-col cols="12" lg="4" md="4" sm="6">
-            <v-text-field density="comfortable" v-model="searchStock" placeholder="Search stock details"
-                variant="outlined" label="Search stock details" clearable @click:clear="searchStock = ''"
-                @update:modelValue="debounceSearch"></v-text-field>
+            <v-text-field v-model="search" label="Search stock details" placeholder="Search stock details"
+                variant="outlined" density="comfortable" clearable @update:model-value="onSearchChange" />
         </v-col>
     </v-row>
-    <SkeletonTable v-if="loadingVoidOrders" />
-    <v-data-table :headers="stockHeaders" :items="filteredStocks" :items-per-page="10" class="elevation-1 hover-table"
-        density="comfortable">
-        <template v-slot:top>
+
+    <v-alert v-if="store.error" type="error" variant="tonal" class="mb-4" dismissible @click:close="store.clearError">
+        {{ store.error }}
+    </v-alert>
+
+    <SkeletonTable v-if="store.loading && !store.stocks.length"  />
+
+    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
+        :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
+        <template #top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of all Stocks</h2>
                 <h2 class="ms-4 to-show">List</h2>
-                <v-spacer></v-spacer>
-                <v-btn @click="toAddStock" prepend-icon="mdi-plus" color="#0090b6" class="me-2" variant="flat">
+                <v-spacer />
+                <v-btn prepend-icon="mdi-plus" color="#0090b6" variant="flat" class="me-2" @click="toAddStocks">
                     <span class="to-hide">Add Stocks</span>
                     <span class="to-show">Stocks</span>
                 </v-btn>
-                <v-btn @click="fetchStocks" icon="mdi-refresh" color="#0090b6" variant="flat" size="small"
-                    class="me-3"></v-btn>
+                <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
+                    @click="handleRefresh" :loading="store.loading" />
             </v-toolbar>
+            <v-divider />
         </template>
 
-        <!--eslint-disable-next-line -->
-        <!-- <template v-slot:item.select="{ item }">
-            <v-checkbox v-model="item.selected" :value="true" color="primary"
-                class="d-flex justify-center"></v-checkbox>
-        </template> -->
+        <!-- Custom Columns -->
 
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.stock_ingredient="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.stock_ingredient }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.unit_label="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.unit_label }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.display_unit_cost="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.display_unit_cost }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.updated_at="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.updated_at }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.display_stock_in="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.display_stock_in }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.display_alert_qty="{ item }">
-            <span :class="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'text-red' : ''">
-                {{ item.display_alert_qty }}
-            </span>
-        </template>
-
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.availability_label="{ item }">
-            <v-chip :color="Number(item.availability_id) === 2 || item.stock_in <= item.stock_alert_qty ? 'red' : 'green'" size="small" variant="tonal">
-                <span>{{ item.stock_in === 0 ? 'Unavailable' : item.availability_label }}</span>
+        <!--  eslint-disable -->
+        <template #item.availability_label="{ item }">
+            <v-chip :color="item.availability_id === 2 ? 'red' : 'green'" size="small" variant="tonal">
+                {{ item.availability_label }}
             </v-chip>
         </template>
 
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.actions="{ item }">
-            <v-btn @click="$emit('edit-stock', item)" color="green" size="small" prepend-icon="mdi-pencil">Edit</v-btn>
+        <template #item.ingredient_name="{ item }">
+            <span :class="textClass(item)">{{ item.ingredient_name }}</span>
         </template>
 
-        <template v-slot:no-data>
+        <template #item.unit_label="{ item }">
+            <span :class="textClass(item)">{{ item.unit_label }}</span>
+        </template>
+
+        <template #item.alert_quantity="{ item }">
+            <span :class="textClass(item)">{{ item.alert_quantity }}</span>
+        </template>
+
+        <template #item.updatedAtFormatted="{ item }">
+            <span :class="textClass(item)">{{ item.updatedAtFormatted }}</span>
+        </template>
+
+        <template #item.actions="{ item }">
+            <div class="d-flex" style="gap: 8px;">
+                <v-tooltip text="Edit Stock" location="top">
+                    <template #activator="{ props }">
+                        <v-btn v-bind="props" color="green" size="small" prepend-icon="mdi-pencil"
+                            @click="$emit('edit-stock', item)">
+                            Edit
+                        </v-btn>
+                    </template>
+                </v-tooltip>
+            </div>
+        </template>
+
+        <template #no-data>
             <v-alert type="warning" variant="tonal" class="ma-4">
-                <span>&nbsp; No stocks found for this branch.</span>
+                No stocks found for this branch.
             </v-alert>
         </template>
-    </v-data-table>
-    <Alert ref="snackbarRef" />
+    </BaseDataTable>
+
+    <!-- Snackbar -->
+    <Snackbar ref="snackbarRef" />
 </template>
 
-<script>
-import { computed } from 'vue';
-import { useStocksStore } from '@/stores/stocksStore';
-import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
-import SkeletonTable from '@/components/SkeletonTable.vue';
-import Alert from '@/components/Alert.vue';
+<script setup>
+/* eslint-disable */
+import { ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStocksStore } from '@/stores/stocksStore'
+import SkeletonTable from '@/components/SkeletonTable.vue'
+import BaseDataTable from '@/components/BaseDataTable.vue'
+import Snackbar from '@/components/Snackbar.vue'
 
-export default {
-    name: 'StocksTable',
-    components: {
-        SkeletonTable, Alert
+const props = defineProps({
+    shopId: {
+        type: Number,
+        required: true
     },
-    data() {
-        return {
-            loadingVoidOrders: false,
-            searchStock: '',
-            debounceTimer: null,
-            mappedStocks: [],
-            stockHeaders: [
-                { title: '', value: 'select', width: '5%' },
-                { title: 'Ingredients', value: 'stock_ingredient', sortable: 'true', width: '20%' },
-                { title: 'Unit', value: 'unit_label', sortable: 'true', width: '10%' },
-                { title: 'StockQuantity', value: 'display_stock_in', sortable: 'true', width: '15%' },
-                { title: 'AlertQuantity', value: 'display_alert_qty', sortable: 'true', width: '15%' },
-                { title: 'UnitCost', value: 'display_unit_cost', sortable: 'true', width: '10%' },
-                { title: 'Availability', value: 'availability_label', sortable: 'true', width: '15%' },
-                { title: 'LastUpdate', value: 'updated_at', sortable: 'true', width: '25%' },
-                { title: '', value: 'actions', width: '10%' },
-            ],
-            lowStockBranches: [],
-            totalLowStock: null,
-        }
+    branchId: {
+        type: Number,
+        required: true
     },
-    props: {
-        stocks: {
-            type: Array,
-            required: true
-        },
-        branchId: {
-            type: Number,
-            required: true
-        },
-        branchName: {
-            type: String,
-            required: true
-        },
-        shopId: {
-            type: Number,
-            required: true
-        }
-    },
-    mounted() {
-        this.fetchStocks();
-    },
-    watch: {
-        stocks: {
-            handler(newVal) {
-                this.mappedStocks = newVal.map(stock => this.formatStock(stock));
-            },
-            immediate: true
-        },
-    },
-    emits: [
-        'edit-stock',
-    ],
-    computed: {
-        filteredStocks() {
-            if (!this.searchStock) {
-                return this.mappedStocks;
-            }
-            const searchTerm = this.searchStock.toLowerCase();
-            return this.mappedStocks.filter(stock => {
-                return (stock.stock_ingredient.toLowerCase().includes(searchTerm)) ||
-                    (stock.unit_label.toLowerCase().includes(searchTerm)) ||
-                    (stock.availability_label.toLowerCase().includes(searchTerm)) ||
-                    (stock.display_stock_in.toLowerCase().includes(searchTerm)) ||
-                    (stock.display_unit_cost.toLowerCase().includes(searchTerm)) ||
-                    (stock.updated_at.toLowerCase().includes(searchTerm));
-            });
-        },
-        // hasCheck() {
-        //     return !this.stocks.some(item => item.selected);
-        // },
-    },
-    setup() {
-        const stocksStore = useStocksStore();
-        const ingredientsOptionsStore = useIngredientsOptionsStore();
-        const ingredentsUnitOption = computed(() => ingredientsOptionsStore.unitOption);
-        const ingredientsAvailabilityOption = computed(() => ingredientsOptionsStore.availabilityOption);
-        return {
-            stocksStore,
-            ingredientsOptionsStore,
-            ingredentsUnitOption,
-            ingredientsAvailabilityOption,
-        };
-    },
-    methods: {
-        debounceSearch() {
-            if (this.debounceTimer) clearTimeout(this.debounceTimer);
-            this.debounceTimer = setTimeout(() => {
-            }, 300);
-        },
+    branchName: {
+        type: String,
+        default: ''
+    }
+})
 
-        async fetchStocks() {
-            this.loadingVoidOrders = true
-            try {
-                await this.stocksStore.fetchAllStocksStore(this.branchId);
-                if (this.stocksStore.stocks.length === 0) {
-                    this.mappedStocks = [];
-                } else {
-                    this.mappedStocks = this.stocksStore.stocks.map(stock => this.formatStock(stock));
+const emit = defineEmits(['edit-stock'])
 
-                }
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
-            } finally {
-                this.loadingVoidOrders = false
-            }
-        },
+const router = useRouter()
+const store = useStocksStore()
 
-        // async fetchLowStocks() {
-        //     try {
-        //         const response = await this.stocksStore.fetchLowStocksStore();
-        //         const formattedBranches = {};
-        //         Object.entries(response.data.branches).forEach(([id, branch]) => {
-        //             formattedBranches[id.toString()] = branch;
-        //         });
-        //         this.lowStockBranches = formattedBranches;
-        //         this.totalLowStock = response.data.total_count;
-        //         if (this.totalLowStock > 0) {
-        //             const branchDetails = Object.values(this.lowStockBranches).map(
-        //                 branch => `${branch.name} branch (${branch.count} item${branch.count !== 1 ? 's' : ''})`
-        //             );
-        //             const message = `Low stock alert: ${branchDetails.join(', ')}`;
-        //             this.showError(message);
-        //         }
-        //     } catch (error) {
-        //         console.error('Error fetching stocks:', error);
-        //     }
-        // },
+const displayItems = ref([])
+const tableKey = ref(0)
+const snackbarRef = ref(null)
+const search = ref('')
+const options = ref({
+    page: 1,
+    itemsPerPage: 10,
+})
 
-        toAddStock() {
-            this.$router.push({
-                path: '/add-stock/',
-                query: {
-                    shop_id: this.shopId,
-                    branch_id: this.branchId,
-                    branch_name: this.branchName,
-                }
-            });
-        },
+const isFetching = ref(false)
+const lastFetchParams = ref('')
 
-        formatStock(stock) {
-            const unit = this.ingredentsUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.ingredientsAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
-            return {
-                ...stock,
-                unit_label: unit?.unit_label,
-                availability_label: availability?.availability_label,
-                stock_ingredient: this.capitalizeFirstLetter(stock.stock_ingredient),
-                stock_unit: Number(stock.stock_unit),
-                stock_in: Number(stock.stock_in),
-                display_alert_qty: `≤ ${Number(stock.stock_alert_qty)}`,
-                availability_id: Number(stock.availability_id),
-                display_stock_in: `x${stock.stock_in}`,
-                display_unit_cost: `₱${stock.stock_unit_cost}`,
-                updated_at: this.formatDateTime(stock.updated_at),
-            };
-        },
+const headers = [
+    { title: 'Availability', value: 'availability_label', sortable: true, align: 'start' },
+    { title: 'StockName', value: 'ingredient_name', sortable: true },
+    { title: 'BaseUnit', value: 'unit_label', sortable: true },
+    { title: 'AlertQuantity', value: 'alert_quantity', sortable: true },
+    { title: 'LastUpdate', value: 'updatedAtFormatted', sortable: true },
+    { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
+]
 
-        capitalizeFirstLetter(text) {
-            return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : '';
-        },
+let searchTimer = null
 
-        formatDateTime(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleString('en-PH', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-                timeZone: 'Asia/Manila'
-            });
-        },
+const onSearchChange = (value) => {
+    search.value = value
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
+        options.value.page = 1
+        fetchStocks()
+    }, 300)
+}
 
-        showError(message) {
-            this.$refs.snackbarRef.showSnackbarAlert(message, "error");
-        },
+const onOptionsUpdate = (val) => {
+    const optionsChanged =
+        val.page !== options.value.page ||
+        val.itemsPerPage !== options.value.itemsPerPage
+
+    if (optionsChanged) {
+        options.value = val
+        fetchStocks()
     }
 }
+
+const handleRefresh = () => {
+    options.value.page = 1
+    lastFetchParams.value = ''
+    fetchStocks()
+}
+
+const updateDisplayItems = () => {
+    if (!Array.isArray(store.stocks)) {
+        displayItems.value = []
+    } else {
+        displayItems.value = store.stocks
+            .filter(item => item && typeof item === 'object')
+            .map(item => ({ ...item }))
+    }
+    tableKey.value++
+}
+
+const fetchStocks = async () => {
+    if (!props.branchId || isFetching.value) return
+
+    const params = JSON.stringify({
+        branchId: props.branchId,
+        page: options.value.page,
+        itemsPerPage: options.value.itemsPerPage,
+        search: search.value
+    })
+
+    if (params === lastFetchParams.value) return
+
+    isFetching.value = true
+    lastFetchParams.value = params
+
+    try {
+        await store.fetchAllStocksStore({
+            branchId: props.branchId,
+            page: options.value.page,
+            itemsPerPage: options.value.itemsPerPage,
+            search: search.value,
+        })
+
+        updateDisplayItems()
+
+    } catch (error) {
+        console.error('Fetch error:', error)
+        if (snackbarRef.value) {
+            snackbarRef.value.showSnackbar(error.message || 'Failed to load stocks', 'error')
+        }
+    } finally {
+        isFetching.value = false
+    }
+}
+
+watch(() => store.stocks, () => {
+    updateDisplayItems()
+}, { deep: true })
+
+watch(() => props.branchId, (newId) => {
+    if (newId) fetchStocks()
+}, { immediate: true })
+
+onMounted(() => {
+    if (props.branchId) {
+        fetchStocks()
+    }
+})
+
+const toAddStocks = () => {
+    router.push({
+        path: '/add-stock/',
+        query: {
+            shop_id: props.shopId,
+            branch_id: props.branchId,
+            branch_name: props.branchName
+        }
+    })
+}
+
+const textClass = (item) => item.availability_id === 2 ? 'text-red' : ''
 </script>
+
+<style scoped>
+.hover-table:deep(.v-data-table__tr:hover) {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.to-hide {
+    display: inline;
+}
+
+.to-show {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .to-hide {
+        display: none;
+    }
+
+    .to-show {
+        display: inline;
+    }
+}
+</style>

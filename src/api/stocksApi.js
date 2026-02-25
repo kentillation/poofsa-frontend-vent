@@ -2,7 +2,7 @@ import apiClient from '../axios';
 
 export const STOCK_API = {
     ENDPOINTS: {
-        FETCH: '/admin/stocks',
+        FETCH_ALL_STOCKS: '/admin/stocks',
         FETCH_STOCKS_BY_DATE: '/admin/stocks-report',
         FETCH_STOCKS_HISTORY: '/admin/stocks-history',
         SAVE: '/admin/save-stock',
@@ -18,31 +18,43 @@ export const STOCK_API = {
      * @throws {Error} Enhanced error with server response details
      */
 
-    async fetchAllStocksApi(branchId) {
+    async fetchAllStocksApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
+
+            const params = {
+                branch_id: branchId,
+                page,
+                itemsPerPage,
+            };
+
+            if (search) {
+                params.search = search;
+            }
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 },
+                params
             };
-            const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH}/${branchId}`,
-                config
-            );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[StocksAPI] Error fetching stocks:', error);
 
-            const enhancedError = new Error('Failed to fetch stocks');
-            throw enhancedError;
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_ALL_STOCKS, config);
+
+            return {
+                success: response.data?.success ?? true,
+                data: response.data?.data ?? response.data ?? [],
+                total: response.data?.total ?? (response.data?.data?.length ?? 0),
+                message: response.data?.message ?? 'Success'
+            };
+
+        } catch (error) {
+            console.error('[STOCKS_API] Error fetching stocks:', error);
+            throw error;
         }
     },
 
