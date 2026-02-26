@@ -18,11 +18,11 @@
         <template #top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of All Orders</h2>
-                <h2 class="ms-4 to-show">All Orders</h2>
+                <h2 class="ms-4 to-show">Orders</h2>
                 <v-spacer />
                 <v-btn prepend-icon="mdi-eye-outline" color="#0090b6" variant="flat" class="me-2" @click="viewOnlineOrders">
                     <span class="to-hide">View Online Orders</span>
-                    <span class="to-show">Online Orders</span>
+                    <span class="to-show">OL Orders</span>
                 </v-btn>
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
                     @click="handleRefresh" :loading="store.loading" />
@@ -34,15 +34,25 @@
 
         <!--  eslint-disable -->
         <template #item.order_status="{ item }">
-            <v-chip :color="item.order_status_id === 1 ? 'red' : 'green'" size="small" variant="tonal">
+            <v-chip :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'" size="small" variant="tonal">
                 {{ item.order_status }}
             </v-chip>
         </template>
 
         <template #item.order_type="{ item }">
-            <v-chip :color="item.order_type_id === 1 ? 'warning' : 'green'" size="small" variant="tonal">
+            <v-chip :color="item.order_type_id === 1 ? 'black' : item.order_type_id === 2 ? 'purple' : item.order_type_id === 3 ? 'teal' : 'grey'" size="small" variant="tonal">
                 {{ item.order_type }}
             </v-chip>
+        </template>
+
+        <template #item.sales_status="{ item }">
+            <v-chip :color="item.sales_status === 1 ? 'warning' : 'green'" size="small" variant="tonal">
+                {{ item.sales_status }}
+            </v-chip>
+        </template>
+
+        <template #item.payment_method="{ item }">
+            <span :class="item.payment_method_id === 1 ? 'text-blue' : 'text-green'">{{ item.payment_method }}</span>
         </template>
 
         <template #item.table_number="{ item }">
@@ -125,13 +135,13 @@ const lastFetchParams = ref('')
 const headers = [
     { title: 'OrderStatus', value: 'order_status', sortable: true, align: 'start' },
     { title: 'OrderType', value: 'order_type', sortable: true },
+    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
+    { title: 'PaymentMethod', value: 'payment_method', sortable: true },
     { title: 'TableNumber', value: 'table_number', sortable: true },
     { title: 'OrderNumber', value: 'order_number', sortable: true },
     { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
     { title: 'TotalAmount', value: 'total_amount', sortable: true },
     { title: 'CustomerChange', value: 'customer_change', sortable: true },
-    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
-    { title: 'PaymentMethod', value: 'payment_method', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]
 
