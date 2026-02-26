@@ -19,11 +19,11 @@ export const useStocksStore = defineStore('stocks', {
 
     getters: {
         stockNotificationQty: (state) => state.totalLowStock || 0,
-        hasStocks: (state) => state.stocks.length > 0,
-        isEmpty: (state) => state.stocks.length === 0 && !state.loading,
-        getStockById: (state) => (id) => state.stocks.find(p => p.ingredient_id === id),
-        getStocksByCategory: (state) => (categoryId) => state.stocks.filter(p => p.category_id === categoryId),
-        getAvailableStocks: (state) => state.stocks.filter(p => p.availability_id === 1)
+        // hasStocks: (state) => state.stocks.length > 0,
+        // isEmpty: (state) => state.stocks.length === 0 && !state.loading,
+        // getStockById: (state) => (id) => state.stocks.find(p => p.ingredient_id === id),
+        // getStocksByCategory: (state) => (categoryId) => state.stocks.filter(p => p.category_id === categoryId),
+        // getAvailableStocks: (state) => state.stocks.filter(p => p.availability_id === 1)
     },
 
     actions: {

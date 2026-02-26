@@ -201,6 +201,13 @@
                                 </v-container>
                             </v-tabs-window-item>
 
+                            <!-- Orders -->
+                            <v-tabs-window-item value="orders">
+                                <v-container>
+                                    <OrdersTable :shop-id="branchDetails.shop_id" :branch-id="branchDetails.branch_id" />
+                                </v-container>
+                            </v-tabs-window-item>
+
                             <!-- Void Orders -->
                             <v-tabs-window-item value="void-orders">
                                 <v-container>
@@ -361,6 +368,7 @@ import OrdersReportTable from '@/components/OrdersReportTable.vue';
 import OrdersReportsTableSkeleton from '@/components/OrdersReportsTableSkeleton.vue';
 import SalesReportTable from '@/components/SalesReportTable.vue';
 import SalesReportsTableSkeleton from '@/components/SalesReportsTableSkeleton.vue';
+import OrdersTable from '@/components/OrdersTable.vue';
 import VoidOrdersTable from '@/components/VoidOrdersTable.vue';
 import SalesChart from '@/components/SalesChart.vue';
 
@@ -384,6 +392,7 @@ export default {
         OrdersReportsTableSkeleton,
         SalesReportTable,
         SalesReportsTableSkeleton,
+        OrdersTable,
         VoidOrdersTable,
         SalesChart,
     },
@@ -549,6 +558,7 @@ export default {
                 { label: 'Dashboard', value: 'dashboard' },
                 { label: 'Products', value: 'products', },
                 { label: 'Stocks', value: 'stocks', },
+                { label: 'Orders', value: 'orders', },
                 { label: 'Void Orders', value: 'void-orders', },
                 { label: 'Branch Info', value: 'branch-info', },
                 { label: 'Reports', value: 'reports', },
@@ -590,19 +600,20 @@ export default {
                 this.loadingStore.show("Preparing...");
                 this.onDashboard();
                 this.loadingStore.hide();
-            } else if (newTab === 'products') {
-                console.log("Current Reports Tab: ", newTab);
-                this.productOptionsStore.fetchAllOptions();
-            } else if (newTab === 'stocks') {
-                console.log("Current Reports Tab: ", newTab);
-                this.ingredientsOptionsStore.fetchAllOptions();
-            } else if (newTab === 'void-orders') {
-                console.log("Current Reports Tab: ", newTab);
-            } else if (newTab === 'branch-info') {
-                console.log("Current Reports Tab: ", newTab);
-            } else if (newTab === 'reports') {
-                console.log("Current Reports Tab: ", newTab);
             }
+            // else if (newTab === 'products') {
+            //     console.log("Current Reports Tab: ", newTab);
+            //     this.productOptionsStore.fetchAllOptions();
+            // } else if (newTab === 'stocks') {
+            //     console.log("Current Reports Tab: ", newTab);
+            //     this.ingredientsOptionsStore.fetchAllOptions();
+            // } else if (newTab === 'void-orders') {
+            //     console.log("Current Reports Tab: ", newTab);
+            // } else if (newTab === 'branch-info') {
+            //     console.log("Current Reports Tab: ", newTab);
+            // } else if (newTab === 'reports') {
+            //     console.log("Current Reports Tab: ", newTab);
+            // }
         },
 
         activeBranchInfoTab(newBranchInfoTab) {
