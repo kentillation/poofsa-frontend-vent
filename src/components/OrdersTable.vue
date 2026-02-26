@@ -130,7 +130,7 @@ const headers = [
     { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
     { title: 'TotalAmount', value: 'total_amount', sortable: true },
     { title: 'CustomerChange', value: 'customer_change', sortable: true },
-    { title: 'PaymentStatus', value: 'payment_status', sortable: true },
+    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
     { title: 'PaymentMethod', value: 'payment_method', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]

@@ -32,7 +32,7 @@ export const useOrdersStore = defineStore('orders', {
                     total_quantity: null,
                     total_amount: null,
                     customer_change: null,
-                    payment_status: '',
+                    sales_status: '',
                     payment_method: '',
                 };
             }
@@ -47,7 +47,7 @@ export const useOrdersStore = defineStore('orders', {
                 total_quantity: order.total_quantity,
                 total_amount: order.total_amount,
                 customer_change: order.customer_change,
-                payment_status: order.payment_status,
+                sales_status: order.sales_status,
                 payment_method: order.payment_method,
                 updatedAtFormatted: order.updated_at ? formatDate(order.updated_at) : '',
                 updatedAtShort: order.updated_at ? formatDateShort(order.updated_at) : '',
@@ -90,7 +90,7 @@ export const useOrdersStore = defineStore('orders', {
                 total_quantity: order.total_quantity || existing?.total_quantity || null,
                 total_amount: order.total_amount || existing?.total_amount || null,
                 customer_change: order.customer_change || existing?.customer_change || null,
-                payment_status: order.payment_status || existing?.payment_status || '',
+                sales_status: order.sales_status || existing?.sales_status || '',
                 payment_method: order.payment_method || existing?.payment_method || '',
                 updatedAtFormatted: order.updated_at ? formatDate(order.updated_at) : existing?.updatedAtFormatted || '',
                 updatedAtShort: order.updated_at ? formatDateShort(order.updated_at) : existing?.updatedAtShort || '',
