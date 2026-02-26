@@ -71,7 +71,7 @@
         </template>
 
         <template #no-data>
-            <v-alert v-if="!store.orders.length" type="warning" variant="tonal" class="ma-4">
+            <v-alert v-if="!displayItems.length" type="warning" variant="tonal" class="ma-4">
                 No orders found for this branch.
             </v-alert>
         </template>

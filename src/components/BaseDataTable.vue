@@ -3,7 +3,7 @@
     :items-per-page="options.itemsPerPage" :page="options.page" @update:options="updateOptions" density="comfortable"
     item-value="id" class="elevation-1">
     <template v-for="(fn, slotName) in filteredSlots" #[slotName]="slotProps">
-      <slot v-if="slotProps && typeof slotProps === 'object'" :name="slotName" v-bind="slotProps" />
+        <slot :name="slotName" v-bind="slotProps || {}" />
     </template>
   </v-data-table-server>
 </template>
