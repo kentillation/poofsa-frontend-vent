@@ -47,8 +47,8 @@
             <span :class="textClass(item)">{{ item.unit_label }}</span>
         </template>
 
-        <template #item.alert_quantity="{ item }">
-            <span :class="textClass(item)">{{ item.alert_quantity }}</span>
+        <template #item.display_alert_quantity="{ item }">
+            <span :class="textClass(item)">{{ item.display_alert_quantity }}</span>
         </template>
 
         <template #item.updatedAtFormatted="{ item }">

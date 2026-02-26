@@ -10,7 +10,7 @@ export const useStocksStore = defineStore('stocks', {
         lowStockBranches: [],
         totalLowStock: null,
         total: 0,
-        stockHistoryTotal: 0,
+        stocksHistoryTotal: 0,
         loading: false,
         error: null,
         _fetchCache: null,
@@ -162,22 +162,57 @@ export const useStocksStore = defineStore('stocks', {
             }
         },
 
-        async fetchStocksHistoryStore(branchId) {
+        async fetchStocksHistoryStore({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
+            if (!branchId) {
+                this.error = 'Branch ID is required';
+                return;
+            }
+
+            const cacheKey = this._getCacheKey(branchId, page, itemsPerPage, search);
+
+            if (this._lastFetchHash === cacheKey && this.stocksHistory.length > 0) {
+                return;
+            }
+
             this.loading = true;
             this.error = null;
+
             try {
-                if (!STOCK_API || typeof STOCK_API.fetchStocksHistoryApi !== 'function') {
-                    throw new Error('STOCK_API service is not properly initialized');
+                const response = await STOCK_API.fetchStocksHistoryApi({
+                    branchId,
+                    page,
+                    itemsPerPage,
+                    search
+                });
+
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to fetch modified stocks history');
                 }
-                const response = await STOCK_API.fetchStocksHistoryApi(branchId);
-                if (response && response.status === true) {
-                    this.stocksHistory = response.data;
-                } else {
-                    throw new Error('Failed to fetch stocks');
+
+                let rawStocks = Array.isArray(response.data) ? response.data : [];
+                const totalCount = response.total ?? rawStocks.length;
+
+                const beforeLength = rawStocks.length;
+                rawStocks = rawStocks.filter(p => p && typeof p === 'object');
+                if (rawStocks.length !== beforeLength) {
+                    console.warn('[stocksStore] removed invalid items from API response', {
+                        before: beforeLength,
+                        after: rawStocks.length,
+                        branchId,
+                        search
+                    });
                 }
+
+                this.stocksHistory = rawStocks.map(s => this._transformStocksHistory(s));
+                this.stocksHistoryTotal = totalCount;
+                this._lastFetchHash = cacheKey;
+                this._fetchCache = { rawStocks, totalCount };
+
             } catch (error) {
-                console.error(error);
-                this.error = 'Failed to fetch stocks';
+                this.error = error.message || 'Failed to fetch modified stocks';
+                this.stocksHistory = [];
+                this.stocksHistoryTotal = 0;
+                this._lastFetchHash = null;
                 throw error;
             } finally {
                 this.loading = false;

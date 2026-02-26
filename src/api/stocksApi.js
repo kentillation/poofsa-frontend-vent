@@ -58,31 +58,43 @@ export const STOCK_API = {
         }
     },
 
-    async fetchStocksHistoryApi(branchId) {
+    async fetchStocksHistoryApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
+
+            const params = {
+                branch_id: branchId,
+                page,
+                itemsPerPage,
+            };
+
+            if (search) {
+                params.search = search;
+            }
+
             const config = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
                 },
+                params
             };
-            const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH_STOCKS_HISTORY}/${branchId}`,
-                config
-            );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[StocksAPI] Error fetching stocks history:', error);
 
-            const enhancedError = new Error('Failed to fetch stocks history');
-            throw enhancedError;
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_STOCKS_HISTORY, config);
+
+            return {
+                success: response.data?.success ?? true,
+                data: response.data?.data ?? response.data ?? [],
+                total: response.data?.total ?? (response.data?.data?.length ?? 0),
+                message: response.data?.message ?? 'Success'
+            };
+
+        } catch (error) {
+            console.error('[STOCK_API] Error fetching modified stocks:', error);
+            throw error;
         }
     },
 
