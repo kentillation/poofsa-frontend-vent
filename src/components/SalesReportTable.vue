@@ -277,9 +277,8 @@ export default {
                             </div>
                             <h5>${this.formatCurrentDate}</h5>
                         </div>
+                        <h2><strong>Sales Report for ${this.branchName} Branch</strong></h2>
                         <p>
-                            <strong>Sales Report for ${this.branchName} Branch | ${ this.selectedFilterLabel }</strong>
-                            <br />
                             <strong>Total Sales: ${this.formatSalesDisplay(this.transactStore.totalSales)}</strong>
                         </p>
                         <table>
