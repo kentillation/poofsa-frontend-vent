@@ -12,6 +12,8 @@ export const useProductsStore = defineStore('products', {
         total: 0,
         productsHistoryTotal: 0,
         loading: false,
+        loadingProducts: false,
+        loadingProductsHistory: false,
         error: null,
         // Cache tracking
         _fetchCache: null,
@@ -160,7 +162,7 @@ export const useProductsStore = defineStore('products', {
                 return;
             }
 
-            this.loading = true;
+            this.loadingProducts = true;
             this.error = null;
 
             try {
@@ -207,7 +209,7 @@ export const useProductsStore = defineStore('products', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingProducts = false;
             }
         },
 
@@ -259,7 +261,7 @@ export const useProductsStore = defineStore('products', {
                 return;
             }
 
-            this.loading = true;
+            this.loadingProductsHistory = true;
             this.error = null;
 
             try {
@@ -300,7 +302,7 @@ export const useProductsStore = defineStore('products', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingProductsHistory = false;
             }
         },
 

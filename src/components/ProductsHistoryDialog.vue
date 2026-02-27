@@ -14,10 +14,10 @@
                     {{ store.error }}
                 </v-alert>
 
-                <SkeletonTable v-if="store.loading && !store.productsHistory.length"  />
+                <SkeletonTable v-if="store.loadingProductsHistory && !store.productsHistory.length"  />
 
                 <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.productsHistoryTotal"
-                    :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
+                    :loading="store.loadingProductsHistory" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
                     
                     <template #top>
                         <v-toolbar flat>
@@ -25,7 +25,7 @@
                             <h2 class="ms-4 to-show">Modified Products</h2>
                             <v-spacer />
                             <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
-                                @click="handleRefresh" :loading="store.loading" />
+                                @click="handleRefresh" :loading="store.loadingProductsHistory" />
                         </v-toolbar>
                         <v-divider />
                     </template>
@@ -45,7 +45,7 @@
 
                     <template #no-data>
                         <v-alert type="warning" variant="tonal" class="ma-4">
-                            No modified products found for this branch.
+                            No modified product history found for this branch.
                         </v-alert>
                     </template>
                 </BaseDataTable>

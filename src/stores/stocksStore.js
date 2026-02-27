@@ -12,6 +12,8 @@ export const useStocksStore = defineStore('stocks', {
         total: 0,
         stocksHistoryTotal: 0,
         loading: false,
+        loadingStocks: false,
+        loadingStocksHistory: false,
         error: null,
         _fetchCache: null,
         _lastFetchHash: null
@@ -117,7 +119,7 @@ export const useStocksStore = defineStore('stocks', {
                 return;
             }
 
-            this.loading = true;
+            this.loadingStocks = true;
             this.error = null;
 
             try {
@@ -158,7 +160,7 @@ export const useStocksStore = defineStore('stocks', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingStocks = false;
             }
         },
 
@@ -174,7 +176,7 @@ export const useStocksStore = defineStore('stocks', {
                 return;
             }
 
-            this.loading = true;
+            this.loadingStocksHistory = true;
             this.error = null;
 
             try {
@@ -215,7 +217,7 @@ export const useStocksStore = defineStore('stocks', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingStocksHistory = false;
             }
         },
 

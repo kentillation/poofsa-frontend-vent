@@ -8,7 +8,7 @@ export const useOrdersStore = defineStore('orders', {
         ordersHistory: [],
         total: 0,
         ordersHistoryTotal: 0,
-        loading: false,
+        loadingOrders: false,
         error: null,
         _fetchCache: null,
         _lastFetchHash: null
@@ -112,7 +112,7 @@ export const useOrdersStore = defineStore('orders', {
                 return;
             }
 
-            this.loading = true;
+            this.loadingOrders = true;
             this.error = null;
 
             try {
@@ -153,7 +153,7 @@ export const useOrdersStore = defineStore('orders', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingOrders = false;
             }
         },
 

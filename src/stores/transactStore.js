@@ -16,6 +16,7 @@ export const useTransactStore = defineStore('transactions', {
         voidOrdersByDate: [],
         voidOrders: [],
         grossSales: '',
+        totalSales: null,
         ordersOnly: '',
         stocksOnly: '',
         loading: false,
@@ -188,6 +189,7 @@ export const useTransactStore = defineStore('transactions', {
                 if (response && response.status === true) {
                     this.grossSalesByDate = response.data;
                     this.grossSales = response.total_sales
+                    this.totalSales = response.total_sales
                 } else {
                     throw new Error(response?.message || 'Failed to fetch sales');
                 }

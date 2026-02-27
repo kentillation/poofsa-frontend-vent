@@ -302,8 +302,8 @@
                                                 :shop-name="branchDetails.shop_name"
                                                 :branch-id="branchDetails.branch_id"
                                                 :branch-name="branchDetails.branch_name"
-                                                :branch-location="branchDetails.branch_location"
-                                                :contact="branchDetails.contact"
+                                                :branch-address="branchDetails.branch_address"
+                                                :branch-contact-number="branchDetails.branch_contact_number"
                                                 :admin-name="branchDetails.admin_name" />
 
                                             <OrdersReportsTableSkeleton
@@ -525,40 +525,39 @@ export default {
         branch_Details() {
             return [
                 { label: 'Branch name', value: this.branchDetails.branch_name },
-                { label: 'Branch manager', value: this.branchDetails.m_name },
-                { label: 'Contact', value: this.branchDetails.contact },
-                { label: 'Email', value: this.branchDetails.m_email },
-                { label: 'Location', value: this.branchDetails.branch_location },
+                { label: 'Branch address', value: this.branchDetails.branch_address },
+                { label: 'Branch manager', value: this.branchDetails.branch_manager_name },
+                { label: 'Branch contact', value: this.branchDetails.branch_contact_number },
             ];
         },
 
         cashier_Details() {
             return [
-                { label: 'Name', value: this.branchDetails.cashier_name },
-                { label: 'Email', value: this.branchDetails.cashier_email },
+                { label: 'Cashier name', value: this.branchDetails.cashier_name },
+                { label: 'Cashier email', value: this.branchDetails.cashier_email },
             ];
         },
 
         barista_Details() {
             return [
-                { label: 'Name', value: this.branchDetails.barista_name },
-                { label: 'Email', value: this.branchDetails.barista_email },
+                { label: 'Barista name', value: this.branchDetails.barista_name },
+                { label: 'Barista email', value: this.branchDetails.barista_email },
             ];
         },
 
         kitchen_Details() {
             return [
-                { label: 'Name', value: this.branchDetails.kitchen_name },
-                { label: 'Email', value: this.branchDetails.kitchen_email },
+                { label: 'Kitchen personnel', value: this.branchDetails.kitchen_personnel_name },
+                { label: 'Kitchen personnel email', value: this.branchDetails.kitchen_personnel_email },
             ];
         },
 
         tabs() {
             return [
                 { label: 'Dashboard', value: 'dashboard' },
+                { label: 'Orders', value: 'orders', },
                 { label: 'Products', value: 'products', },
                 { label: 'Stocks', value: 'stocks', },
-                { label: 'Orders', value: 'orders', },
                 { label: 'Void Orders', value: 'void-orders', },
                 { label: 'Branch Info', value: 'branch-info', },
                 { label: 'Reports', value: 'reports', },
@@ -601,40 +600,8 @@ export default {
                 this.onDashboard();
                 this.loadingStore.hide();
             }
-            // else if (newTab === 'products') {
-            //     console.log("Current Reports Tab: ", newTab);
-            //     this.productOptionsStore.fetchAllOptions();
-            // } else if (newTab === 'stocks') {
-            //     console.log("Current Reports Tab: ", newTab);
-            //     this.ingredientsOptionsStore.fetchAllOptions();
-            // } else if (newTab === 'void-orders') {
-            //     console.log("Current Reports Tab: ", newTab);
-            // } else if (newTab === 'branch-info') {
-            //     console.log("Current Reports Tab: ", newTab);
-            // } else if (newTab === 'reports') {
-            //     console.log("Current Reports Tab: ", newTab);
-            // }
         },
 
-        activeBranchInfoTab(newBranchInfoTab) {
-            if (newBranchInfoTab === 'details') {
-                this.loadingStore.show("Preparing...");
-                this.fetchBranchDetails();
-                this.loadingStore.hide();
-            } else if (newBranchInfoTab === 'cashier') {
-                this.loadingStore.show("Preparing...");
-                // this.fetchCashierPersonnel();
-                this.loadingStore.hide();
-            } else if (newBranchInfoTab === 'barista') {
-                this.loadingStore.show("Preparing...");
-                // this.fetchBaristaPersonnel();
-                this.loadingStore.hide();
-            } else if (newBranchInfoTab === 'kitchen') {
-                this.loadingStore.show("Preparing...");
-                // this.fetchKitchenPersonnel();
-                this.loadingStore.hide();
-            }
-        },
     },
     methods: {
 

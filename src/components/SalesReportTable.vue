@@ -64,7 +64,7 @@ export default {
             shopLogoLink: '-',
             salesReportHeaders: [
                 { title: 'Product', value: 'display_product_name', sortable: 'true', width: '25%' },
-                { title: 'Price', value: 'display_product_price', sortable: 'true', width: '10%' },
+                { title: 'Price', value: 'display_base_price', sortable: 'true', width: '10%' },
                 { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
                 { title: 'Category', value: 'category_label', sortable: 'true', width: '15%' },
                 { title: 'GrossSale', value: 'display_gross_sales', sortable: 'true', width: '15%' },
@@ -130,11 +130,11 @@ export default {
             type: String,
             required: true
         },
-        branchLocation: {
+        branchAddress: {
             type: String,
             required: true
         },
-        contact: {
+        branchContactNumber: {
             type: String,
             required: true
         },
@@ -203,23 +203,24 @@ export default {
                 } else {
                     this.loadingStore.show('Downloading sales...');
                 }
+                const headings = [
+                    `Shop name: ${this.shopName}`,
+                    `Branch name: ${this.branchName} Branch`,
+                    `Branch address: ${this.branchAddress}`,
+                    `Branch contact number: ${this.branchContactNumber}`,
+                    `Date: ${this.formatCurrentDate}`,
+                    `Prepared by : ${this.adminName}`,
+                    `TOTAL SALES : ₱${this.formatSalesDisplay(this.transactStore.totalSales)}`,
+                    '',
+                ].join('\n');
                 const grossSalesByDate = this.transactStore.grossSalesByDate.map(t_order => ({
                     'Product name': `${t_order.product_name}${t_order.temp_label}${t_order.size_label}`,
-                    'Product price': t_order.product_price,
+                    'Product price': t_order.base_price,
                     'Total quantity': t_order.total_quantity,
                     'Product category': t_order.category_label,
                     'Subtotal': this.formatSalesDisplay(t_order.gross_sales),
                     'Date': this.formatDateTime(t_order.updated_at),
                 }));
-                const headings = [
-                    `Shop Name: ${this.shopName}`,
-                    `Branch Name: ${this.branchName} Branch`,
-                    `Branch Location: ${this.branchLocation}`,
-                    `Contact: ${this.contact}`,
-                    `Date: ${this.formatCurrentDate}`,
-                    `Prepared by : ${this.adminName}`,
-                    '',
-                ].join('\n');
                 const csvContent = "data:text/csv;charset=utf-8,"
                     + headings + "\n"
                     + Object.keys(grossSalesByDate[0]).join(",") + "\n"
@@ -271,12 +272,16 @@ export default {
                             <div>
                                 <h2>${this.shopName}</h2>
                                 <h4>${this.branchName} Branch</h4>
-                                <h5>${this.branchLocation}</h5>
-                                <h5>${this.contact}</h5>
+                                <h5>${this.branchAddress}</h5>
+                                <h5>${this.branchContactNumber}</h5>
                             </div>
                             <h5>${this.formatCurrentDate}</h5>
                         </div>
-                        <p><strong>Sales Report for ${this.branchName} Branch | ${ this.selectedFilterLabel }</strong></p>
+                        <p>
+                            <strong>Sales Report for ${this.branchName} Branch | ${ this.selectedFilterLabel }</strong>
+                            <br />
+                            <strong>Total Sales: ${this.formatSalesDisplay(this.transactStore.totalSales)}</strong>
+                        </p>
                         <table>
                             <tr>
                                 <th>Product</th>
@@ -289,7 +294,7 @@ export default {
                             ${this.transactStore.grossSalesByDate.map(t_order => `
                                 <tr>
                                     <td>${t_order.product_name}${t_order.temp_label}${t_order.size_label}</td>
-                                    <td>₱${t_order.product_price}</td>
+                                    <td>₱${t_order.base_price}</td>
                                     <td>${t_order.total_quantity } ${ t_order.total_quantity > 1 ? 'items' : 'item'} </td>
                                     <td>${t_order.category_label}</td>
                                     <td>₱${this.formatSalesDisplay(t_order.gross_sales)}</td>
@@ -327,15 +332,15 @@ export default {
                 ...sale,
                 display_product_name: `${sale.product_name}${sale.temp_label}${sale.size_label}`,
                 updated_at: this.formatDateTime(sale.updated_at),
-                display_product_price: `₱${sale.product_price}`,
+                display_base_price: `₱${sale.base_price}`,
                 display_total_quantity: `x${sale.total_quantity}`,
                 display_gross_sales: `₱${display_sales}`,
             };
         },
 
-        formatSalesDisplay(grossSales) {
-            if (!grossSales) return '0.00';
-            const value = Number(grossSales);
+        formatSalesDisplay(sales) {
+            if (!sales) return '0.00';
+            const value = Number(sales);
             return (Math.round(value * 100) / 100).toLocaleString('en-PH', { 
                 minimumFractionDigits: 2, 
                 maximumFractionDigits: 2 

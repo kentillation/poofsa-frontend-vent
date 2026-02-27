@@ -11,10 +11,10 @@
         {{ store.error }}
     </v-alert>
 
-    <SkeletonTable v-if="store.loading && !store.stocks.length"  />
+    <SkeletonTable v-if="store.loadingStocks && !store.stocks.length"  />
 
     <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
-        :loading="store.loading" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
+        :loading="store.loadingStocks" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
         <template #top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of all Stocks</h2>
@@ -25,7 +25,7 @@
                     <span class="to-show">Stocks</span>
                 </v-btn>
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
-                    @click="handleRefresh" :loading="store.loading" />
+                    @click="handleRefresh" :loading="store.loadingStocks" />
             </v-toolbar>
             <v-divider />
         </template>
