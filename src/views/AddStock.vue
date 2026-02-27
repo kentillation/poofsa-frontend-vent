@@ -8,18 +8,20 @@
                 <v-btn color="red" class="pe-1 mb-4 me-1" prepend-icon="mdi-trash-can-outline"
                     @click="removeRow(index)">
                 </v-btn>
-                <v-text-field class="child" v-model="row.stockIngredient" label="Stock name"
+                <!-- ingredientName, baseUnitId, alertQuantity, quantityReceived, unitCost  -->
+                <v-text-field class="child" v-model="row.ingredientName" label="Item name"
                     :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
-                <v-text-field class="child" v-model="row.stockIn" label="Stock in (qty)"
-                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
-                <v-text-field class="child" v-model="row.stockAlertQty" label="Stock alert (qty)"
-                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.stockUnit" label="Unit" :items="unitOptions"
-                    @click="getProductTemperatureOption" :rules="[v => !!v || 'Required']" item-title="unit_avb"
+                <v-autocomplete class="child" v-model="row.baseUnitId" label="Unit" :items="unitOptions"
+                    @click="getUnitOption" :rules="[v => !!v || 'Required']" item-title="unit_label"
                     item-value="unit_id" density="compact" variant="outlined" />
-                <v-text-field class="child" v-model="row.stockUnitCost" label="Unit Cost (₱)" type="text"
+                <v-text-field class="child" v-model="row.alertQuantity" label="Alert quantity"
+                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
+                <v-text-field class="child" v-model="row.quantityReceived" label="Quantity received"
+                    :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
+                
+                <v-text-field class="child" v-model="row.unitCost" label="Unit Cost (₱)" type="text"
                     :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                    @input="e => row.stockUnitCost = e.target.value.replace(/[^0-9.]/g, '')" density="compact"
+                    @input="e => row.unitCost = e.target.value.replace(/[^0-9.]/g, '')" density="compact"
                     variant="outlined" />
             </v-container>
             <v-row>
@@ -84,11 +86,11 @@ export default {
             submitDialog: false,
             stockRows: [
                 {
-                    stockIngredient: '',
-                    stockIn: '',
-                    stockAlertQty: '',
-                    stockUnit: null,
-                    stockUnitCost: '',
+                    ingredientName: '',
+                    baseUnitId: null,
+                    alertQuantity: '',
+                    quantityReceived: '',
+                    unitCost: '',
                 },
             ],
             unitOptions: [],
@@ -107,11 +109,11 @@ export default {
         isFormValid() {
             return this.stockRows.every(row => {
                 return (
-                    row.stockIngredient &&
-                    row.stockIn &&
-                    row.stockAlertQty &&
-                    row.stockUnit &&
-                    !isNaN(parseFloat(row.stockUnitCost))
+                    row.ingredientName &&
+                    row.baseUnitId &&
+                    row.alertQuantity &&
+                    row.quantityReceived &&
+                    !isNaN(parseFloat(row.unitCost))
                 );
             });
         },
@@ -133,11 +135,11 @@ export default {
         },
         addRow() {
             this.stockRows.push({
-                stockIngredient: '',
-                stockIn: '',
-                stockAlertQty: '',
-                stockUnit: null,
-                stockUnitCost: '',
+                ingredientName: '',
+                baseUnitId: null,
+                alertQuantity: '',
+                quantityReceived: '',
+                unitCost: '',
             });
         },
         async getOptions(endpoint, targetArray, errorMessage) {
@@ -152,8 +154,8 @@ export default {
                 this.$refs.snackbarRef.showSnackbar(errorMessage, 'error');
             }
         },
-        getProductTemperatureOption() {
-            this.getOptions('/admin/stock-unit-option', 'unitOptions', 'Failed to fetch unit options');
+        getUnitOption() {
+            this.getOptions('/admin/unit-option', 'unitOptions', 'Failed to fetch unit options');
         },
         async submitForm() {
             this.submitDialog = false;
@@ -161,11 +163,11 @@ export default {
                 if (!this.$refs.stockForm.validate()) return;
                 this.validatingStock = true;
                 const payload = this.stockRows.map(row => ({
-                    stock_ingredient: row.stockIngredient,
-                    stock_in: row.stockIn,
-                    stock_alert_qty: row.stockAlertQty,
-                    stock_unit: row.stockUnit,
-                    stock_unit_cost: parseFloat(row.stockUnitCost.replace(/[^0-9.]/g, '')) || 0,
+                    ingredient_name: row.ingredientName,
+                    base_unit_id: row.baseUnitId,
+                    alert_quantity: row.alertQuantity,
+                    quantity_received: row.quantityReceived,
+                    unit_cost: parseFloat(row.unitCost.replace(/[^0-9.]/g, '')) || 0,
                     branch_id: this.branchID
                 }));
                 await this.stocksStore.saveStocksStore(payload);
