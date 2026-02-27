@@ -45,21 +45,5 @@ export const useIngredientsOptionsStore = defineStore('ingredientsOptions', {
         this.isLoading = false;
       }
     },
-
-    async fetchIngredientsOptions() {
-      this.isLoading = true;
-      try {
-        // Fetch all options in parallel (better performance)
-        const [ingredients] = await Promise.all([
-          this.fetchOptions('/admin/ingredients-name'),
-        ]);
-        this.ingredientOptions = ingredients;
-      } catch (error) {
-        this.error = error;
-        console.error('Failed to fetch ingredients options:', error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
   },
 });

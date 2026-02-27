@@ -13,14 +13,14 @@
                         @click="removeRow(index)"></v-btn>
                 </v-col>
                 <v-col cols="12" lg="4" md="3" sm="6">
-                    <v-autocomplete v-model="row.stock_id" @click="getStockOption" label="Item Name"
-                        :items="stocksOption" :rules="[v => !!v || 'Required']" item-title="stock_ingredient"
-                        item-value="stock_id" variant="outlined" />
+                    <v-autocomplete v-model="row.ingredient_id" @click="getItemsName" label="Item Name"
+                        :items="stocksOption" :rules="[v => !!v || 'Required']" item-title="ingredient_name"
+                        item-value="ingredient_id" variant="outlined" />
                 </v-col>
                 <v-col cols="12" lg="3" md="3" sm="6">
-                    <v-text-field v-model="row.unit_usage" label="Unit Usage" type="text"
+                    <v-text-field v-model="row.quantity_required" label="Quantity required" type="text"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                        @input="e => row.unit_usage = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
+                        @input="e => row.quantity_required = e.target.value.replace(/[^0-9.]/g, '')" variant="outlined" />
                 </v-col>
                 <v-col cols="12" lg="3" md="3" sm="6">
                     <v-text-field v-model="row.ingredient_capital" label="Capital (₱)" type="text"
@@ -94,7 +94,7 @@ export default {
             submitDialog: false,
             productItemRows: [
                 {
-                    unit_usage: '',
+                    quantity_required: '',
                     ingredient_capital: '',
                     productTemp: null,
                     productSize: null,
@@ -124,8 +124,8 @@ export default {
         isFormValid() {
             return this.productItemRows.every(row => {
                 return (
-                    row.stock_id &&
-                    !isNaN(parseFloat(row.unit_usage)) &&
+                    row.ingredient_id &&
+                    !isNaN(parseFloat(row.quantity_required)) &&
                     !isNaN(parseFloat(row.ingredient_capital))
                 );
             });
@@ -148,8 +148,8 @@ export default {
         },
         addRow() {
             this.productItemRows.push({
-                stock_id: null,
-                unit_usage: '',
+                ingredient_id: null,
+                quantity_required: '',
                 ingredient_capital: '',
             });
         },
@@ -159,21 +159,22 @@ export default {
                 if (!this.$refs.productItemsForm.validate()) return;
                 this.validatingProductItems = true;
                 const payload = this.productItemRows.map(row => ({
-                    product_id: this.productID,
-                    unit_usage: parseFloat(row.unit_usage.replace(/[^0-9.]/g, '')) || 0,
-                    ingredient_capital: parseFloat(row.ingredient_capital.replace(/[^0-9.]/g, '')) || 0,
-                    stock_id: row.stock_id,
                     shop_id: this.shopID,
                     branch_id: this.branchID,
+                    product_id: this.productID,
+                    ingredient_id: row.ingredient_id,
+                    quantity_required: parseFloat(row.quantity_required.replace(/[^0-9.]/g, '')) || 0,
+                    ingredient_capital: parseFloat(row.ingredient_capital.replace(/[^0-9.]/g, '')) || 0,
+                    
                 }));
-                await this.productsStore.saveProductIngredientsStore(payload);
-                this.validatingProductItems = false;
-                this.showSuccess("Ingredients saved successfully!");
+                const response = await this.productsStore.saveProductIngredientsStore(payload);
+                this.showSuccess(response.message);
                 this.$refs.productItemsForm.reset();
             } catch (error) {
+                this.showError("Failed to save Product items. Please try again!");
+                console.error('Product items submission error:', error);
+            } finally {
                 this.validatingProductItems = false;
-                this.showError("Failed to save ingredients. Please try again!");
-                console.error('Ingredients submission error:', error);
             }
         },
         async getOptions(endpoint, targetArray, errorMessage) {
@@ -189,8 +190,8 @@ export default {
                 this.$refs.snackbarRef.showSnackbar(errorMessage, 'error');
             }
         },
-        getStockOption() {
-            this.getOptions(`/admin/stocks-name-only/${ this.branchID }`, 'stocksOption', 'Failed to fetch stocks');
+        getItemsName() {
+            this.getOptions(`/admin/ingredients-name/${ this.branchID }`, 'stocksOption', 'Failed to fetch items');
         },
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
