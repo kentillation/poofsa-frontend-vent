@@ -18,7 +18,7 @@
 
                 <v-text-field class="child" v-model="row.alertQuantity" label="Alert quantity"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
-                    
+
                 <v-text-field class="child" v-model="row.quantityReceived" label="Quantity received"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
                 
@@ -63,22 +63,19 @@
             </v-card>
         </v-dialog>
         <Snackbar ref="snackbarRef" />
-        <LoaderUI :visible="validatingStock" message="Saving..." />
     </v-container>
 </template>
 
 <script>
 import apiClient from '../axios';
 import Snackbar from '@/components/Snackbar.vue';
-import LoaderUI from '@/components/LoaderUI.vue';
 import { useStocksStore } from '@/stores/stocksStore';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'AddStock',
     components: {
-        Snackbar,
-        LoaderUI
+        Snackbar
     },
     data() {
         return {
