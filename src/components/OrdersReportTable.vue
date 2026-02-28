@@ -11,7 +11,7 @@
                         color="primary" variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
                     <v-btn @click="printTransactions(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
                         variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>&nbsp;
-                    <v-btn height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
+                    <v-btn @click="fetchAllOrdersReport(dateFilter)" height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
                         :loading="loading"></v-btn>
                 </div>
             </div>

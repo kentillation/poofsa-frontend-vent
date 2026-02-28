@@ -2,26 +2,18 @@
     <v-data-table :headers="salesReportHeaders" :items="mappedSales" :loading="loading" :items-per-page="10"
         :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="hover-table" density="comfortable">
         <template v-slot:top>
-            <v-row class="mt-5">
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <div class="d-flex ms-3 mb-5">
-                        <v-btn @click="downloadSales(dateFilter)" prepend-icon="mdi-download" color="primary"
-                            variant="tonal">XLS</v-btn>&nbsp;
-                        <v-btn @click="printSales(dateFilter)" prepend-icon="mdi-printer" color="primary"
-                            variant="tonal">PRINT</v-btn>&nbsp;
-                        <v-btn class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
-                            @click="fetchSalesReport(dateFilter)" :loading="loading"></v-btn>
-                    </div>
-                </v-col>
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <div class="d-flex">
-                        <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
-                            item-value="filter_date_id" label="Date Filter" class="ms-3 me-2" clearable>
-                        </v-autocomplete>
-                        <!-- <span class="w-25">Net sales: <br /><h3>₱{{ Number(totalSales).toLocaleString('en-PH') }}</h3></span> -->
-                    </div>
-                </v-col>
-            </v-row>
+            <div class="d-flex flex-wrap align-center mt-5">
+                <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
+                    item-value="filter_date_id" label="Date filter" class="me-1" density="compact" clearable />
+                <div class="d-flex mb-5">
+                    <v-btn @click="downloadSales(dateFilter)" height="40" prepend-icon="mdi-download"
+                        color="primary" variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
+                    <v-btn @click="printSales(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
+                        variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>&nbsp;
+                    <v-btn @click="fetchSalesReport(dateFilter)" height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
+                        :loading="loading"></v-btn>
+                </div>
+            </div>
         </template>
 
         <!--eslint-disable-next-line -->

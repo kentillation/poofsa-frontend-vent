@@ -2,25 +2,18 @@
     <v-data-table :headers="stocksHeaders" :items="mappedStocks" :loading="loading" :items-per-page="10"
         :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="hover-table" density="comfortable">
         <template v-slot:top>
-            <v-row class="mt-5">
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <div class="d-flex ms-3 mb-5">
-                        <v-btn @click="downloadStocks(dateFilter)" prepend-icon="mdi-download" color="primary"
-                            variant="tonal">XLS</v-btn>&nbsp;
-                        <v-btn @click="printStocks(dateFilter)" prepend-icon="mdi-printer" color="primary"
-                            variant="tonal">PRINT</v-btn>&nbsp;
-                        <v-btn class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
-                            @click="fetchStocksReport(dateFilter)" :loading="loading"></v-btn>
-                    </div>
-                </v-col>
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <div class="d-flex">
-                        <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
-                            item-value="filter_date_id" label="Date Filter" class="ms-3 me-2" clearable></v-autocomplete>
-                        <!-- <span class="w-25">Net sales: <br /><h3>₱{{ Number(totalSales).toLocaleString('en-PH') }}</h3></span> -->
-                    </div>
-                </v-col>
-            </v-row>
+            <div class="d-flex flex-wrap align-center mt-5">
+                <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
+                    item-value="filter_date_id" label="Date filter" class="me-1" density="compact" clearable />
+                <div class="d-flex mb-5">
+                    <v-btn @click="downloadStocks(dateFilter)" height="40" prepend-icon="mdi-download"
+                        color="primary" variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
+                    <v-btn @click="printStocks(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
+                        variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>&nbsp;
+                    <v-btn @click="fetchStocksReport(dateFilter)" height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
+                        :loading="loading"></v-btn>
+                </div>
+            </div>
         </template>
 
         <!--eslint-disable-next-line -->
@@ -66,11 +59,10 @@ export default {
             ],
             stocksHeaders: [
                 { title: '', value: 'select', width: '5%' },
-                { title: 'Ingredients', value: 'stock_ingredient', sortable: 'true', width: '20%' },
-                { title: 'RemainingStock', value: 'stock_in', sortable: 'true', width: '10%' },
+                { title: 'StockName', value: 'ingredient_name', sortable: 'true', width: '20%' },
+                { title: 'RemainingStock', value: 'quantity_remaining', sortable: 'true', width: '10%' },
                 { title: 'StockOut', value: 'stock_out', sortable: 'true', width: '10%' },
                 { title: 'QuantitySold', value: 'total_quantity', sortable: 'true', width: '10%' },
-                { title: 'TotalAmount', value: 'total_amount', sortable: 'true', width: '10%' },
                 { title: 'Date', value: 'updated_at', sortable: 'true', width: '25%' },
             ],
         }
@@ -127,7 +119,7 @@ export default {
             type: String,
             required: true
         },
-        branchLocation: {
+        branchAddress: {
             type: String,
             required: true
         },
@@ -195,23 +187,22 @@ export default {
             } else {
                 this.loadingStore.show('Downloading stocks...');
             }
-            const stocksByDate = this.stocksStore.stocksByDate.map(stock => ({
-                'Ingredients': stock.stock_ingredient,
-                'Remaining_stock': stock.stock_in,
-                'Stock_out': Number(stock.stock_out, 2),
-                'Quantity_sold': stock.total_quantity,
-                'Total amount': stock.total_amount,
-                'Date': this.formatDateTime(stock.updated_at),
-            }));
             const headings = [
-                `Shop Name: ${this.shopName}`,
-                `Branch Name: ${this.branchName} Branch`,
-                `Branch Loc: ${this.branchLocation}`,
+                `Shop name: ${this.shopName}`,
+                `Branch name: ${this.branchName} Branch`,
+                `Branch address: ${this.branchAddress}`,
                 `Contact: ${this.contact}`,
                 `Date: ${this.formatCurrentDate}`,
                 `Prepared by : ${this.adminName}`,
                 '',
             ].join('\n');
+            const stocksByDate = this.stocksStore.stocksByDate.map(stock => ({
+                'Ingredients': stock.ingredient_name,
+                'Remaining_stock': Number(stock.quantity_remaining),
+                'Stock_out': Number(stock.stock_out),
+                'Quantity_sold': Number(stock.total_quantity),
+                'Date': this.formatDateTime(stock.updated_at),
+            }));
             const csvContent = "data:text/csv;charset=utf-8,"
                 + headings + "\n"
                 + Object.keys(stocksByDate[0]).join(",") + "\n"
@@ -260,7 +251,7 @@ export default {
                             <div>
                                 <h2>${this.shopName}</h2>
                                 <h4>${this.branchName} Branch</h4>
-                                <h5>${this.branchLocation}</h5>
+                                <h5>${this.branchAddress}</h5>
                                 <h5>${this.contact}</h5>
                             </div>
                             <h5>${this.formatCurrentDate}</h5>
@@ -269,19 +260,17 @@ export default {
                         <table>
                             <tr>
                                 <th>Ingredients</th>
-                                <th>Remaining_stock</th>
-                                <th>Stock_out</th>
-                                <th>Quantity_sold</th>
-                                <th>Total amount</th>
+                                <th>RemainingStock</th>
+                                <th>StockOut</th>
+                                <th>QuantitySold</th>
                                 <th>Date</th>
                             </tr>
                             ${this.stocksStore.stocksByDate.map(stock => `
                                 <tr>
-                                    <td>${stock.stock_ingredient}</td>
-                                    <td>${stock.stock_in}</td>
-                                    <td>${stock.stock_out}</td>
-                                    <td>${stock.total_quantity}</td>
-                                    <td>₱${stock.total_amount}</td>
+                                    <td>${stock.ingredient_name}</td>
+                                    <td>${Number(stock.quantity_remaining)}${stock.unit_avb}</td>
+                                    <td>${Number(stock.stock_out)}${stock.unit_avb}</td>
+                                    <td>x${Number(stock.total_quantity)}</td>
                                     <td>${this.formatDateTime(stock.updated_at)}</td>
                                 </tr>`).join('')}
                         </table>
@@ -299,11 +288,11 @@ export default {
         formatStock(stock) {
             return {
                 ...stock,
-                stock_ingredient: this.capitalizeFirstLetter(stock.stock_ingredient),
-                stock_in: Number(stock.stock_in),
+                ingredient_name: this.capitalizeFirstLetter(stock.ingredient_name),
+                quantity_remaining: `${Number(stock.quantity_remaining)}${stock.unit_avb}`,
                 availability_id: Number(stock.availability_id),
+                stock_out: `${Number(stock.stock_out)}${stock.unit_avb}`,
                 total_quantity: `x${Number(stock.total_quantity)}`,
-                total_amount: `₱${Number(stock.total_amount)}`,
                 updated_at: this.formatDateTime(stock.updated_at),
             };
         },

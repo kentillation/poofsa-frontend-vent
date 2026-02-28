@@ -314,7 +314,7 @@
                                                 :shop-name="branchDetails.shop_name"
                                                 :branch-id="branchDetails.branch_id"
                                                 :branch-name="branchDetails.branch_name"
-                                                :branch-location="branchDetails.branch_location"
+                                                :branch-location="branchDetails.branch_address"
                                                 :contact="branchDetails.contact"
                                                 :admin-name="branchDetails.admin_name" />
 
@@ -325,7 +325,7 @@
                                                 :shop-id="branchDetails.shop_id" :shop-name="branchDetails.shop_name"
                                                 :branch-id="branchDetails.branch_id"
                                                 :branch-name="branchDetails.branch_name"
-                                                :branch-location="branchDetails.branch_location"
+                                                :branch-address="branchDetails.branch_address"
                                                 :contact="branchDetails.contact"
                                                 :admin-name="branchDetails.admin_name" />
                                         </div>
