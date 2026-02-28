@@ -3,7 +3,7 @@
     <v-row>
         <v-col cols="12" lg="4" md="4" sm="6">
             <v-text-field v-model="search" label="Search order details" placeholder="Search order details"
-                variant="outlined" density="comfortable" clearable @update:model-value="onSearchChange" />
+                variant="outlined" density="compact" @update:model-value="onSearchChange" class="me-1" clearable />
         </v-col>
     </v-row>
 
@@ -11,19 +11,16 @@
         {{ store.error }}
     </v-alert>
 
-    <SkeletonTable v-if="store.loadingOrders && !displayItems.length"  />
+    <SkeletonTable v-if="store.loadingOrders && !displayItems.length" />
 
     <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
-        :loading="store.loadingOrders && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
+        :loading="store.loadingOrders && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate"
+        class="elevation-1 hover-table">
         <template #top>
             <v-toolbar flat>
                 <h2 class="ms-4 to-hide">List of All Orders</h2>
-                <h2 class="ms-4 to-show">Orders</h2>
+                <h2 class="ms-4 to-show">All Orders</h2>
                 <v-spacer />
-                <v-btn prepend-icon="mdi-eye-outline" color="#0090b6" variant="flat" class="me-2" @click="viewOnlineOrders">
-                    <span class="to-hide">View Online Orders</span>
-                    <span class="to-show">OL Orders</span>
-                </v-btn>
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
                     @click="handleRefresh" :loading="store.loadingOrders" />
             </v-toolbar>
@@ -34,13 +31,17 @@
 
         <!--  eslint-disable -->
         <template #item.order_status="{ item }">
-            <v-chip :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'" size="small" variant="tonal">
+            <v-chip
+                :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'"
+                size="small" variant="tonal">
                 {{ item.order_status }}
             </v-chip>
         </template>
 
         <template #item.order_type="{ item }">
-            <v-chip :color="item.order_type_id === 1 ? 'black' : item.order_type_id === 2 ? 'purple' : item.order_type_id === 3 ? 'teal' : 'grey'" size="small" variant="tonal">
+            <v-chip
+                :color="item.order_type_id === 1 ? 'black' : item.order_type_id === 2 ? 'purple' : item.order_type_id === 3 ? 'teal' : 'grey'"
+                size="small" variant="tonal">
                 {{ item.order_type }}
             </v-chip>
         </template>
@@ -250,16 +251,16 @@ onMounted(() => {
     }
 })
 
-const viewOnlineOrders = () => {
-    router.push({
-        path: '/view-order/',
-        query: {
-            shop_id: props.shopId,
-            branch_id: props.branchId,
-            branch_name: props.branchName
-        }
-    })
-}
+// const viewOnlineOrders = () => {
+//     router.push({
+//         path: '/view-order/',
+//         query: {
+//             shop_id: props.shopId,
+//             branch_id: props.branchId,
+//             branch_name: props.branchName
+//         }
+//     })
+// }
 
 </script>
 

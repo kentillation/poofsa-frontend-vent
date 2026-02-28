@@ -2,22 +2,19 @@
     <v-data-table :headers="transactionsHeaders" :items="mappedOrders" :loading="loading" :items-per-page="10"
         :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="hover-table" density="comfortable">
         <template v-slot:top>
-            <v-row class="mt-5">
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <div class="d-flex ms-3 mb-5">
-                        <v-btn @click="downloadTransactions(dateFilter)" prepend-icon="mdi-download" color="primary"
-                            variant="tonal">XLS</v-btn>&nbsp;
-                        <v-btn @click="printTransactions(dateFilter)" prepend-icon="mdi-printer" color="primary"
-                            variant="tonal">PRINT</v-btn>&nbsp;
-                        <v-btn class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
-                            @click="fetchAllOrdersReport(dateFilter)" :loading="loading"></v-btn>
-                    </div>
-                </v-col>
-                <v-col cols="12" lg="6" md="6" sm="6" class="pa-0">
-                    <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
-                        item-value="filter_date_id" label="Date Filter" class="mx-3" clearable></v-autocomplete>
-                </v-col>
-            </v-row>
+            <div class="d-flex flex-wrap align-center mt-5">
+                <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
+                    item-value="filter_date_id" label="Date filter" class="me-1" density="compact" clearable />
+
+                <div class="d-flex mb-5">
+                    <v-btn @click="downloadTransactions(dateFilter)" height="40" prepend-icon="mdi-download"
+                        color="primary" variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
+                    <v-btn @click="printTransactions(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
+                        variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>&nbsp;
+                    <v-btn height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
+                        :loading="loading"></v-btn>
+                </div>
+            </div>
         </template>
 
         <!--eslint-disable-next-line -->
@@ -265,7 +262,7 @@ export default {
                             </div>
                             <h5>${this.formatCurrentDate}</h5>
                         </div>
-                        <p><strong>Transactions Report for ${this.branchName} Branch | ${ this.selectedFilterLabel }</strong></p>
+                        <p><strong>Transactions Report for ${this.branchName} Branch | ${this.selectedFilterLabel}</strong></p>
                         <table>
                             <tr>
                                 <th>Reference #</th>
@@ -282,7 +279,7 @@ export default {
                                 <tr>
                                     <td>${order.reference_number}</td>
                                     <td>₱${order.payment_method}</td>
-                                    <td>${order.total_quantity} ${ order.total_quantity > 1 ? 'items' : 'item'}</td>
+                                    <td>${order.total_quantity} ${order.total_quantity > 1 ? 'items' : 'item'}</td>
                                     <td>₱${order.customer_cash}</td>
                                     <td>₱${order.total_due}</td>
                                     <td>₱${order.customer_discount}</td>
@@ -324,14 +321,14 @@ export default {
 
             const customer_change_value = Number(order.customer_change);
             const display_customer_change = (Math.round(customer_change_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
-            
+
             return {
                 ...order,
                 display_customer_cash: `₱${display_customer_cash}`,
                 display_total_amount: `₱${display_total_amount}`,
                 display_discount: `₱${order.discount_amount}`,
                 display_customer_change: `₱${display_customer_change}`,
-                display_total_quantity: `${order.total_quantity} ${ order.total_quantity > 1 ? 'items' : 'item'}`,
+                display_total_quantity: `${order.total_quantity} ${order.total_quantity > 1 ? 'items' : 'item'}`,
                 updated_at: this.formatDateTime(order.updated_at),
             };
         },
