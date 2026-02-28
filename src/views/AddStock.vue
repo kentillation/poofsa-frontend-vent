@@ -11,11 +11,14 @@
                 <!-- ingredientName, baseUnitId, alertQuantity, quantityReceived, unitCost  -->
                 <v-text-field class="child" v-model="row.ingredientName" label="Item name"
                     :rules="[v => !!v || 'Required']" density="compact" variant="outlined" />
-                <v-autocomplete class="child" v-model="row.baseUnitId" label="Unit" :items="unitOptions"
+
+                <v-autocomplete class="child" v-model="row.baseUnitId" label="Base unit" :items="unitOptions"
                     @click="getUnitOption" :rules="[v => !!v || 'Required']" item-title="unit_label"
-                    item-value="unit_id" density="compact" variant="outlined" />
+                    item-value="ingredient_unit_id" density="compact" variant="outlined" />
+
                 <v-text-field class="child" v-model="row.alertQuantity" label="Alert quantity"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
+                    
                 <v-text-field class="child" v-model="row.quantityReceived" label="Quantity received"
                     :rules="[v => !!v || 'Required']" type="number" density="compact" variant="outlined" />
                 
@@ -165,13 +168,13 @@ export default {
                 const payload = this.stockRows.map(row => ({
                     ingredient_name: row.ingredientName,
                     base_unit_id: row.baseUnitId,
-                    alert_quantity: row.alertQuantity,
-                    quantity_received: row.quantityReceived,
+                    alert_quantity: Number(row.alertQuantity) || 0,
+                    quantity_received: parseFloat(row.quantityReceived.replace(/[^0-9.]/g, '')) || 0,
                     unit_cost: parseFloat(row.unitCost.replace(/[^0-9.]/g, '')) || 0,
-                    branch_id: this.branchID
+                    branch_id: Number(this.branchID),
                 }));
+                console.log("[Vue] Payload: ", payload);
                 await this.stocksStore.saveStocksStore(payload);
-                this.validatingStock = false;
                 this.showSuccess("Stocks saved successfully!");
                 this.$refs.stockForm.reset();
             } catch (error) {

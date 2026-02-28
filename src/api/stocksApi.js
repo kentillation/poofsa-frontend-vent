@@ -5,7 +5,7 @@ export const STOCK_API = {
         FETCH_ALL_STOCKS: '/admin/stocks',
         FETCH_STOCKS_BY_DATE: '/admin/stocks-report',
         FETCH_STOCKS_HISTORY: '/admin/stocks-history',
-        SAVE: '/admin/save-stock',
+        SAVE_STOCKS: '/admin/save-stock',
         UPDATE_STOCK: '/admin/update-stock',
         FETCH_LOW_STOCKS: '/admin/low-stocks',
     },
@@ -126,6 +126,7 @@ export const STOCK_API = {
 
     async saveStocksApi(stocks) {
         try {
+            console.log('[api] Payload: ', stocks)
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
@@ -137,7 +138,7 @@ export const STOCK_API = {
                 }
             };
             const response = await apiClient.post(
-                this.ENDPOINTS.SAVE,
+                this.ENDPOINTS.SAVE_STOCKS,
                 stocks,
                 config
             );

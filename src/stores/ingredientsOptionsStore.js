@@ -33,7 +33,7 @@ export const useIngredientsOptionsStore = defineStore('ingredientsOptions', {
       try {
         // Fetch all options in parallel (better performance)
         const [units, availabilities] = await Promise.all([
-          this.fetchOptions('/admin/stock-unit-option'),
+          this.fetchOptions('/admin/unit-option'),
           this.fetchOptions('/admin/product-availability-option'),
         ]);
         this.unitOption = units;

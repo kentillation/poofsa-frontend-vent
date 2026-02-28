@@ -241,6 +241,7 @@ export const useStocksStore = defineStore('stocks', {
         },
 
         async saveStocksStore(stocks) {
+            console.log('[store] Payload: ', stocks)
             this.loading = true;
             this.error = null;
             try {
@@ -248,7 +249,7 @@ export const useStocksStore = defineStore('stocks', {
                     throw new Error('STOCK_API service is not properly initialized');
                 }
                 const response = await STOCK_API.saveStocksApi(stocks);
-                if (response && (response.status === true)) {
+                if (response?.status === true) {
                     return response;
                 } else {
                     throw new Error('Failed to save stocks');
