@@ -63,9 +63,9 @@ export default {
             dateFilter: 1,
             shopLogoLink: '-',
             salesReportHeaders: [
-                { title: 'Product', value: 'display_product_name', sortable: 'true', width: '25%' },
-                { title: 'Price', value: 'display_base_price', sortable: 'true', width: '10%' },
-                { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
+                { title: 'ProductName', value: 'display_product_name', sortable: 'true', width: '25%' },
+                { title: 'BasePrice', value: 'display_base_price', sortable: 'true', width: '10%' },
+                { title: 'QuantitySold', value: 'display_total_quantity', sortable: 'true', width: '10%' },
                 { title: 'Category', value: 'category_label', sortable: 'true', width: '15%' },
                 { title: 'GrossSale', value: 'display_gross_sales', sortable: 'true', width: '15%' },
                 { title: 'Date', value: 'updated_at', sortable: 'true', width: '25%' },
@@ -283,11 +283,11 @@ export default {
                         </p>
                         <table>
                             <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantiy</th>
+                                <th>ProductName</th>
+                                <th>BasePrice</th>
+                                <th>QuantitySold</th>
                                 <th>Category</th>
-                                <th>Subtotal</th>
+                                <th>GrossSale</th>
                                 <th>Date</th>
                             </tr>
                             ${this.transactStore.grossSalesByDate.map(t_order => `
