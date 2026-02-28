@@ -126,7 +126,6 @@ export const STOCK_API = {
 
     async saveStocksApi(stocks) {
         try {
-            console.log('[api] Payload: ', stocks)
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');

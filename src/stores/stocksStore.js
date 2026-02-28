@@ -241,7 +241,6 @@ export const useStocksStore = defineStore('stocks', {
         },
 
         async saveStocksStore(stocks) {
-            console.log('[store] Payload: ', stocks)
             this.loading = true;
             this.error = null;
             try {

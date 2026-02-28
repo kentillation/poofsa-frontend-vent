@@ -119,20 +119,25 @@ export default {
         },
     },
     methods: {
+
         back() {
             this.$router.go(-1);
         },
+
         removeRow(index) {
             if (this.stockRows.length > 1) {
                 this.stockRows.splice(index, 1);
             }
         },
+
         showSubmitDialog() {
             if (this.isFormValid) this.submitDialog = true;
         },
+
         closeSubmitDialog() {
             this.submitDialog = false;
         },
+
         addRow() {
             this.stockRows.push({
                 ingredientName: '',
@@ -142,6 +147,7 @@ export default {
                 unitCost: '',
             });
         },
+
         async getOptions(endpoint, targetArray, errorMessage) {
             try {
                 const response = await apiClient.get(endpoint, {
@@ -154,9 +160,11 @@ export default {
                 this.$refs.snackbarRef.showSnackbar(errorMessage, 'error');
             }
         },
+
         getUnitOption() {
             this.getOptions('/admin/unit-option', 'unitOptions', 'Failed to fetch unit options');
         },
+
         async submitForm() {
             this.submitDialog = false;
             try {
@@ -170,7 +178,6 @@ export default {
                     unit_cost: parseFloat(row.unitCost.replace(/[^0-9.]/g, '')) || 0,
                     branch_id: Number(this.branchID),
                 }));
-                console.log("[Vue] Payload: ", payload);
                 await this.stocksStore.saveStocksStore(payload);
                 this.showSuccess("Stocks saved successfully!");
                 this.$refs.stockForm.reset();
@@ -180,9 +187,11 @@ export default {
                 console.error('Stocks submission error:', error);
             }
         },
+
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },
+
         showSuccess(message) {
             this.$refs.snackbarRef.showSnackbar(message, "success");
         },
