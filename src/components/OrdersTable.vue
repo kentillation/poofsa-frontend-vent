@@ -59,8 +59,24 @@
             <span>#{{ item.table_number }}</span>
         </template>
 
+        <template #item.order_number="{ item }">
+            <span>#{{ item.order_number }}</span>
+        </template>
+
         <template #item.total_quantity="{ item }">
             <span>x{{ item.total_quantity }}</span>
+        </template>
+
+        <template #item.total_amount="{ item }">
+            <span>₱{{ item.total_amount }}</span>
+        </template>
+
+        <template #item.discount_amount="{ item }">
+            <span>₱{{ item.discount_amount }}</span>
+        </template>
+
+        <template #item.customer_change="{ item }">
+            <span>₱{{ item.customer_change }}</span>
         </template>
 
         <!-- <template #item.timeFormat="{ item }">
@@ -141,6 +157,7 @@ const headers = [
     { title: 'OrderNumber', value: 'order_number', sortable: true },
     { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
     { title: 'TotalAmount', value: 'total_amount', sortable: true },
+    { title: 'DiscountAmount', value: 'discount_amount', sortable: true },
     { title: 'CustomerChange', value: 'customer_change', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]

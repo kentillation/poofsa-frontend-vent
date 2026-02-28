@@ -26,9 +26,9 @@
         </template>
 
         <!--eslint-disable-next-line -->
-        <template v-slot:item.payment_mode="{ item }">
-            <v-chip :color="item.payment_mode === 'Cash' ? 'green' : 'blue'" size="small" variant="tonal">
-                {{ item.payment_mode }}
+        <template v-slot:item.payment_method="{ item }">
+            <v-chip :color="item.payment_method === 'Cash' ? 'green' : 'blue'" size="small" variant="tonal">
+                {{ item.payment_method }}
             </v-chip>
         </template>
 
@@ -59,10 +59,10 @@ export default {
             shopLogoLink: '-',
             transactionsHeaders: [
                 { title: 'Reference', value: 'reference_number', sortable: 'true', width: '10%' },
-                { title: 'ModeOfPayment', value: 'payment_mode', sortable: 'true', width: '10%' },
+                { title: 'ModeOfPayment', value: 'payment_method', sortable: 'true', width: '10%' },
                 { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
                 { title: 'CashRendered', value: 'display_customer_cash', sortable: 'true', width: '10%' },
-                { title: 'TotalDue', value: 'display_total_due', sortable: 'true', width: '10%' },
+                { title: 'TotalDue', value: 'display_total_amount', sortable: 'true', width: '10%' },
                 { title: 'Discount', value: 'display_discount', sortable: 'true', width: '10%' },
                 { title: 'Change', value: 'display_customer_change', sortable: 'true', width: '10%' },
                 { title: 'CashierName', value: 'cashier_name', sortable: 'true', width: '10%' },
@@ -170,7 +170,7 @@ export default {
         async fetchAllOrdersReport(dateFilterId = null) {
             this.loadingStore.show('Preparing...');
             try {
-                await this.transactStore.fetchAllOrdersStore(this.branchId, dateFilterId);
+                await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
                 if (this.transactStore.allOrders.length === 0) {
                     this.mappedOrders = [];
                 } else {
@@ -185,7 +185,7 @@ export default {
         },
 
         async downloadTransactions(dateFilterId = null) {
-            await this.transactStore.fetchAllOrdersStore(this.branchId, dateFilterId);
+            await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
             if (this.transactStore.transactions.length === 0) {
                 this.showError("No available orders report to download.");
                 return;
@@ -194,7 +194,7 @@ export default {
             }
             const transactions = this.transactStore.transactions.map(order => ({
                 'Reference': order.reference_number,
-                'ModeOfPayment': order.payment_mode,
+                'ModeOfPayment': order.payment_method,
                 'Quantity': order.total_quantity,
                 'CashRender': order.customer_cash,
                 'TotalDue': order.total_due,
@@ -228,7 +228,7 @@ export default {
         },
 
         async printTransactions(dateFilterId = null) {
-            await this.transactStore.fetchAllOrdersStore(this.branchId, dateFilterId);
+            await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
             if (this.transactStore.transactions.length === 0) {
                 this.showError("No available orders report to print.");
                 return;
@@ -281,7 +281,7 @@ export default {
                             ${this.transactStore.transactions.map(order => `
                                 <tr>
                                     <td>${order.reference_number}</td>
-                                    <td>₱${order.payment_mode}</td>
+                                    <td>₱${order.payment_method}</td>
                                     <td>${order.total_quantity} ${ order.total_quantity > 1 ? 'items' : 'item'}</td>
                                     <td>₱${order.customer_cash}</td>
                                     <td>₱${order.total_due}</td>
@@ -319,8 +319,8 @@ export default {
             const customer_cash_value = Number(order.customer_cash);
             const display_customer_cash = (Math.round(customer_cash_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
 
-            const total_due_value = Number(order.total_due);
-            const display_total_due = (Math.round(total_due_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
+            const total_amount_value = Number(order.total_amount);
+            const display_total_amount = (Math.round(total_amount_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
 
             const customer_change_value = Number(order.customer_change);
             const display_customer_change = (Math.round(customer_change_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
@@ -328,8 +328,8 @@ export default {
             return {
                 ...order,
                 display_customer_cash: `₱${display_customer_cash}`,
-                display_total_due: `₱${display_total_due}`,
-                display_discount: `₱${order.customer_discount}`,
+                display_total_amount: `₱${display_total_amount}`,
+                display_discount: `₱${order.discount_amount}`,
                 display_customer_change: `₱${display_customer_change}`,
                 display_total_quantity: `${order.total_quantity} ${ order.total_quantity > 1 ? 'items' : 'item'}`,
                 updated_at: this.formatDateTime(order.updated_at),

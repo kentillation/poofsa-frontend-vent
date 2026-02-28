@@ -161,11 +161,11 @@ export const useTransactStore = defineStore('transactions', {
             }
         },
 
-        async fetchAllOrdersStore(branchId, dateFilterId = null) {
+        async fetchOrdersReportStore(branchId, dateFilterId = null) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await TRANSACT_API.fetchAllOrdersApi(branchId, dateFilterId);
+                const response = await TRANSACT_API.fetchOrdersReportApi(branchId, dateFilterId);
                 if (response && response.status === true) {
                     this.transactions = response.data;
                     this.allOrders = response.data;
@@ -173,7 +173,7 @@ export const useTransactStore = defineStore('transactions', {
                     throw new Error(response?.message || 'Failed to fetch orders');
                 }
             } catch (error) {
-                console.error('Error in fetchAllOrdersApi:', error);
+                console.error('Error in fetchOrdersReportApi:', error);
                 this.error = error.message || 'Failed to fetch orders';
                 throw error;
             } finally {
