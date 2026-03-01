@@ -52,9 +52,9 @@
                                                         </template>
                                                         <template v-else>
                                                             <div class="d-flex align-center">
-                                                                <h2 class="my-2 text-white">{{ totalOrders }}</h2> &nbsp;
+                                                                <h2 class="my-2 text-white">{{ this.ordersStore.ordersCount }}</h2> &nbsp;
                                                                 <span style="font-size: 18px;">
-                                                                    <p class="text-white">{{ totalOrders > 1 ? 'items' : 'item' }}</p>
+                                                                    <p class="text-white">{{ this.ordersStore.ordersCount > 1 ? 'items' : 'item' }}</p>
                                                                 </span>
                                                             </div>
                                                         </template>
@@ -133,9 +133,8 @@
                                     <v-card>
                                         <v-card-text>
                                             <SalesChart :sales-by-month="salesByMonthReports" :sales-only="totalSales"
-                                                :orders-only="totalOrders" @month-changed="fetchSalesByMonthReport"
-                                                @sales-changed="fetchSalesOnly" @orders-changed="fetchOrdersOnly" />
-                                            <!-- added (:orders-only="totalOrders" and @orders-changed="fetchOrdersOnly -->
+                                                @month-changed="fetchSalesByMonthReport"
+                                                @sales-changed="fetchSalesOnly"/>
                                         </v-card-text>
                                     </v-card>
                                 </v-container>
@@ -345,6 +344,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
+import { useOrdersStore } from '@/stores/ordersStore';
 import { useStocksStore } from '@/stores/stocksStore';
 import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import { useProductsStore } from '@/stores/productsStore';
@@ -402,7 +402,6 @@ export default {
             // Dashboard
             textSkeleton: false,
             totalSales: null,
-            totalOrders: null,
             totalProducts: null,
             totalStocks: null,
             loadingSalesOnly: false,
@@ -473,8 +472,9 @@ export default {
     },
 
     setup() {
-        const branchStore = useBranchStore();
         const loadingStore = useLoadingStore();
+        const branchStore = useBranchStore();
+        const ordersStore = useOrdersStore();
         const stocksStore = useStocksStore();
         const ingredientsOptionsStore = useIngredientsOptionsStore();
         const ingredientUnitOption = computed(() => ingredientsOptionsStore.unitOption);
@@ -497,8 +497,9 @@ export default {
         });
 
         return {
-            branchStore,
             loadingStore,
+            branchStore,
+            ordersStore,
             stocksStore,
             ingredientsOptionsStore,
             ingredientUnitOption,
@@ -516,6 +517,7 @@ export default {
             activeBranchInfoTab
         };
     },
+
     computed: {
 
         branch_Details() {
@@ -577,6 +579,7 @@ export default {
             ];
         },
     },
+
     watch: {
         '$route.params.branchName': {
             immediate: true,
@@ -594,6 +597,7 @@ export default {
             if (newTab === 'dashboard') {
                 this.loadingStore.show("Preparing...");
                 this.onDashboard();
+                this.ordersStore;
                 this.loadingStore.hide();
             }
         },
@@ -605,8 +609,8 @@ export default {
             this.activeTab = "dashboard";
             const currentMonth = new Date().getMonth() + 1;
             await this.fetchBranchDetails();
+            await this.fetchOrdersCount();
             await this.fetchSalesOnly(currentMonth);
-            await this.fetchOrdersOnly(currentMonth);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
             await this.fetchSalesByMonthReport(currentMonth);
@@ -624,6 +628,21 @@ export default {
                 this.$router.push('/about');
             } finally {
                 this.loadingBranchDetails = false;
+            }
+        },
+
+        async fetchOrdersCount() {
+            try {
+                if (!this.branchDetails.branch_id) {
+                    this.showError("Branch ID is not available!");
+                    this.ordersStore.ordersCount = 0;
+                    return;
+                }
+                const currentMonth = new Date().getMonth() + 1;
+                await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id, currentMonth);
+            } catch (error) {
+                console.error(error);
+                this.showError(error);
             }
         },
 
@@ -667,27 +686,6 @@ export default {
                 this.showError(error);
             } finally {
                 this.loadingSalesOnly = false;
-                this.textSkeleton = false;
-            }
-        },
-
-        async fetchOrdersOnly(month = null) {
-            this.loadingOrdersOnly = true;
-            this.textSkeleton = true;
-            try {
-                if (!this.branchDetails.branch_id) {
-                    this.showError("Branch ID is not available!");
-                    this.totalOrders = '';
-                    this.textSkeleton = false;
-                    return;
-                }
-                await this.transactStore.fetchOrdersOnlyStore(this.branchDetails.branch_id, month);
-                this.totalOrders = Number(this.transactStore.ordersOnly.total_orders).toLocaleString('en-PH') || '';
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
-            } finally {
-                this.loadingOrdersOnly = false;
                 this.textSkeleton = false;
             }
         },

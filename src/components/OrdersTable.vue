@@ -13,7 +13,7 @@
 
     <SkeletonTable v-if="store.loadingOrders && !displayItems.length" />
 
-    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
+    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.totalOrders"
         :loading="store.loadingOrders && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate"
         class="elevation-1 hover-table">
         <template #top>
@@ -111,7 +111,6 @@
 <script setup>
 /* eslint-disable */
 import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useOrdersStore } from '@/stores/ordersStore'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import BaseDataTable from '@/components/BaseDataTable.vue'
@@ -134,7 +133,6 @@ const props = defineProps({
 
 const emit = defineEmits(['view-items'])
 
-const router = useRouter()
 const store = useOrdersStore()
 
 const displayItems = ref([])

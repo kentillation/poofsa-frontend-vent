@@ -6,7 +6,8 @@ export const useOrdersStore = defineStore('orders', {
     state: () => ({
         orders: [],
         ordersReport: [],
-        total: 0,
+        ordersCount: 0,
+        totalOrders: 0,
         totalOrdersReport: 0,
         loadingOrders: false,
         loadingOrdersReport: false,
@@ -143,14 +144,14 @@ export const useOrdersStore = defineStore('orders', {
                 }
 
                 this.orders = rawOrders.map(s => this._transformOrders(s));
-                this.total = totalCount;
+                this.totalOrders = totalCount;
                 this._lastFetchHash = cacheKey;
                 this._fetchCache = { rawOrders, totalCount };
 
             } catch (error) {
                 this.error = error.message || 'Failed to fetch orders';
                 this.orders = [];
-                this.total = 0;
+                this.totalOrders = 0;
                 this._lastFetchHash = null;
                 throw error;
             } finally {
@@ -215,5 +216,23 @@ export const useOrdersStore = defineStore('orders', {
             }
         },
 
+        async fetchOrdersCountStore(branchId, currentMonth = null) {
+            this.loadingOrders = true;
+            this.error = null;
+            try {
+                const response = await ORDERS_API.fetchOrdersCountApi(branchId, currentMonth);
+                if (response && response.status === true) {
+                    this.ordersCount = response.data;
+                } else {
+                    throw new Error(response?.message || 'Failed to fetch sales');
+                }
+            } catch (error) {
+                console.error('Error in fetchOrdersCountApi:', error);
+                this.error = error.message || 'Failed to fetch sales';
+                throw error;
+            } finally {
+                this.loadingOrders = false;
+            }
+        }
     },
 });

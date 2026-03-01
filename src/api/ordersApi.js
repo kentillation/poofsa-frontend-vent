@@ -4,6 +4,7 @@ export const ORDERS_API = {
     ENDPOINTS: {
         FETCH_ALL_ORDERS: '/admin/orders',
         FETCH_ORDERS_REPORT: '/admin/orders-report',
+        FETCH_ORDERS_COUNT: '/admin/orders-count'
     },
 
     /**
@@ -89,7 +90,46 @@ export const ORDERS_API = {
             };
 
         } catch (error) {
-            console.error('[ORDERS_API] Error fetching orders:', error);
+            console.error('[ORDERS_API] Error fetching orders report:', error);
+            throw error;
+        }
+    },
+
+    async fetchOrdersCountApi({ branchId, currentMonth }) {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+
+            const params = {
+                branch_id: branchId,
+                date_filter: currentMonth
+            };
+
+            if (currentMonth) {
+                params.date_filter = currentMonth;
+            }
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                params
+            };
+
+            const response = await apiClient.get(this.ENDPOINTS.FETCH_ORDERS_COUNT, config);
+
+            return {
+                success: response.data?.success ?? true,
+                data: response.data?.data ?? response.data ?? [],
+                total: response.data?.total ?? (response.data?.data?.length ?? 0),
+                message: response.data?.message ?? 'Success'
+            };
+
+        } catch (error) {
+            console.error('[ORDERS_API] Error fetching orders count:', error);
             throw error;
         }
     },
