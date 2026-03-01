@@ -95,7 +95,7 @@ export const ORDERS_API = {
         }
     },
 
-    async fetchOrdersCountApi({ branchId, currentMonth }) {
+    async fetchOrdersCountApi(branchId) {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
@@ -103,13 +103,8 @@ export const ORDERS_API = {
             }
 
             const params = {
-                branch_id: branchId,
-                date_filter: currentMonth
+                branch_id: branchId
             };
-
-            if (currentMonth) {
-                params.date_filter = currentMonth;
-            }
 
             const config = {
                 headers: {

@@ -597,7 +597,6 @@ export default {
             if (newTab === 'dashboard') {
                 this.loadingStore.show("Preparing...");
                 this.onDashboard();
-                this.ordersStore;
                 this.loadingStore.hide();
             }
         },
@@ -609,7 +608,7 @@ export default {
             this.activeTab = "dashboard";
             const currentMonth = new Date().getMonth() + 1;
             await this.fetchBranchDetails();
-            await this.fetchOrdersCount();
+            await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.fetchSalesOnly(currentMonth);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
@@ -628,21 +627,6 @@ export default {
                 this.$router.push('/about');
             } finally {
                 this.loadingBranchDetails = false;
-            }
-        },
-
-        async fetchOrdersCount() {
-            try {
-                if (!this.branchDetails.branch_id) {
-                    this.showError("Branch ID is not available!");
-                    this.ordersStore.ordersCount = 0;
-                    return;
-                }
-                const currentMonth = new Date().getMonth() + 1;
-                await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id, currentMonth);
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
             }
         },
 

@@ -216,22 +216,24 @@ export const useOrdersStore = defineStore('orders', {
             }
         },
 
-        async fetchOrdersCountStore(branchId, currentMonth = null) {
-            this.loadingOrders = true;
+        async fetchOrdersCountStore(branchId) {
+            if (!branchId) {
+                this.error = 'Branch ID is required';
+                return;
+            }
             this.error = null;
             try {
-                const response = await ORDERS_API.fetchOrdersCountApi(branchId, currentMonth);
-                if (response && response.status === true) {
-                    this.ordersCount = response.data;
-                } else {
-                    throw new Error(response?.message || 'Failed to fetch sales');
+                const response = await ORDERS_API.fetchOrdersCountApi(branchId);
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to fetch orders count');
                 }
+                const totalCount = response.data.orders_count ?? 0;
+                this.ordersCount = totalCount;
+                console.log('[store] Fetched orders count:', this.ordersCount);
             } catch (error) {
                 console.error('Error in fetchOrdersCountApi:', error);
                 this.error = error.message || 'Failed to fetch sales';
                 throw error;
-            } finally {
-                this.loadingOrders = false;
             }
         }
     },
