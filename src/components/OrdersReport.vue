@@ -16,18 +16,18 @@
         {{ store.error }}
     </v-alert>
 
-    <SkeletonTable v-if="store.loadingOrders && !displayItems.length" />
+    <SkeletonTable v-if="store.loadingOrdersReport && !displayItems.length" />
 
-    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
-        :loading="store.loadingOrders && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate"
+    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.totalOrdersReport"
+        :loading="store.loadingOrdersReport && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate"
         class="elevation-1 hover-table">
         <template #top>
             <v-toolbar flat>
-                <h2 class="ms-4 to-hide">List of All Orders</h2>
-                <h2 class="ms-4 to-show">All Orders</h2>
+                <h2 class="ms-4 to-hide">List of Orders Report</h2>
+                <h2 class="ms-4 to-show">Orders Report</h2>
                 <v-spacer />
                 <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
-                    @click="handleRefresh" :loading="store.loadingOrders" />
+                    @click="handleRefresh" :loading="store.loadingOrdersReport" />
             </v-toolbar>
             <v-divider />
         </template>
@@ -35,12 +35,12 @@
         <!-- Custom Columns -->
 
         <!--  eslint-disable -->
-        <template #item.order_status="{ item }">
-            <v-chip
-                :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'"
-                size="small" variant="tonal">
-                {{ item.order_status }}
-            </v-chip>
+        <template #item.order_number="{ item }">
+            <span>#{{ item.order_number }}</span>
+        </template>
+
+        <template #item.table_number="{ item }">
+            <span>#{{ item.table_number }}</span>
         </template>
 
         <template #item.order_type="{ item }">
@@ -51,60 +51,27 @@
             </v-chip>
         </template>
 
+        <template #item.order_status="{ item }">
+            <v-chip
+                :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'"
+                size="small" variant="tonal">
+                {{ item.order_status }}
+            </v-chip>
+        </template>
+
         <template #item.sales_status="{ item }">
             <v-chip :color="item.sales_status === 1 ? 'warning' : 'green'" size="small" variant="tonal">
                 {{ item.sales_status }}
             </v-chip>
         </template>
-
-        <template #item.payment_method="{ item }">
-            <span :class="item.payment_method_id === 1 ? 'text-blue' : 'text-green'">{{ item.payment_method }}</span>
-        </template>
-
-        <template #item.table_number="{ item }">
-            <span>#{{ item.table_number }}</span>
-        </template>
-
-        <template #item.order_number="{ item }">
-            <span>#{{ item.order_number }}</span>
-        </template>
-
-        <template #item.total_quantity="{ item }">
-            <span>x{{ item.total_quantity }}</span>
-        </template>
-
-        <template #item.total_amount="{ item }">
-            <span>₱{{ item.total_amount }}</span>
-        </template>
-
-        <template #item.discount_amount="{ item }">
-            <span>₱{{ item.discount_amount }}</span>
-        </template>
-
-        <template #item.customer_change="{ item }">
-            <span>₱{{ item.customer_change }}</span>
-        </template>
-
+        
         <!-- <template #item.timeFormat="{ item }">
             <span>{{ item.timeFormat }}</span>
         </template> -->
 
-        <template #item.actions="{ item }">
-            <div class="d-flex" style="gap: 8px;">
-                <v-tooltip text="View Items" location="top">
-                    <template #activator="{ props }">
-                        <v-btn v-bind="props" color="green" size="small" prepend-icon="mdi-eye-outline"
-                            @click="$emit('view-items', item)">
-                            View Items
-                        </v-btn>
-                    </template>
-                </v-tooltip>
-            </div>
-        </template>
-
         <template #no-data>
             <v-alert v-if="!displayItems.length" type="warning" variant="tonal" class="ma-4">
-                No orders found for this branch.
+                No orders report found for this branch.
             </v-alert>
         </template>
     </BaseDataTable>
@@ -146,6 +113,10 @@ const props = defineProps({
         type: String,
         default: ''
     },
+    adminName: {
+        type: String,
+        required: true
+    },
 })
 
 const emit = defineEmits(['view-items'])
@@ -164,20 +135,15 @@ const isFetching = ref(false)
 const lastFetchParams = ref('')
 
 const headers = [
-    { title: 'OrderStatus', value: 'order_status', sortable: true, align: 'start' },
-    { title: 'OrderType', value: 'order_type', sortable: true },
-    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
-    { title: 'PaymentMethod', value: 'payment_method', sortable: true },
+    { title: 'OrderNumber', value: 'order_number', sortable: true, align: 'start' },
+    { title: 'Reference', value: 'reference_number', sortable: false },
     { title: 'TableNumber', value: 'table_number', sortable: true },
-    { title: 'OrderNumber', value: 'order_number', sortable: true },
-    { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
-    { title: 'TotalAmount', value: 'total_amount', sortable: true },
-    { title: 'DiscountAmount', value: 'discount_amount', sortable: true },
-    { title: 'CustomerChange', value: 'customer_change', sortable: true },
-    { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
+    { title: 'OrderType', value: 'order_type', sortable: true },
+    { title: 'OrderStatus', value: 'order_status', sortable: true },
+    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
 ]
 
-const dateFilter = ref(1)
+const dateFilter = ref(1) // Default to 'Today'
 const dateFilterItems = [
     { filter_date_id: 1, filter_date_label: 'Today' },
     { filter_date_id: 2, filter_date_label: 'Yesterday' },
@@ -210,10 +176,10 @@ const handleRefresh = () => {
 }
 
 const updateDisplayItems = () => {
-    if (!Array.isArray(store.orders)) {
+    if (!Array.isArray(store.ordersReport)) {
         displayItems.value = []
     } else {
-        displayItems.value = store.orders
+        displayItems.value = store.ordersReport
             .filter(item => item && typeof item === 'object')
             .map(item => ({ ...item }))
     }
@@ -227,7 +193,7 @@ const fetchOrdersReport = async () => {
         branchId: props.branchId,
         page: options.value.page,
         itemsPerPage: options.value.itemsPerPage,
-        date_filter: dateFilter.value,
+        dateFilter: dateFilter.value,
     })
 
     if (params === lastFetchParams.value) return
@@ -240,7 +206,7 @@ const fetchOrdersReport = async () => {
             branchId: props.branchId,
             page: options.value.page,
             itemsPerPage: options.value.itemsPerPage,
-            date_filter: dateFilter.value,
+            dateFilter: dateFilter.value,
         })
 
         updateDisplayItems()
@@ -254,6 +220,13 @@ const fetchOrdersReport = async () => {
         isFetching.value = false
     }
 }
+
+// Reactive fetch when date filter changes
+watch(dateFilter, (newFilter) => {
+    options.value.page = 1
+    lastFetchParams.value = ''
+    fetchOrdersReport()
+})
 
 // prepare date helpers for exports
 const today = new Date();
@@ -301,11 +274,13 @@ async function downloadTransactions(filterDate = null) {
         }
 
         const transactions = store.ordersReport.map(order => ({
+            OrderNumber: order.order_number,
             Reference: order.reference_number,
+            OrderType: order.order_type,
             ModeOfPayment: order.payment_method,
             Quantity: order.total_quantity,
             CashRender: order.customer_cash,
-            TotalDue: order.total_due,
+            TotalAmount: order.total_amount,
             Discount: order.customer_discount,
             Change: order.customer_change,
             CashierName: order.cashier_name,
@@ -318,7 +293,7 @@ async function downloadTransactions(filterDate = null) {
             `Branch Location: ${props.branchAddress}`,
             `Contact: ${props.branchContactNumber}`,
             `Date: ${formatCurrentDate}`,
-            `Prepared by : ${props.shopName}`,
+            `Prepared by : ${props.adminName}`,
             '',
         ].join('\n');
 
@@ -393,11 +368,13 @@ async function printTransactions(filterDate = null) {
                 <p><strong>Orders report for ${props.branchName} branch</strong></p>
                 <table>
                     <tr>
-                        <th>Reference #</th>
+                        <th>Order#</th>
+                        <th>Reference#</th>
+                        <th>OrderType</th>
                         <th>ModeOfPayment</th>
                         <th>Quantity</th>
                         <th>CashRender</th>
-                        <th>TotalDue</th>
+                        <th>TotalAmount</th>
                         <th>Discount</th>
                         <th>Change</th>
                         <th>CashierName</th>
@@ -406,11 +383,13 @@ async function printTransactions(filterDate = null) {
                     ${store.ordersReport
                         .map(order => `
                             <tr>
+                                <td>${order.order_number}</td>
                                 <td>${order.reference_number}</td>
+                                <td>${order.order_type}</td>
                                 <td>${order.payment_method}</td>
                                 <td>${order.total_quantity}</td>
                                 <td>${order.customer_cash}</td>
-                                <td>${order.total_due}</td>
+                                <td>${order.total_amount}</td>
                                 <td>${order.customer_discount}</td>
                                 <td>${order.customer_change}</td>
                                 <td>${order.cashier_name}</td>
@@ -420,7 +399,7 @@ async function printTransactions(filterDate = null) {
                 </table>
                 <footer>
                     <p style="margin-top: 30px;">
-                        Prepared by: <strong>${props.shopName}</strong>
+                        Prepared by: <strong>${props.adminName}</strong>
                     </p>
                 </footer>
             </body>
@@ -429,7 +408,7 @@ async function printTransactions(filterDate = null) {
     printWindow.print();
 }
 
-watch(() => store.orders, () => {
+watch(() => store.ordersReport, () => {
     updateDisplayItems()
 }, { deep: true })
 

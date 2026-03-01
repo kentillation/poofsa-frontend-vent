@@ -211,9 +211,8 @@ export const useOrdersStore = defineStore('orders', {
                 this._lastFetchHash = null;
                 throw error;
             } finally {
-                this.loadingOrders = false;
+                this.loadingOrdersReport = false;
             }
-
         },
 
     },
