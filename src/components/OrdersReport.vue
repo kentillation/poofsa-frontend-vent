@@ -64,6 +64,14 @@
                 {{ item.sales_status }}
             </v-chip>
         </template>
+
+        <template #item.total_quantity="{ item }">
+            <span>x{{ item.total_quantity }}</span>
+        </template>
+
+        <template #item.updated_at="{ item }">
+            <span>{{ formatDateTime(item.updated_at) }}</span>
+        </template>
         
         <!-- <template #item.timeFormat="{ item }">
             <span>{{ item.timeFormat }}</span>
@@ -138,9 +146,12 @@ const headers = [
     { title: 'OrderNumber', value: 'order_number', sortable: true, align: 'start' },
     { title: 'Reference', value: 'reference_number', sortable: false },
     { title: 'TableNumber', value: 'table_number', sortable: true },
+    { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
     { title: 'OrderType', value: 'order_type', sortable: true },
     { title: 'OrderStatus', value: 'order_status', sortable: true },
     { title: 'PaymentStatus', value: 'sales_status', sortable: true },
+    { title: 'CashierName', value: 'cashier_name', sortable: true },
+    { title: 'LastUpdate', value: 'updated_at', sortable: true },
 ]
 
 const dateFilter = ref(1) // Default to 'Today'
@@ -276,13 +287,11 @@ async function downloadTransactions(filterDate = null) {
         const transactions = store.ordersReport.map(order => ({
             OrderNumber: order.order_number,
             Reference: order.reference_number,
-            OrderType: order.order_type,
-            ModeOfPayment: order.payment_method,
+            TableNumber: order.table_number,
             Quantity: order.total_quantity,
-            CashRender: order.customer_cash,
-            TotalAmount: order.total_amount,
-            Discount: order.customer_discount,
-            Change: order.customer_change,
+            OrderType: order.order_type,
+            OrderStatus: order.order_status,
+            PaymentStatus: order.sales_status,
             CashierName: order.cashier_name,
             TransactionDate: formatDateTime(order.updated_at),
         }));
