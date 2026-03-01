@@ -4,7 +4,7 @@ export const ORDERS_API = {
     ENDPOINTS: {
         FETCH_ALL_ORDERS: '/admin/orders',
         FETCH_ORDERS_REPORT: '/admin/orders-report',
-        FETCH_ORDERS_COUNT: '/admin/orders-count'
+        FETCH_ORDERS_COUNT: '/admin/total-orders'
     },
 
     /**

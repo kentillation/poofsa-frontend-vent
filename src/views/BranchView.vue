@@ -618,9 +618,8 @@ export default {
         async fetchBranchDetails() {
             this.loadingBranchDetails = true;
             try {
-                const response = await this.branchStore.fetchBranchDetailsStore(this.$route.params.branchName);
+                await this.branchStore.fetchBranchDetailsStore(this.$route.params.branchName);
                 this.branchDetails = this.branchStore.currentBranch;
-                console.log('Data', response)
             } catch (error) {
                 console.error(error);
                 this.showError(error);

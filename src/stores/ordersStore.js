@@ -227,9 +227,8 @@ export const useOrdersStore = defineStore('orders', {
                 if (!response?.success) {
                     throw new Error(response?.message || 'Failed to fetch orders count');
                 }
-                const totalCount = response.data.orders_count ?? 0;
+                const totalCount = response.data.total_orders ?? 0;
                 this.ordersCount = totalCount;
-                console.log('[store] Fetched orders count:', this.ordersCount);
             } catch (error) {
                 console.error('Error in fetchOrdersCountApi:', error);
                 this.error = error.message || 'Failed to fetch sales';
