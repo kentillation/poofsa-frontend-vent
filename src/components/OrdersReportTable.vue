@@ -393,7 +393,7 @@ async function printTransactions(filterDate = null) {
                                 <td>${order.order_number}</td>
                                 <td>${order.reference_number}</td>
                                 <td>${order.table_number}</td>
-                                <td>${order.total_quantity}</td>
+                                <td>${order.total_quantity}${order.total_quantity > 1 ? ' items' : ' item'}</td>
                                 <td>${order.order_type}</td>
                                 <td>${order.order_status}</td>
                                 <td>${order.sales_status}</td>

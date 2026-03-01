@@ -52,10 +52,6 @@
             </v-chip>
         </template>
 
-        <template #item.payment_method="{ item }">
-            <span :class="item.payment_method_id === 1 ? 'text-blue' : 'text-green'">{{ item.payment_method }}</span>
-        </template>
-
         <template #item.total_quantity="{ item }">
             <span>x{{ item.total_quantity }}</span>
         </template>
@@ -66,6 +62,10 @@
 
         <template #item.order_number="{ item }">
             <span>#{{ item.order_number }}</span>
+        </template>
+
+        <template #item.updated_at="{ item }">
+            <span>{{ formatDateTime(item.updated_at) }}</span>
         </template>
 
         <!-- <template #item.timeFormat="{ item }">
@@ -139,12 +139,12 @@ const headers = [
     { title: 'OrderStatus', value: 'order_status', sortable: true, align: 'start' },
     { title: 'OrderType', value: 'order_type', sortable: true },
     { title: 'PaymentStatus', value: 'sales_status', sortable: true },
-    { title: 'PaymentMethod', value: 'payment_method', sortable: true },
     { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
     { title: 'TableNumber', value: 'table_number', sortable: true },
     { title: 'OrderNumber', value: 'order_number', sortable: true },
     { title: 'Reference', value: 'reference_number', sortable: true },
     { title: 'CashierName', value: 'cashier_name', sortable: true },
+    { title: 'TransactionDate', value: 'updated_at', sortable: true },
     { title: 'Actions', value: 'actions', sortable: false, align: 'center' }
 ]
 
@@ -220,6 +220,19 @@ const fetchOrders = async () => {
     } finally {
         isFetching.value = false
     }
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    return d.toLocaleString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Manila'
+    });
 }
 
 watch(() => store.orders, () => {

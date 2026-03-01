@@ -35,8 +35,6 @@ export const useOrdersStore = defineStore('orders', {
                     order_type: '',
                     total_quantity: null,
                     sales_status: '',
-                    payment_method: '',
-                    payment_method_id: null,
                 };
             }
 
@@ -51,8 +49,6 @@ export const useOrdersStore = defineStore('orders', {
                 order_type: order.order_type,
                 total_quantity: order.total_quantity,
                 sales_status: order.sales_status,
-                payment_method: order.payment_method,
-                payment_method_id: order.payment_method_id,
                 updatedAtFormatted: order.updated_at ? formatDate(order.updated_at) : '',
                 updatedAtShort: order.updated_at ? formatDateShort(order.updated_at) : '',
                 ...order
@@ -95,8 +91,6 @@ export const useOrdersStore = defineStore('orders', {
                 order_type: order.order_type || existing?.order_type || '',
                 total_quantity: order.total_quantity || existing?.total_quantity || null,
                 sales_status: order.sales_status || existing?.sales_status || '',
-                payment_method: order.payment_method || existing?.payment_method || '',
-                payment_method_id: order.payment_method_id || existing?.payment_method_id || '',
                 updatedAtFormatted: order.updated_at ? formatDate(order.updated_at) : existing?.updatedAtFormatted || '',
                 updatedAtShort: order.updated_at ? formatDateShort(order.updated_at) : existing?.updatedAtShort || '',
             };
