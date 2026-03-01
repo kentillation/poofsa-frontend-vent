@@ -309,7 +309,7 @@
 
                                             <OrdersReportsTableSkeleton
                                                 v-if="loadingTransactionsReports && activeReportsTab === 'orders'" />
-                                            <OrdersReportTable v-else-if="activeReportsTab === 'orders'"
+                                            <OrdersReport v-else-if="activeReportsTab === 'orders'"
                                                 :shop-id="branchDetails.shop_id"
                                                 :shop-name="branchDetails.shop_name"
                                                 :branch-id="branchDetails.branch_id"
@@ -364,7 +364,7 @@ import StocksHistoryDialog from '@/components/StocksHistoryDialog.vue';
 import ProductsHistoryDialog from '@/components/ProductsHistoryDialog.vue';
 import StocksReportTable from '@/components/StocksReportTable.vue';
 import StocksReportsTableSkeleton from '@/components/StocksReportsTableSkeleton.vue';
-import OrdersReportTable from '@/components/OrdersReportTable.vue';
+import OrdersReport from '@/components/OrdersReport.vue';
 import OrdersReportsTableSkeleton from '@/components/OrdersReportsTableSkeleton.vue';
 import SalesReportTable from '@/components/SalesReportTable.vue';
 import SalesReportsTableSkeleton from '@/components/SalesReportsTableSkeleton.vue';
@@ -388,7 +388,7 @@ export default {
         ProductsHistoryDialog,
         StocksReportTable,
         StocksReportsTableSkeleton,
-        OrdersReportTable,
+        OrdersReport,
         OrdersReportsTableSkeleton,
         SalesReportTable,
         SalesReportsTableSkeleton,

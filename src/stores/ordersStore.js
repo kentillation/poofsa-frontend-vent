@@ -5,10 +5,11 @@ import { formatDate, formatDateShort } from '@/utils/dateFormatter';
 export const useOrdersStore = defineStore('orders', {
     state: () => ({
         orders: [],
-        ordersHistory: [],
+        ordersReport: [],
         total: 0,
-        ordersHistoryTotal: 0,
+        totalOrdersReport: 0,
         loadingOrders: false,
+        loadingOrdersReport: false,
         error: null,
         _fetchCache: null,
         _lastFetchHash: null
@@ -155,6 +156,64 @@ export const useOrdersStore = defineStore('orders', {
             } finally {
                 this.loadingOrders = false;
             }
+        },
+
+        async fetchOrdersReportStore({ branchId, page = 1, itemsPerPage = 10, dateFilter = 1 }) {
+            if (!branchId) {
+                this.error = 'Branch ID is required';
+                return;
+            }
+
+            const cacheKey = this._getCacheKey(branchId, page, itemsPerPage, dateFilter);
+
+            if (this._lastFetchHash === cacheKey && this.ordersReport.length > 0) {
+                return;
+            }
+
+            this.loadingOrdersReport = true;
+            this.error = null;
+
+            try {
+                const response = await ORDERS_API.fetchOrdersReportApi({
+                    branchId,
+                    page,
+                    itemsPerPage,
+                    dateFilter
+                });
+
+                if (!response?.success) {
+                    throw new Error(response?.message || 'Failed to fetch orders report');
+                }
+
+                let rawOrders = Array.isArray(response.data) ? response.data : [];
+                const totalCount = response.totalOrdersReport ?? rawOrders.length;
+
+                const beforeLength = rawOrders.length;
+                rawOrders = rawOrders.filter(s => s && typeof s === 'object');
+                if (rawOrders.length !== beforeLength) {
+                    console.warn('[ordersStore] removed invalid items from API response', {
+                        before: beforeLength,
+                        after: rawOrders.length,
+                        branchId,
+                        dateFilter
+                    });
+                }
+
+                this.ordersReport = rawOrders.map(s => this._transformOrders(s));
+                this.totalOrdersReport = totalCount;
+                this._lastFetchHash = cacheKey;
+                this._fetchCache = { rawOrders, totalCount };
+
+            } catch (error) {
+                this.error = error.message || 'Failed to fetch orders report';
+                this.ordersReport = [];
+                this.totalOrdersReport = 0;
+                this._lastFetchHash = null;
+                throw error;
+            } finally {
+                this.loadingOrders = false;
+            }
+
         },
 
     },
