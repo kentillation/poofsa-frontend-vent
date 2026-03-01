@@ -251,17 +251,6 @@ onMounted(() => {
     }
 })
 
-// const viewOnlineOrders = () => {
-//     router.push({
-//         path: '/view-order/',
-//         query: {
-//             shop_id: props.shopId,
-//             branch_id: props.branchId,
-//             branch_name: props.branchName
-//         }
-//     })
-// }
-
 </script>
 
 <style scoped>

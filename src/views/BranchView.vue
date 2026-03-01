@@ -141,6 +141,14 @@
                                 </v-container>
                             </v-tabs-window-item>
 
+                            <!-- Orders -->
+                            <v-tabs-window-item value="orders">
+                                <v-container>
+                                    <OrdersTable :shop-id="branchDetails.shop_id" :branch-id="branchDetails.branch_id"
+                                        :branch-name="branchDetails.branch_name"/>
+                                </v-container>
+                            </v-tabs-window-item>
+
                             <!-- Products -->
                             <v-tabs-window-item value="products">
                                 <v-container>
@@ -198,13 +206,6 @@
                                         <span class="to-hide">Stocks History</span>
                                         <span class="to-show">History</span>
                                     </v-btn>
-                                </v-container>
-                            </v-tabs-window-item>
-
-                            <!-- Orders -->
-                            <v-tabs-window-item value="orders">
-                                <v-container>
-                                    <OrdersTable :shop-id="branchDetails.shop_id" :branch-id="branchDetails.branch_id" />
                                 </v-container>
                             </v-tabs-window-item>
 
@@ -309,13 +310,12 @@
                                             <OrdersReportsTableSkeleton
                                                 v-if="loadingTransactionsReports && activeReportsTab === 'orders'" />
                                             <OrdersReportTable v-else-if="activeReportsTab === 'orders'"
-                                                :all-orders="transactStore.transactions"
-                                                :loading="loadingTransactionsReports" :shop-id="branchDetails.shop_id"
+                                                :shop-id="branchDetails.shop_id"
                                                 :shop-name="branchDetails.shop_name"
                                                 :branch-id="branchDetails.branch_id"
                                                 :branch-name="branchDetails.branch_name"
-                                                :branch-location="branchDetails.branch_address"
-                                                :contact="branchDetails.contact"
+                                                :branch-address="branchDetails.branch_address"
+                                                :branch-contact-number="branchDetails.branch_contact_number"
                                                 :admin-name="branchDetails.admin_name" />
 
                                             <StocksReportsTableSkeleton
