@@ -255,45 +255,179 @@ const fetchOrdersReport = async () => {
     }
 }
 
-const downloadTransactions = (filterDate) => {
-    fetchOrdersReport({
-        branchId: props.branchId,
-        filterDate
-    })
+// prepare date helpers for exports
+const today = new Date();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+const yyyy = today.getFullYear();
+const currentNumberDate = `${mm}/${dd}/${yyyy}`;
+const currentDate = new Date().toLocaleDateString('en-PH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+});
+const formatCurrentDate = currentDate.replace(/,/g, '');
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    return d.toLocaleString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Manila'
+    });
 }
-const ordersReport = fetchOrdersReport.map(order => ({
-    'Reference': order.reference_number,
-    'ModeOfPayment': order.payment_method,
-    'Quantity': order.total_quantity,
-    'CashRender': order.customer_cash,
-    'TotalDue': order.total_due,
-    'Discount': order.customer_discount,
-    'Change': order.customer_change,
-    'CashierName': order.cashier_name,
-    'TransactionDate': this.formatDateTime(order.updated_at),
-}));
-const orderReportsHeadings = [
-    `Shop Name: ${this.shopName}`,
-    `Branch Name: ${this.branchName}`,
-    `Branch Location: ${this.branchLocation}`,
-    `Contact: ${this.contact}`,
-    `Date: ${this.formatCurrentDate}`,
-    `Prepared by : ${this.adminName}`,
-    '',
-].join('\n');
-const csvContent = "data:text/csv;charset=utf-8,"
-    + orderReportsHeadings + "\n"
-    + Object.keys(ordersReport[0]).join(",") + "\n"
-    + ordersReport.map(e => Object.values(e).join(",")).join("\n");
-const encodedUri = encodeURI(csvContent);
-const link = document.createElement("a");
-link.setAttribute("href", encodedUri);
-link.setAttribute("download", `Orders_Report_${this.branchName}_${this.currentNumberDate}.csv`);
-document.body.appendChild(link);
-this.showSuccess("Orders report downloaded successfully!");
-link.click();
-this.loadingStore.hide();
-document.body.removeChild(link);
+
+async function downloadTransactions(filterDate = null) {
+    if (!props.branchId) return;
+    store.loadingOrdersReport = true;
+    try {
+        await store.fetchOrdersReportStore({
+            branchId: props.branchId,
+            page: options.value.page,
+            itemsPerPage: options.value.itemsPerPage,
+            dateFilter: filterDate ?? dateFilter.value,
+        });
+
+        if (!Array.isArray(store.ordersReport) || store.ordersReport.length === 0) {
+            if (snackbarRef.value) snackbarRef.value.showSnackbar('No available orders report to download.', 'error');
+            return;
+        }
+
+        const transactions = store.ordersReport.map(order => ({
+            Reference: order.reference_number,
+            ModeOfPayment: order.payment_method,
+            Quantity: order.total_quantity,
+            CashRender: order.customer_cash,
+            TotalDue: order.total_due,
+            Discount: order.customer_discount,
+            Change: order.customer_change,
+            CashierName: order.cashier_name,
+            TransactionDate: formatDateTime(order.updated_at),
+        }));
+
+        const headings = [
+            `Shop Name: ${props.shopName}`,
+            `Branch Name: ${props.branchName}`,
+            `Branch Location: ${props.branchAddress}`,
+            `Contact: ${props.branchContactNumber}`,
+            `Date: ${formatCurrentDate}`,
+            `Prepared by : ${props.shopName}`,
+            '',
+        ].join('\n');
+
+        const csvContent =
+            'data:text/csv;charset=utf-8,' +
+            headings +
+            '\n' +
+            Object.keys(transactions[0]).join(',') +
+            '\n' +
+            transactions.map(e => Object.values(e).join(',')).join('\n');
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `Orders_Report_${props.branchName}_${currentNumberDate}.csv`);
+        document.body.appendChild(link);
+        if (snackbarRef.value) snackbarRef.value.showSnackbar('Orders report downloaded successfully!', 'success');
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        console.error(err);
+        if (snackbarRef.value) snackbarRef.value.showSnackbar(err.message || 'Failed to download report', 'error');
+    } finally {
+        store.loadingOrdersReport = false;
+    }
+}
+
+async function printTransactions(filterDate = null) {
+    await store.fetchOrdersReportStore({
+        branchId: props.branchId,
+        page: options.value.page,
+        itemsPerPage: options.value.itemsPerPage,
+        dateFilter: filterDate ?? dateFilter.value,
+    });
+
+    if (!Array.isArray(store.ordersReport) || store.ordersReport.length === 0) {
+        if (snackbarRef.value) snackbarRef.value.showSnackbar('No available orders report to print.', 'error');
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert('Please allow popups for this website to print the report.');
+        return;
+    }
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Orders Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    h2 { margin: 0; }
+                    h2, h4, h5 { text-align: center; }
+                    h4, h5 { font-weight: normal; margin: 5px; }
+                    p { margin-top: 25px; }
+                    .headings { display: flex; align-items: center; justify-content: space-between;}
+                </style>
+            </head>
+            <body>
+                <div class="headings">
+                    <div>
+                        <h2>${props.shopName}</h2>
+                        <h4>${props.branchName} Branch</h4>
+                        <h5>${props.branchAddress}</h5>
+                        <h5>${props.branchContactNumber}</h5>
+                    </div>
+                    <h5>${formatCurrentDate}</h5>
+                </div>
+                <p><strong>Orders report for ${props.branchName} branch</strong></p>
+                <table>
+                    <tr>
+                        <th>Reference #</th>
+                        <th>ModeOfPayment</th>
+                        <th>Quantity</th>
+                        <th>CashRender</th>
+                        <th>TotalDue</th>
+                        <th>Discount</th>
+                        <th>Change</th>
+                        <th>CashierName</th>
+                        <th>TransactionDate</th>
+                    </tr>
+                    ${store.ordersReport
+                        .map(order => `
+                            <tr>
+                                <td>${order.reference_number}</td>
+                                <td>${order.payment_method}</td>
+                                <td>${order.total_quantity}</td>
+                                <td>${order.customer_cash}</td>
+                                <td>${order.total_due}</td>
+                                <td>${order.customer_discount}</td>
+                                <td>${order.customer_change}</td>
+                                <td>${order.cashier_name}</td>
+                                <td>${formatDateTime(order.updated_at)}</td>
+                            </tr>`)
+                        .join('')}
+                </table>
+                <footer>
+                    <p style="margin-top: 30px;">
+                        Prepared by: <strong>${props.shopName}</strong>
+                    </p>
+                </footer>
+            </body>
+        </html>`);
+    printWindow.document.close();
+    printWindow.print();
+}
 
 watch(() => store.orders, () => {
     updateDisplayItems()
