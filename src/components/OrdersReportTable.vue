@@ -1,356 +1,458 @@
+<!-- eslint-disable -->
 <template>
-    <v-data-table :headers="transactionsHeaders" :items="mappedOrders" :loading="loading" :items-per-page="10"
-        :sort-by="[{ key: 'updated_at', order: 'desc' }]" class="hover-table" density="comfortable">
-        <template v-slot:top>
-            <div class="d-flex flex-wrap align-center mt-5">
-                <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
-                    item-value="filter_date_id" label="Date filter" class="me-1" density="compact" clearable />
+    <div class="d-flex flex-wrap align-center mt-5">
+        <v-autocomplete v-model="dateFilter" :items="dateFilterItems" item-title="filter_date_label"
+            item-value="filter_date_id" label="Date filter" class="me-1" density="compact" clearable />
 
-                <div class="d-flex mb-5">
-                    <v-btn @click="downloadTransactions(dateFilter)" height="40" prepend-icon="mdi-download"
-                        color="primary" variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
-                    <v-btn @click="printTransactions(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
-                        variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>&nbsp;
-                    <v-btn @click="fetchAllOrdersReport(dateFilter)" height="40" class="ps-7" prepend-icon="mdi-refresh" color="primary" variant="tonal"
-                        :loading="loading"></v-btn>
-                </div>
-            </div>
+        <div class="d-flex mb-5">
+            <v-btn @click="downloadTransactions(dateFilter)" height="40" prepend-icon="mdi-download" color="primary"
+                variant="tonal" class="ps-6"><span class="to-hide">XLS</span></v-btn>&nbsp;
+            <v-btn @click="printTransactions(dateFilter)" height="40" prepend-icon="mdi-printer" color="primary"
+                variant="tonal" class="ps-6"><span class="to-hide">PRINT</span></v-btn>
+        </div>
+    </div>
+
+    <v-alert v-if="store.error" type="error" variant="tonal" class="mb-4" dismissible @click:close="store.clearError">
+        {{ store.error }}
+    </v-alert>
+
+    <SkeletonTable v-if="store.loadingOrdersReport && !displayItems.length" />
+
+    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.totalOrdersReport"
+        :loading="store.loadingOrdersReport && displayItems.length > 0" :options="options" @update:options="onOptionsUpdate"
+        class="elevation-1 hover-table">
+        <template #top>
+            <v-toolbar flat>
+                <h2 class="ms-4 to-hide">List of Orders Report</h2>
+                <h2 class="ms-4 to-show">Orders Report</h2>
+                <v-spacer />
+                <v-btn icon="mdi-refresh" color="#0090b6" variant="flat" size="small" class="me-3"
+                    @click="handleRefresh" :loading="store.loadingOrdersReport" />
+            </v-toolbar>
+            <v-divider />
         </template>
 
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.total_quantity="{ item }">
-            {{ item.total_quantity }} {{ item.total_quantity > 1 ? 'items' : 'item' }}
+        <!-- Custom Columns -->
+
+        <!--  eslint-disable -->
+        <template #item.order_number="{ item }">
+            <span>#{{ item.order_number }}</span>
         </template>
 
-        <!--eslint-disable-next-line -->
-        <template v-slot:item.payment_method="{ item }">
-            <v-chip :color="item.payment_method === 'Cash' ? 'green' : 'blue'" size="small" variant="tonal">
-                {{ item.payment_method }}
+        <template #item.table_number="{ item }">
+            <span>#{{ item.table_number }}</span>
+        </template>
+
+        <template #item.order_type="{ item }">
+            <v-chip
+                :color="item.order_type_id === 1 ? 'black' : item.order_type_id === 2 ? 'purple' : item.order_type_id === 3 ? 'teal' : 'grey'"
+                size="small" variant="tonal">
+                {{ item.order_type }}
             </v-chip>
         </template>
 
-        <template v-slot:no-data>
-            <v-alert type="warning" variant="tonal" class="ma-4">
-                <span>&nbsp; No orders report found
-                    <template v-if="selectedFilterLabel">
-                        for <strong>{{ selectedFilterLabel }}</strong>
-                    </template>
-                </span>
+        <template #item.order_status="{ item }">
+            <v-chip
+                :color="item.order_status_id === 1 ? 'red' : item.order_status_id === 2 ? 'blue' : item.order_status_id === 3 ? 'green' : 'grey'"
+                size="small" variant="tonal">
+                {{ item.order_status }}
+            </v-chip>
+        </template>
+
+        <template #item.sales_status="{ item }">
+            <v-chip :color="item.sales_status === 1 ? 'warning' : 'green'" size="small" variant="tonal">
+                {{ item.sales_status }}
+            </v-chip>
+        </template>
+
+        <template #item.total_quantity="{ item }">
+            <span>x{{ item.total_quantity }}</span>
+        </template>
+
+        <template #item.updated_at="{ item }">
+            <span>{{ formatDateTime(item.updated_at) }}</span>
+        </template>
+        
+        <!-- <template #item.timeFormat="{ item }">
+            <span>{{ item.timeFormat }}</span>
+        </template> -->
+
+        <template #no-data>
+            <v-alert v-if="!displayItems.length" type="warning" variant="tonal" class="ma-4">
+                No orders report found for this branch.
             </v-alert>
         </template>
-    </v-data-table>
+    </BaseDataTable>
+
+    <!-- Snackbar -->
     <Snackbar ref="snackbarRef" />
 </template>
 
-<script>
-import { useLoadingStore } from '@/stores/loading';
-import { useTransactStore } from '@/stores/transactStore';
-import Snackbar from '@/components/Snackbar.vue';
+<script setup>
+/* eslint-disable */
+import { ref, watch, onMounted } from 'vue'
+import { useOrdersStore } from '@/stores/ordersStore'
+import SkeletonTable from '@/components/SkeletonTable.vue'
+import BaseDataTable from '@/components/BaseDataTable.vue'
+import Snackbar from '@/components/Snackbar.vue'
 
-export default {
-    name: 'TransactionsReportsTable',
-    data() {
-        return {
-            mappedOrders: [],
-            dateFilter: 1,
-            shopLogoLink: '-',
-            transactionsHeaders: [
-                { title: 'Reference', value: 'reference_number', sortable: 'true', width: '10%' },
-                { title: 'ModeOfPayment', value: 'payment_method', sortable: 'true', width: '10%' },
-                { title: 'Quantity', value: 'display_total_quantity', sortable: 'true', width: '10%' },
-                { title: 'CashRendered', value: 'display_customer_cash', sortable: 'true', width: '10%' },
-                { title: 'TotalDue', value: 'display_total_amount', sortable: 'true', width: '10%' },
-                { title: 'Discount', value: 'display_discount', sortable: 'true', width: '10%' },
-                { title: 'Change', value: 'display_customer_change', sortable: 'true', width: '10%' },
-                { title: 'CashierName', value: 'cashier_name', sortable: 'true', width: '10%' },
-                { title: 'TransactionDate', value: 'updated_at', sortable: 'true', width: '10%' },
-            ],
-            dateFilterItems: [
-                { filter_date_id: 1, filter_date_label: 'Today' },
-                { filter_date_id: 2, filter_date_label: 'Yesterday' },
-                { filter_date_id: 3, filter_date_label: 'Last 7 days' },
-                { filter_date_id: 4, filter_date_label: 'This Week' },
-                { filter_date_id: 5, filter_date_label: 'Last 30 days' },
-                { filter_date_id: 6, filter_date_label: 'This Month' },
-                { filter_date_id: 7, filter_date_label: 'Last Month' },
-            ],
-            snackbarRef: null,
-        }
+const props = defineProps({
+    shopId: {
+        type: Number,
+        required: true
     },
-    mounted() {
-        this.fetchAllOrdersReport(this.dateFilter);
+    shopName: {
+        type: String,
+        default: ''
     },
-    watch: {
-        allOrders: {
-            handler(newVal) {
-                this.mappedOrders = newVal.map(order => this.formatOrder(order));
-            },
-            immediate: true
-        },
-        dateFilter(newVal) {
-            this.fetchAllOrdersReport(newVal);
-        },
+    branchId: {
+        type: Number,
+        required: true
     },
-    computed: {
-        selectedFilterLabel() {
-            const found = this.dateFilterItems.find(item => item.filter_date_id === this.dateFilter);
-            return found ? found.filter_date_label : '';
-        }
+    branchName: {
+        type: String,
+        default: ''
     },
-    components: {
-        Snackbar,
+    branchAddress: {
+        type: String,
+        default: ''
     },
-    props: {
-        allOrders: {
-            type: Array,
-            default: () => []
-        },
-        loading: {
-            type: Boolean,
-            default: false
-        },
-        shopId: {
-            type: Number,
-            required: true
-        },
-        shopName: {
-            type: String,
-            required: true
-        },
-        branchId: {
-            type: Number,
-            required: true
-        },
-        branchName: {
-            type: String,
-            required: true
-        },
-        branchLocation: {
-            type: String,
-            required: true
-        },
-        contact: {
-            type: String,
-            required: true
-        },
-        adminName: {
-            type: String,
-            required: true
-        },
-
+    branchContactNumber: {
+        type: String,
+        default: ''
     },
-    setup() {
-        const loadingStore = useLoadingStore();
-        const transactStore = useTransactStore();
-        const today = new Date();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        const currentNumberDate = `${mm}/${dd}/${yyyy}`;
-        const currentDate = new Date().toLocaleDateString('en-PH', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
-        const formatCurrentDate = currentDate.replace(/,/g, '');
-        return {
-            loadingStore,
-            transactStore,
-            currentNumberDate,
-            formatCurrentDate,
-        };
+    adminName: {
+        type: String,
+        required: true
     },
-    methods: {
-        async fetchAllOrdersReport(dateFilterId = null) {
-            this.loadingStore.show('Preparing...');
-            try {
-                await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
-                if (this.transactStore.allOrders.length === 0) {
-                    this.mappedOrders = [];
-                } else {
-                    this.mappedOrders = this.transactStore.allOrders.map(t_order => this.formatOrder(t_order));
-                }
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
-            } finally {
-                this.loadingStore.hide();
-            }
-        },
+})
 
-        async downloadTransactions(dateFilterId = null) {
-            await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
-            if (this.transactStore.transactions.length === 0) {
-                this.showError("No available orders report to download.");
-                return;
-            } else {
-                this.loadingStore.show('Downloading transactions...');
-            }
-            const transactions = this.transactStore.transactions.map(order => ({
-                'Reference': order.reference_number,
-                'ModeOfPayment': order.payment_method,
-                'Quantity': order.total_quantity,
-                'CashRender': order.customer_cash,
-                'TotalDue': order.total_due,
-                'Discount': order.customer_discount,
-                'Change': order.customer_change,
-                'CashierName': order.cashier_name,
-                'TransactionDate': this.formatDateTime(order.updated_at),
-            }));
-            const headings = [
-                `Shop Name: ${this.shopName}`,
-                `Branch Name: ${this.branchName}`,
-                `Branch Location: ${this.branchLocation}`,
-                `Contact: ${this.contact}`,
-                `Date: ${this.formatCurrentDate}`,
-                `Prepared by : ${this.adminName}`,
-                '',
-            ].join('\n');
-            const csvContent = "data:text/csv;charset=utf-8,"
-                + headings + "\n"
-                + Object.keys(transactions[0]).join(",") + "\n"
-                + transactions.map(e => Object.values(e).join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Orders_Report_${this.branchName}_${this.currentNumberDate}.csv`);
-            document.body.appendChild(link); // Required for FF
-            this.showSuccess("Transactions downloaded successfully!");
-            link.click();
-            this.loadingStore.hide();
-            document.body.removeChild(link);
-        },
+const emit = defineEmits(['view-items'])
 
-        async printTransactions(dateFilterId = null) {
-            await this.transactStore.fetchOrdersReportStore(this.branchId, dateFilterId);
-            if (this.transactStore.transactions.length === 0) {
-                this.showError("No available orders report to print.");
-                return;
-            }
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                alert('Please allow popups for this website to print the report.');
-                return;
-            }
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Orders Report</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; }
-                            table { width: 100%; border-collapse: collapse; }
-                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                            th { background-color: #f2f2f2; }
-                            h2 { margin: 0; }
-                            h2, h4, h5 { text-align: center; }
-                            h4, h5 { font-weight: normal; margin: 5px; }
-                            p { margin-top: 25px; }
-                            .headings { display: flex; align-items: center; justify-content: space-between;}
-                        </style>
-                    </head>
-                    <body>
-                        <div class="headings">
-                            <img src="${this.shopLogoLink}" alt="Logo" style="width: 200px; height: auto;">
-                            <div>
-                                <h2>${this.shopName}</h2>
-                                <h4>${this.branchName} Branch</h4>
-                                <h5>${this.branchLocation}</h5>
-                                <h5>${this.contact}</h5>
-                            </div>
-                            <h5>${this.formatCurrentDate}</h5>
-                        </div>
-                        <p><strong>Transactions Report for ${this.branchName} Branch | ${this.selectedFilterLabel}</strong></p>
-                        <table>
-                            <tr>
-                                <th>Reference #</th>
-                                <th>ModeOfPayment</th>
-                                <th>Quantity</th>
-                                <th>CashRender</th>
-                                <th>TotalDue</th>
-                                <th>Discount</th>
-                                <th>Change</th>
-                                <th>CashierName</th>
-                                <th>TransactionDate</th>
-                            </tr>
-                            ${this.transactStore.transactions.map(order => `
-                                <tr>
-                                    <td>${order.reference_number}</td>
-                                    <td>₱${order.payment_method}</td>
-                                    <td>${order.total_quantity} ${order.total_quantity > 1 ? 'items' : 'item'}</td>
-                                    <td>₱${order.customer_cash}</td>
-                                    <td>₱${order.total_due}</td>
-                                    <td>₱${order.customer_discount}</td>
-                                    <td>₱${order.customer_change}</td>
-                                    <td>₱${order.cashier_name}</td>
-                                    <td>${this.formatDateTime(order.updated_at)}</td>
-                                </tr>`).join('')}
-                        </table>
-                        <footer>
-                            <p style="margin-top: 30px;">
-                                Prepared by: <strong>${this.adminName}</strong>
-                            </p>
-                        </footer>
-                    </body>
-                </html>`);
-            printWindow.document.close();
-            printWindow.print();
-        },
+const store = useOrdersStore()
 
-        formatDateTime(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleString('en-PH', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'Asia/Manila'
-            });
-        },
+const displayItems = ref([])
+const tableKey = ref(0)
+const snackbarRef = ref(null)
+const options = ref({
+    page: 1,
+    itemsPerPage: 10,
+})
 
-        formatOrder(order) {
-            const customer_cash_value = Number(order.customer_cash);
-            const display_customer_cash = (Math.round(customer_cash_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
+const isFetching = ref(false)
+const lastFetchParams = ref('')
 
-            const total_amount_value = Number(order.total_amount);
-            const display_total_amount = (Math.round(total_amount_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
+const headers = [
+    { title: 'OrderNumber', value: 'order_number', sortable: true, align: 'start' },
+    { title: 'Reference', value: 'reference_number', sortable: false },
+    { title: 'TableNumber', value: 'table_number', sortable: true },
+    { title: 'TotalQuantity', value: 'total_quantity', sortable: true },
+    { title: 'OrderType', value: 'order_type', sortable: true },
+    { title: 'OrderStatus', value: 'order_status', sortable: true },
+    { title: 'PaymentStatus', value: 'sales_status', sortable: true },
+    { title: 'CashierName', value: 'cashier_name', sortable: true },
+    { title: 'LastUpdate', value: 'updated_at', sortable: true },
+]
 
-            const customer_change_value = Number(order.customer_change);
-            const display_customer_change = (Math.round(customer_change_value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
+const dateFilter = ref(1) // Default to 'Today'
+const dateFilterItems = [
+    { filter_date_id: 1, filter_date_label: 'Today' },
+    { filter_date_id: 2, filter_date_label: 'Yesterday' },
+    { filter_date_id: 3, filter_date_label: 'Last 7 days' },
+    { filter_date_id: 4, filter_date_label: 'This Week' },
+    { filter_date_id: 5, filter_date_label: 'Last Week' },
+    { filter_date_id: 6, filter_date_label: 'Last 30 days' },
+    { filter_date_id: 7, filter_date_label: 'This Month' },
+    { filter_date_id: 8, filter_date_label: 'Last Month' },
+    { filter_date_id: 9, filter_date_label: 'This Year' },
+    { filter_date_id: 10, filter_date_label: 'Last Year' },
+    { filter_date_id: 11, filter_date_label: 'Custom Range' },
+]
 
-            return {
-                ...order,
-                display_customer_cash: `₱${display_customer_cash}`,
-                display_total_amount: `₱${display_total_amount}`,
-                display_discount: `₱${order.discount_amount}`,
-                display_customer_change: `₱${display_customer_change}`,
-                display_total_quantity: `${order.total_quantity} ${order.total_quantity > 1 ? 'items' : 'item'}`,
-                updated_at: this.formatDateTime(order.updated_at),
-            };
-        },
+const onOptionsUpdate = (val) => {
+    const optionsChanged =
+        val.page !== options.value.page ||
+        val.itemsPerPage !== options.value.itemsPerPage
 
-        showError(message) {
-            this.$refs.snackbarRef.showSnackbar(message, "error");
-        },
-
-        showSuccess(message) {
-            this.$refs.snackbarRef.showSnackbar(message, "success");
-        },
+    if (optionsChanged) {
+        options.value = val
+        fetchOrdersReport()
     }
 }
-</script>
 
-<style>
-.action-section {
-    display: flex;
-    flex-wrap: wrap;
+const handleRefresh = () => {
+    options.value.page = 1
+    lastFetchParams.value = ''
+    fetchOrdersReport()
 }
 
-.action-section-item {
-    width: 200px;
+const updateDisplayItems = () => {
+    if (!Array.isArray(store.ordersReport)) {
+        displayItems.value = []
+    } else {
+        displayItems.value = store.ordersReport
+            .filter(item => item && typeof item === 'object')
+            .map(item => ({ ...item }))
+    }
+    tableKey.value++
+}
+
+const fetchOrdersReport = async () => {
+    if (!props.branchId || isFetching.value) return
+
+    const params = JSON.stringify({
+        branchId: props.branchId,
+        page: options.value.page,
+        itemsPerPage: options.value.itemsPerPage,
+        dateFilter: dateFilter.value,
+    })
+
+    if (params === lastFetchParams.value) return
+
+    isFetching.value = true
+    lastFetchParams.value = params
+
+    try {
+        await store.fetchOrdersReportStore({
+            branchId: props.branchId,
+            page: options.value.page,
+            itemsPerPage: options.value.itemsPerPage,
+            dateFilter: dateFilter.value,
+        })
+
+        updateDisplayItems()
+
+    } catch (error) {
+        console.error('Fetch error:', error)
+        if (snackbarRef.value) {
+            snackbarRef.value.showSnackbar(error.message || 'Failed to load orders', 'error')
+        }
+    } finally {
+        isFetching.value = false
+    }
+}
+
+// Reactive fetch when date filter changes
+watch(dateFilter, (newFilter) => {
+    options.value.page = 1
+    lastFetchParams.value = ''
+    fetchOrdersReport()
+})
+
+// prepare date helpers for exports
+const today = new Date();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+const yyyy = today.getFullYear();
+const currentNumberDate = `${mm}/${dd}/${yyyy}`;
+const currentDate = new Date().toLocaleDateString('en-PH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+});
+const formatCurrentDate = currentDate.replace(/,/g, '');
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    return d.toLocaleString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Manila'
+    });
+}
+
+async function downloadTransactions(filterDate = null) {
+    if (!props.branchId) return;
+    store.loadingOrdersReport = true;
+    try {
+        await store.fetchOrdersReportStore({
+            branchId: props.branchId,
+            page: options.value.page,
+            itemsPerPage: options.value.itemsPerPage,
+            dateFilter: filterDate ?? dateFilter.value,
+        });
+
+        if (!Array.isArray(store.ordersReport) || store.ordersReport.length === 0) {
+            if (snackbarRef.value) snackbarRef.value.showSnackbar('No available orders report to download.', 'error');
+            return;
+        }
+
+        const transactions = store.ordersReport.map(order => ({
+            OrderNumber: order.order_number,
+            Reference: order.reference_number,
+            TableNumber: order.table_number,
+            Quantity: order.total_quantity,
+            OrderType: order.order_type,
+            OrderStatus: order.order_status,
+            PaymentStatus: order.sales_status,
+            CashierName: order.cashier_name,
+            TransactionDate: formatDateTime(order.updated_at),
+        }));
+
+        const headings = [
+            `Shop Name: ${props.shopName}`,
+            `Branch Name: ${props.branchName}`,
+            `Branch Location: ${props.branchAddress}`,
+            `Contact: ${props.branchContactNumber}`,
+            `Date: ${formatCurrentDate}`,
+            `Prepared by : ${props.adminName}`,
+            '',
+        ].join('\n');
+
+        const csvContent =
+            'data:text/csv;charset=utf-8,' +
+            headings +
+            '\n' +
+            Object.keys(transactions[0]).join(',') +
+            '\n' +
+            transactions.map(e => Object.values(e).join(',')).join('\n');
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `Orders_Report_${props.branchName}_${currentNumberDate}.csv`);
+        document.body.appendChild(link);
+        if (snackbarRef.value) snackbarRef.value.showSnackbar('Orders report downloaded successfully!', 'success');
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        console.error(err);
+        if (snackbarRef.value) snackbarRef.value.showSnackbar(err.message || 'Failed to download report', 'error');
+    } finally {
+        store.loadingOrdersReport = false;
+    }
+}
+
+async function printTransactions(filterDate = null) {
+    await store.fetchOrdersReportStore({
+        branchId: props.branchId,
+        page: options.value.page,
+        itemsPerPage: options.value.itemsPerPage,
+        dateFilter: filterDate ?? dateFilter.value,
+    });
+
+    if (!Array.isArray(store.ordersReport) || store.ordersReport.length === 0) {
+        if (snackbarRef.value) snackbarRef.value.showSnackbar('No available orders report to print.', 'error');
+        return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert('Please allow popups for this website to print the report.');
+        return;
+    }
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Orders Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    h2 { margin: 0; }
+                    h2, h4, h5 { text-align: center; }
+                    h4, h5 { font-weight: normal; margin: 5px; }
+                    p { margin-top: 25px; }
+                    .headings { display: flex; align-items: center; justify-content: space-between;}
+                </style>
+            </head>
+            <body>
+                <div class="headings">
+                    <div>
+                        <h2>${props.shopName}</h2>
+                        <h4>${props.branchName} Branch</h4>
+                        <h5>${props.branchAddress}</h5>
+                        <h5>${props.branchContactNumber}</h5>
+                    </div>
+                    <h5>${formatCurrentDate}</h5>
+                </div>
+                <p><strong>Orders report for ${props.branchName} branch</strong></p>
+                <table>
+                    <tr>
+                        <th>Order#</th>
+                        <th>Reference#</th>
+                        <th>OrderType</th>
+                        <th>ModeOfPayment</th>
+                        <th>Quantity</th>
+                        <th>CashRender</th>
+                        <th>TotalAmount</th>
+                        <th>Discount</th>
+                        <th>Change</th>
+                        <th>CashierName</th>
+                        <th>TransactionDate</th>
+                    </tr>
+                    ${store.ordersReport
+                        .map(order => `
+                            <tr>
+                                <td>${order.order_number}</td>
+                                <td>${order.reference_number}</td>
+                                <td>${order.order_type}</td>
+                                <td>${order.payment_method}</td>
+                                <td>${order.total_quantity}</td>
+                                <td>${order.customer_cash}</td>
+                                <td>${order.total_amount}</td>
+                                <td>${order.customer_discount}</td>
+                                <td>${order.customer_change}</td>
+                                <td>${order.cashier_name}</td>
+                                <td>${formatDateTime(order.updated_at)}</td>
+                            </tr>`)
+                        .join('')}
+                </table>
+                <footer>
+                    <p style="margin-top: 30px;">
+                        Prepared by: <strong>${props.adminName}</strong>
+                    </p>
+                </footer>
+            </body>
+        </html>`);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+watch(() => store.ordersReport, () => {
+    updateDisplayItems()
+}, { deep: true })
+
+watch(() => props.branchId, (newId) => {
+    if (newId) fetchOrdersReport()
+}, { immediate: true })
+
+onMounted(() => {
+    if (props.branchId) {
+        fetchOrdersReport()
+    }
+})
+
+</script>
+
+<style scoped>
+.hover-table:deep(.v-data-table__tr:hover) {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.to-hide {
+    display: inline;
+}
+
+.to-show {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .to-hide {
+        display: none;
+    }
+
+    .to-show {
+        display: inline;
+    }
 }
 </style>
