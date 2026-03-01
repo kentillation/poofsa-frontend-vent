@@ -151,7 +151,7 @@ const headers = [
     { title: 'OrderStatus', value: 'order_status', sortable: true },
     { title: 'PaymentStatus', value: 'sales_status', sortable: true },
     { title: 'CashierName', value: 'cashier_name', sortable: true },
-    { title: 'LastUpdate', value: 'updated_at', sortable: true },
+    { title: 'TransactionDate', value: 'updated_at', sortable: true },
 ]
 
 const dateFilter = ref(1) // Default to 'Today'
@@ -377,15 +377,13 @@ async function printTransactions(filterDate = null) {
                 <p><strong>Orders report for ${props.branchName} branch</strong></p>
                 <table>
                     <tr>
-                        <th>Order#</th>
-                        <th>Reference#</th>
-                        <th>OrderType</th>
-                        <th>ModeOfPayment</th>
+                        <th>OrderNumber</th>
+                        <th>Reference</th>
+                        <th>TableNumber</th>
                         <th>Quantity</th>
-                        <th>CashRender</th>
-                        <th>TotalAmount</th>
-                        <th>Discount</th>
-                        <th>Change</th>
+                        <th>OrderType</th>
+                        <th>OrderStatus</th>
+                        <th>PaymentStatus</th>
                         <th>CashierName</th>
                         <th>TransactionDate</th>
                     </tr>
@@ -394,13 +392,11 @@ async function printTransactions(filterDate = null) {
                             <tr>
                                 <td>${order.order_number}</td>
                                 <td>${order.reference_number}</td>
-                                <td>${order.order_type}</td>
-                                <td>${order.payment_method}</td>
+                                <td>${order.table_number}</td>
                                 <td>${order.total_quantity}</td>
-                                <td>${order.customer_cash}</td>
-                                <td>${order.total_amount}</td>
-                                <td>${order.customer_discount}</td>
-                                <td>${order.customer_change}</td>
+                                <td>${order.order_type}</td>
+                                <td>${order.order_status}</td>
+                                <td>${order.sales_status}</td>
                                 <td>${order.cashier_name}</td>
                                 <td>${formatDateTime(order.updated_at)}</td>
                             </tr>`)
