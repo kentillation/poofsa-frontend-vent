@@ -5,7 +5,6 @@ export const TRANSACT_API = {
         FETCH_ORDERS_REPORT: '/admin/orders-report',
         FETCH_GROSS_SALES_BY_DATE: '/admin/gross-sales-by-date',
         FETCH_GROSS_SALES: '/admin/gross-sales-only',
-        FETCH_ORDERS_COUNT: '/admin/orders-only',
         FETCH_PRODUCTS: '/admin/products-only',
         FETCH_STOCKS: '/admin/stocks-only',
         FETCH_SALES_BY_MONTH: '/admin/sales-by-month',
@@ -87,32 +86,6 @@ export const TRANSACT_API = {
             return response.data;
         } catch (error) {
             console.error('[fetchGrossSalesApi] Error fetching sales:', error);
-            throw error;
-        }
-    },
-
-    async fetchOrdersOnlyApi(branchId, dateFilterId = null) {
-        try {
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('No authentication token found');
-            }
-            let endpoint = `${this.ENDPOINTS.FETCH_ORDERS_COUNT}/${branchId}`;
-            if (dateFilterId) {
-                endpoint += `?date_filter=${dateFilterId}`;
-            }
-            const response = await apiClient.get(endpoint, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                },
-            });
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[fetchOrdersOnlyApi] Error fetching sales:', error);
             throw error;
         }
     },
