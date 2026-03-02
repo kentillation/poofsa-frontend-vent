@@ -123,7 +123,7 @@ export default {
             type: String,
             required: true
         },
-        contact: {
+        branchContactNumber: {
             type: String,
             required: true
         },

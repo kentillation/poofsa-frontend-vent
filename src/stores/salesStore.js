@@ -147,7 +147,6 @@ export const useSalesStore = defineStore('sales', {
         },
 
         async fetchSalesByMonthStore(branchId, dateFilterId = null) {
-            this.loadingSales = true;
             this.error = null;
             try {
                 const response = await SALES_API.fetchSalesByMonthApi(branchId, dateFilterId);
@@ -160,8 +159,6 @@ export const useSalesStore = defineStore('sales', {
                 console.error('Error in fetchSalesByMonthApi:', error);
                 this.error = error.message || 'Failed to fetch sales';
                 throw error;
-            } finally {
-                this.loadingSales = false;
             }
         },
 

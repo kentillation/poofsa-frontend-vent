@@ -134,8 +134,7 @@
                                         <v-card-text>
                                             <SalesChart :sales-by-month="this.salesStore.salesByMonth"
                                                 :branch-id="branchDetails.branch_id"
-                                                @month-changed="this.salesStore.fetchSalesByMonthStore"
-                                                @sales-changed="this.salesStore.fetchSalesCountStore"/>
+                                                @month-changed="this.salesStore.fetchSalesByMonthStore"/>
                                         </v-card-text>
                                     </v-card>
                                 </v-container>
@@ -324,7 +323,7 @@
                                                 :branch-id="branchDetails.branch_id"
                                                 :branch-name="branchDetails.branch_name"
                                                 :branch-address="branchDetails.branch_address"
-                                                :contact="branchDetails.contact"
+                                                :branch-contact-number="branchDetails.branch_contact_number"
                                                 :admin-name="branchDetails.admin_name" />
                                         </div>
                                     </transition>
@@ -594,7 +593,7 @@ export default {
             const currentMonth = new Date().getMonth() + 1;
             await this.fetchBranchDetails();
             await this.salesStore.fetchSalesCountStore(this.branchDetails.branch_id);
-            await this.salesStore.fetchSalesByMonthStore();
+            await this.salesStore.fetchSalesByMonthStore(currentMonth);
             await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
