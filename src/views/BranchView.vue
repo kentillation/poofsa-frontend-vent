@@ -564,20 +564,20 @@ export default {
             ];
         },
 
-        reportsTabs() {
-            return [
-                { label: 'Sales', value: 'sales', },
-                { label: 'Orders', value: 'orders', },
-                { label: 'Stocks', value: 'stocks', },
-            ];
-        },
-
         branchInfoTabs() {
             return [
                 { label: 'Details', value: 'details', },
                 { label: 'Cashier', value: 'cashier', },
                 { label: 'Barista', value: 'barista', },
                 { label: 'Kitchen', value: 'kitchen', },
+            ];
+        },
+
+        reportsTabs() {
+            return [
+                { label: 'Sales', value: 'sales', },
+                { label: 'Orders', value: 'orders', },
+                { label: 'Stocks', value: 'stocks', },
             ];
         },
     },
@@ -587,19 +587,8 @@ export default {
             immediate: true,
             async handler(newBranchName) {
                 if (newBranchName) {
-                    this.loadingStore.show("Preparing...");
                     this.onDashboard();
-                    this.loadingStore.hide();
                 }
-            }
-        },
-
-        activeTab(newTab) {
-            // const currentMonth = new Date().getMonth() + 1;
-            if (newTab === 'dashboard') {
-                this.loadingStore.show("Preparing...");
-                this.onDashboard();
-                this.loadingStore.hide();
             }
         },
 
@@ -824,52 +813,6 @@ export default {
                 display_quantity_required: `${ingredient.quantity_required}${ingredient.unit_avb}`,
                 display_ingredient_capital: `₱${ingredient.ingredient_capital}`,
                 updated_at: this.formatDateTime(ingredient.updated_at),
-            };
-        },
-
-        formatIngredientWithISO(ingredient) {
-            return {
-                ...ingredient,
-                ingredient_name: this.capitalizeFirstLetter(ingredient.ingredient_name),
-                display_quantity_required: `${ingredient.quantity_required}${ingredient.unit_avb}`,
-                display_ingredient_capital: `${ingredient.ingredient_capital}`,
-                updated_at: ingredient.updated_at,
-            };
-        },
-
-        formatStock(stock) {
-            const unit = this.ingredientUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.ingredientAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
-            return {
-                ...stock,
-                unit_label: unit?.unit_label,
-                availability_label: availability?.availability_label,
-                ingredient_name: this.capitalizeFirstLetter(stock.ingredient_name),
-                stock_unit: Number(stock.stock_unit),
-                stock_in: Number(stock.stock_in),
-                stock_alert_qty: Number(stock.stock_alert_qty),
-                availability_id: Number(stock.availability_id),
-                display_stock_in: `${stock.stock_in} ${stock.stock_in > 1 ? 'items' : 'item'}`,
-                display_unit_cost: `₱${stock.stock_unit_cost}`,
-                updated_at: this.formatDateTime(stock.updated_at),
-            };
-        },
-
-        formatStockWithISO(stock) {
-            const unit = this.ingredientUnitOption.find(u => u.unit_id === Number(stock.stock_unit));
-            const availability = this.ingredientAvailabilityOption.find(a => a.availability_id === Number(stock.availability_id));
-            return {
-                ...stock,
-                unit_label: unit?.unit_label,
-                availability_label: availability?.availability_label,
-                ingredient_name: this.capitalizeFirstLetter(stock.ingredient_name),
-                stock_unit: Number(stock.stock_unit),
-                stock_in: Number(stock.stock_in),
-                stock_alert_qty: Number(stock.stock_alert_qty),
-                availability_id: Number(stock.availability_id),
-                display_stock_in: `${stock.stock_in} ${stock.stock_in > 1 ? 'items' : 'item'}`,
-                display_unit_cost: `₱${stock.stock_unit_cost}`,
-                updated_at: this.updated_at,
             };
         },
 
