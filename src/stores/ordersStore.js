@@ -215,6 +215,7 @@ export const useOrdersStore = defineStore('orders', {
                 this.error = 'Branch ID is required';
                 return;
             }
+            this.loadingOrders = true;
             this.error = null;
             try {
                 const response = await ORDERS_API.fetchOrdersCountApi(branchId);
@@ -227,6 +228,8 @@ export const useOrdersStore = defineStore('orders', {
                 console.error('Error in fetchOrdersCountApi:', error);
                 this.error = error.message || 'Failed to fetch sales';
                 throw error;
+            } finally {
+                this.loadingOrders = false;
             }
         }
     },

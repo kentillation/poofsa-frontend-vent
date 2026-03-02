@@ -45,7 +45,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey-lighten-4">Total Orders</p>
                                                     <div class="d-flex justify-center">
-                                                        <template v-if="this.ordersStore.loadingOrdersCount">
+                                                        <template v-if="this.ordersStore.loadingOrders">
                                                             <v-skeleton-loader type="text" 
                                                             style="background-color: #0090b6;" 
                                                             width="100" />
@@ -72,7 +72,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey">Total Products</p>
                                                     <div class="d-flex  align-center justify-center">
-                                                        <template v-if="this.productsStore.loadingProducts">
+                                                        <template v-if="this.loadingProductsOnly">
                                                             <v-skeleton-loader type="text" width="100" />
                                                         </template>
                                                         <template v-else>
@@ -101,7 +101,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey">Total Stocks</p>
                                                     <div class="d-flex align-center justify-center">
-                                                        <template v-if="this.stocksStore.loadingStocks">
+                                                        <template v-if="this.loadingStocksOnly">
                                                             <v-skeleton-loader type="text" width="100" />
                                                         </template>
                                                         <template v-else>
@@ -593,9 +593,9 @@ export default {
             this.activeTab = "dashboard";
             const currentMonth = new Date().getMonth() + 1;
             await this.fetchBranchDetails();
-            await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.salesStore.fetchSalesCountStore(this.branchDetails.branch_id);
             await this.salesStore.fetchSalesByMonthStore();
+            await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
         },
@@ -671,9 +671,7 @@ export default {
                     this.totalStocks = '';
                 } else {
                     this.totalStocks = Number(this.transactStore.stocksOnly.total_stocks).toLocaleString('en-PH') || '';
-
                 }
-                this.loadingStocksOnly = false;
             } catch (error) {
                 console.error(error);
                 this.showError(error);
