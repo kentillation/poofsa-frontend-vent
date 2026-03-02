@@ -6,7 +6,7 @@ export const useOrdersStore = defineStore('orders', {
     state: () => ({
         orders: [],
         ordersReport: [],
-        ordersCount: 0,
+        totalOrdersCount: 0,
         totalOrders: 0,
         totalOrdersReport: 0,
         loadingOrders: false,
@@ -222,7 +222,7 @@ export const useOrdersStore = defineStore('orders', {
                     throw new Error(response?.message || 'Failed to fetch orders count');
                 }
                 const totalCount = response.data.total_orders ?? 0;
-                this.ordersCount = totalCount;
+                this.totalOrdersCount = totalCount;
             } catch (error) {
                 console.error('Error in fetchOrdersCountApi:', error);
                 this.error = error.message || 'Failed to fetch sales';

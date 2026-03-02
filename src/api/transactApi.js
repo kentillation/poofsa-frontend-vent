@@ -7,7 +7,6 @@ export const TRANSACT_API = {
         FETCH_GROSS_SALES: '/admin/gross-sales-only',
         FETCH_PRODUCTS: '/admin/products-only',
         FETCH_STOCKS: '/admin/stocks-only',
-        FETCH_SALES_BY_MONTH: '/admin/sales-by-month',
         FETCH_VOID_STATUS: '/admin/void-status',
         FETCH_REVERSAL: '/admin/void-orders',
         UPDATE_VOID: '/admin/update-void',
@@ -109,30 +108,6 @@ export const TRANSACT_API = {
             return response.data;
         } catch (error) {
             console.error('[fetchStocksOnlyApi] Error fetching sales:', error);
-            throw error;
-        }
-    },
-
-    async fetchSalesByMonthApi(branchId, dateFilterId = null) {
-        try {
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) throw new Error('No authentication token found');
-            let endpoint = `${this.ENDPOINTS.FETCH_SALES_BY_MONTH}/${branchId}`;
-            if (dateFilterId) {
-                endpoint += `?date_filter=${dateFilterId}`;
-            }
-            const response = await apiClient.get(endpoint, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                },
-            });
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[fetchSalesByMonthApi] Error fetching sales:', error);
             throw error;
         }
     },

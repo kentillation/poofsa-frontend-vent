@@ -44,6 +44,10 @@ export default {
             type: Array,
             required: true,
         },
+        branchId: {
+            type: Number,
+            required: true,
+        },
     },
 
     setup(props, { emit }) {
@@ -67,7 +71,7 @@ export default {
         const handleMonthChange = (monthIndex) => {
             const month = monthIndex + 1;
             emit('month-changed', month);
-            emit('sales-changed', month); // added
+            emit('sales-changed', props.branchId); // added
         };
 
         const filteredSalesByMonth = computed(() => {

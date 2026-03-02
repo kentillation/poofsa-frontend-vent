@@ -9,7 +9,6 @@ export const useTransactStore = defineStore('transactions', {
         total: 0,
         ordersHistoryTotal: 0,
         grossSalesByDate: [],
-        salesByMonth: [],
         voidStatuses: [],
         voidOrdersByDate: [],
         voidOrders: [],
@@ -19,8 +18,6 @@ export const useTransactStore = defineStore('transactions', {
         stocksOnly: '',
         loading: false,
         error: null,
-        _fetchCache: null,
-        _lastFetchHash: null
     }),
 
     actions: {
@@ -84,25 +81,6 @@ export const useTransactStore = defineStore('transactions', {
             }
         },
 
-        async fetchSalesByMonthStore(branchId, dateFilterId = null) {
-            this.loading = true;
-            this.error = null;
-            try {
-                const response = await TRANSACT_API.fetchSalesByMonthApi(branchId, dateFilterId);
-                if (response && response.status === true) {
-                    this.salesByMonth = response.data;
-                } else {
-                    throw new Error(response?.message || 'Failed to fetch sales');
-                }
-            } catch (error) {
-                console.error('Error in fetchSalesByMonthApi:', error);
-                this.error = error.message || 'Failed to fetch sales';
-                throw error;
-            } finally {
-                this.loading = false;
-            }
-        },
-
         async fetchVoidStatusStore() {
             this.loading = true;
             this.error = null;
@@ -136,7 +114,7 @@ export const useTransactStore = defineStore('transactions', {
                     throw new Error(response?.message || 'Failed to fetch void orders');
                 }
             } catch (error) {
-                console.error('Error in fetchSalesByMonthApi:', error);
+                console.error('Error in fetchVoidByDateApi:', error);
                 this.error = error.message || 'Failed to fetch void orders';
                 throw error;
             } finally {

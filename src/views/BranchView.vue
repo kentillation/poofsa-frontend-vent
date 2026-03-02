@@ -29,7 +29,7 @@
                                                             width="100" />
                                                         </template>
                                                         <template v-else>
-                                                            <h2 class="my-2 text-white">₱ {{ totalSales }}</h2>
+                                                            <h2 class="my-2 text-white">₱ {{ this.salesStore.totalSalesCount }}</h2>
                                                         </template>
                                                     </div>
                                                 </v-card-text>
@@ -52,9 +52,9 @@
                                                         </template>
                                                         <template v-else>
                                                             <div class="d-flex align-center">
-                                                                <h2 class="my-2 text-white">{{ this.ordersStore.ordersCount }}</h2> &nbsp;
+                                                                <h2 class="my-2 text-white">{{ this.ordersStore.totalOrdersCount }}</h2> &nbsp;
                                                                 <span style="font-size: 18px;">
-                                                                    <p class="text-white">{{ this.ordersStore.ordersCount > 1 ? 'items' : 'item' }}</p>
+                                                                    <p class="text-white">{{ this.ordersStore.totalOrdersCount > 1 ? 'items' : 'item' }}</p>
                                                                 </span>
                                                             </div>
                                                         </template>
@@ -133,8 +133,9 @@
                                     <v-card>
                                         <v-card-text>
                                             <SalesChart :sales-by-month="salesByMonthReports" :sales-only="totalSales"
+                                                :branch-id="branchDetails.branch_id"
                                                 @month-changed="fetchSalesByMonthReport"
-                                                @sales-changed="fetchSalesOnly"/>
+                                                @sales-changed="this.salesStore.fetchSalesCountStore"/>
                                         </v-card-text>
                                     </v-card>
                                 </v-container>
@@ -345,6 +346,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
 import { useOrdersStore } from '@/stores/ordersStore';
+import { useSalesStore } from '@/stores/salesStore';
 import { useStocksStore } from '@/stores/stocksStore';
 import { useIngredientsOptionsStore } from '@/stores/ingredientsOptionsStore';
 import { useProductsStore } from '@/stores/productsStore';
@@ -475,6 +477,7 @@ export default {
         const loadingStore = useLoadingStore();
         const branchStore = useBranchStore();
         const ordersStore = useOrdersStore();
+        const salesStore = useSalesStore();
         const stocksStore = useStocksStore();
         const ingredientsOptionsStore = useIngredientsOptionsStore();
         const ingredientUnitOption = computed(() => ingredientsOptionsStore.unitOption);
@@ -500,6 +503,7 @@ export default {
             loadingStore,
             branchStore,
             ordersStore,
+            salesStore,
             stocksStore,
             ingredientsOptionsStore,
             ingredientUnitOption,
@@ -609,7 +613,7 @@ export default {
             const currentMonth = new Date().getMonth() + 1;
             await this.fetchBranchDetails();
             await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
-            await this.fetchSalesOnly(currentMonth);
+            await this.salesStore.fetchSalesCountStore(this.branchDetails.branch_id);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
             await this.fetchSalesByMonthReport(currentMonth);
@@ -648,28 +652,6 @@ export default {
                 this.showError(error);
             } finally {
                 this.loadingIngredient = false;
-            }
-        },
-
-        async fetchSalesOnly(month = null) {
-            this.loadingSalesOnly = true;
-            this.textSkeleton = true;
-            try {
-                if (!this.branchDetails.branch_id) {
-                    this.showError("Branch ID is not available!");
-                    this.totalSales = '';
-                    this.textSkeleton = false;
-                    return;
-                }
-                await this.transactStore.fetchGrossSalesStore(this.branchDetails.branch_id, month);
-                const value = Number(this.transactStore.grossSales.total_sales);
-                this.totalSales = (Math.round(value * 100) / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '';
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
-            } finally {
-                this.loadingSalesOnly = false;
-                this.textSkeleton = false;
             }
         },
 
@@ -728,9 +710,8 @@ export default {
                     this.salesByMonthReports = [];
                     return;
                 }
-                await this.transactStore.fetchSalesByMonthStore(this.branchDetails.branch_id, month);
-                this.salesByMonthReports = this.transactStore.salesByMonth || [];
-                this.loadingSalesByMonthReports = true;
+                await this.salesStore.fetchSalesByMonthStore(this.branchDetails.branch_id, month);
+                this.salesByMonthReports = this.salesStore.salesByMonth || [];
             } catch (error) {
                 console.error(error);
                 this.showError(error);
