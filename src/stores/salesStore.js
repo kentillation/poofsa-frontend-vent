@@ -129,7 +129,7 @@ export const useSalesStore = defineStore('sales', {
                 this.error = 'Branch ID is required';
                 return;
             }
-            this.loadingSalesCount = true;
+            this.loadingSales = true;
             this.error = null;
             try {
                 const response = await SALES_API.fetchSalesCountApi(branchId);
@@ -142,7 +142,7 @@ export const useSalesStore = defineStore('sales', {
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to fetch total sales';
             } finally {
-                this.loadingSalesCount = false;
+                this.loadingSales = false;
             }
         },
 

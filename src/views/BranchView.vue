@@ -23,13 +23,13 @@
                                                 <v-card-text>
                                                     <p class="text-grey-lighten-4">Total Sales</p>
                                                     <div class="d-flex justify-center">
-                                                        <template v-if="this.salesStore.loadingSalesCount">
+                                                        <template v-if="this.salesStore.loadingSales">
                                                             <v-skeleton-loader type="text" 
                                                             style="background-color: #0090b6;" 
                                                             width="100" />
                                                         </template>
                                                         <template v-else>
-                                                            <h2 class="my-2 text-white">₱ {{ this.salesStore.totalSalesCount }}</h2>
+                                                            <h2 class="my-2 text-white">₱ {{ this.salesStore.totalSalesCount ?? 0 }}</h2>
                                                         </template>
                                                     </div>
                                                 </v-card-text>
@@ -52,7 +52,7 @@
                                                         </template>
                                                         <template v-else>
                                                             <div class="d-flex align-center">
-                                                                <h2 class="my-2 text-white">{{ this.ordersStore.totalOrdersCount }}</h2> &nbsp;
+                                                                <h2 class="my-2 text-white">{{ this.ordersStore.totalOrdersCount ?? 0 }}</h2> &nbsp;
                                                                 <span style="font-size: 18px;">
                                                                     <p class="text-white">{{ this.ordersStore.totalOrdersCount > 1 ? 'items' : 'item' }}</p>
                                                                 </span>
@@ -404,8 +404,6 @@ export default {
             totalSales: null,
             totalProducts: null,
             totalStocks: null,
-            loadingSalesOnly: false,
-            loadingOrdersOnly: false,
             loadingProductsOnly: false,
             loadingStocksOnly: false,
 
