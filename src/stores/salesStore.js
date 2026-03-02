@@ -129,6 +129,7 @@ export const useSalesStore = defineStore('sales', {
                 this.error = 'Branch ID is required';
                 return;
             }
+            this.loadingSalesCount = true;
             this.error = null;
             try {
                 const response = await SALES_API.fetchSalesCountApi(branchId);
@@ -146,7 +147,7 @@ export const useSalesStore = defineStore('sales', {
         },
 
         async fetchSalesByMonthStore(branchId, dateFilterId = null) {
-            this.loading = true;
+            this.loadingSales = true;
             this.error = null;
             try {
                 const response = await SALES_API.fetchSalesByMonthApi(branchId, dateFilterId);
@@ -160,7 +161,7 @@ export const useSalesStore = defineStore('sales', {
                 this.error = error.message || 'Failed to fetch sales';
                 throw error;
             } finally {
-                this.loading = false;
+                this.loadingSales = false;
             }
         },
 

@@ -23,7 +23,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey-lighten-4">Total Sales</p>
                                                     <div class="d-flex justify-center">
-                                                        <template v-if="textSkeleton">
+                                                        <template v-if="this.salesStore.loadingSalesCount">
                                                             <v-skeleton-loader type="text" 
                                                             style="background-color: #0090b6;" 
                                                             width="100" />
@@ -45,7 +45,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey-lighten-4">Total Orders</p>
                                                     <div class="d-flex justify-center">
-                                                        <template v-if="textSkeleton">
+                                                        <template v-if="this.ordersStore.loadingOrdersCount">
                                                             <v-skeleton-loader type="text" 
                                                             style="background-color: #0090b6;" 
                                                             width="100" />
@@ -72,7 +72,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey">Total Products</p>
                                                     <div class="d-flex  align-center justify-center">
-                                                        <template v-if="textSkeleton">
+                                                        <template v-if="this.productsStore.loadingProducts">
                                                             <v-skeleton-loader type="text" width="100" />
                                                         </template>
                                                         <template v-else>
@@ -101,7 +101,7 @@
                                                 <v-card-text>
                                                     <p class="text-grey">Total Stocks</p>
                                                     <div class="d-flex align-center justify-center">
-                                                        <template v-if="textSkeleton">
+                                                        <template v-if="this.stocksStore.loadingStocks">
                                                             <v-skeleton-loader type="text" width="100" />
                                                         </template>
                                                         <template v-else>
@@ -132,7 +132,7 @@
                                     <h3 class="my-3">Sales Trends</h3>
                                     <v-card>
                                         <v-card-text>
-                                            <SalesChart :sales-by-month="this.salesStore.salesByMonth" :sales-only="totalSales"
+                                            <SalesChart :sales-by-month="this.salesStore.salesByMonth"
                                                 :branch-id="branchDetails.branch_id"
                                                 @month-changed="this.salesStore.fetchSalesByMonthStore"
                                                 @sales-changed="this.salesStore.fetchSalesCountStore"/>
@@ -343,7 +343,6 @@
 <script>
 // import apiClient from '../axios';
 import { ref, computed, onMounted } from 'vue';
-import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
 import { useOrdersStore } from '@/stores/ordersStore';
 import { useSalesStore } from '@/stores/salesStore';
@@ -402,7 +401,6 @@ export default {
             loadingBranchDetails: false,
 
             // Dashboard
-            textSkeleton: false,
             totalSales: null,
             totalProducts: null,
             totalStocks: null,
@@ -472,7 +470,6 @@ export default {
     },
 
     setup() {
-        const loadingStore = useLoadingStore();
         const branchStore = useBranchStore();
         const ordersStore = useOrdersStore();
         const salesStore = useSalesStore();
@@ -498,7 +495,6 @@ export default {
         });
 
         return {
-            loadingStore,
             branchStore,
             ordersStore,
             salesStore,
@@ -601,7 +597,7 @@ export default {
             await this.fetchBranchDetails();
             await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.salesStore.fetchSalesCountStore(this.branchDetails.branch_id);
-            await this.salesStore.fetchSalesByMonthStore(this.branchDetails.branch_id, currentMonth);
+            await this.salesStore.fetchSalesByMonthStore();
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
         },
