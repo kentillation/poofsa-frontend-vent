@@ -70,8 +70,8 @@ export default {
 
         const handleMonthChange = (monthIndex) => {
             const month = monthIndex + 1;
-            emit('month-changed', month);
-            emit('sales-changed', props.branchId); // added
+            emit('month-changed', props.branchId, month);
+            emit('sales-changed', props.branchId);
         };
 
         const filteredSalesByMonth = computed(() => {

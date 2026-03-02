@@ -132,9 +132,9 @@
                                     <h3 class="my-3">Sales Trends</h3>
                                     <v-card>
                                         <v-card-text>
-                                            <SalesChart :sales-by-month="salesByMonthReports" :sales-only="totalSales"
+                                            <SalesChart :sales-by-month="this.salesStore.salesByMonth" :sales-only="totalSales"
                                                 :branch-id="branchDetails.branch_id"
-                                                @month-changed="fetchSalesByMonthReport"
+                                                @month-changed="this.salesStore.fetchSalesByMonthStore"
                                                 @sales-changed="this.salesStore.fetchSalesCountStore"/>
                                         </v-card-text>
                                     </v-card>
@@ -461,8 +461,6 @@ export default {
             salesByDateReports: [],
             salesByDateReportsLoaded: false,
             loadingSalesReports: false,
-            salesByMonthReports: [],
-            loadingSalesByMonthReports: false,
         };
     },
 
@@ -614,9 +612,9 @@ export default {
             await this.fetchBranchDetails();
             await this.ordersStore.fetchOrdersCountStore(this.branchDetails.branch_id);
             await this.salesStore.fetchSalesCountStore(this.branchDetails.branch_id);
+            await this.salesStore.fetchSalesByMonthStore(this.branchDetails.branch_id, currentMonth);
             await this.fetchProductsOnly(currentMonth);
             await this.fetchStocksOnly();
-            await this.fetchSalesByMonthReport(currentMonth);
         },
 
         async fetchBranchDetails() {
@@ -698,25 +696,6 @@ export default {
                 this.showError(error);
             } finally {
                 this.loadingStocksOnly = false;
-            }
-        },
-
-        async fetchSalesByMonthReport(month = null) {
-            this.loadingSalesByMonthReports = true;
-            try {
-                this.isSaving = false;
-                if (!this.branchDetails.branch_id) {
-                    this.showError("Branch ID is not available!");
-                    this.salesByMonthReports = [];
-                    return;
-                }
-                await this.salesStore.fetchSalesByMonthStore(this.branchDetails.branch_id, month);
-                this.salesByMonthReports = this.salesStore.salesByMonth || [];
-            } catch (error) {
-                console.error(error);
-                this.showError(error);
-            } finally {
-                this.loadingSalesByMonthReports = false;
             }
         },
 
