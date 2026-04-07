@@ -199,6 +199,16 @@ export default {
                 await this.productsStore.saveProductsStore(payload);
                 this.showSuccess("Product saved successfully!");
                 this.$refs.productForm.reset();
+                this.productRows = [
+                    {
+                        productName: '',
+                        basePrice: '',
+                        productTemp: null,
+                        productSize: null,
+                        productCategory: null,
+                        productStation: null,
+                    },
+                ];
             } catch (error) {
                 console.error(error);
                 this.showError(error);
