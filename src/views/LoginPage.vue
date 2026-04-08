@@ -19,11 +19,10 @@
                                 <img :src="logo" class="logo-img" loading="lazy" alt="Poofsa Logo" />
                             </div>
 
-                            <h1 class="brand-title">
-                                Poofsa<span class="text-accent"> .vent</span>
+                            <h1>
+                                Welcome to <span class="brand-title">Locinder</span>
                             </h1>
 
-                            <p class="welcome-text">Welcome to Poofsa Discovery App</p>
                             <p class="subtitle">A food discovery app for local business in Sagay City</p>
 
                             <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="login-form">
@@ -105,35 +104,35 @@
                             <div class="feature-carousel">
                                 <div class="feature-slide">
                                     <div class="feature-icon-wrapper">
-                                        <v-icon size="48" color="white">mdi-storefront-outline</v-icon>
+                                        <v-icon size="48" color="white">mdi-map-marker-radius</v-icon>
                                     </div>
-                                    <h3>Grow Your Business with Poofsa</h3>
-                                    <p>Join the movement to reach new customers and scaling their success on our discovery platform.</p>
+                                    <h3>Put your business where customers are already looking</h3>
+                                    <p>Register your business on Locinder for free and start connecting with customers in your local community today.</p>
                                 </div>
                                 <div class="feature-badge">
                                     <span class="badge-dot"></span>
                                     <span>Discovery Mode Active</span>
                                 </div>
                             </div>
-                            <div class="feature-stats">
-                                <div class="stat-item">
-                                    <span class="stat-number">500+</span>
-                                    <span class="stat-label">Destinations</span>
+                            <div class="benefits-container">
+                                <div class="benefit-item">
+                                    <span class="benefit-title">Free</span>
+                                    <span class="benefit-label">Easy entry for your businesses. No barrier to start.</span>
                                 </div>
                                 <div class="stat-divider"></div>
-                                <div class="stat-item">
-                                    <span class="stat-number">10k+</span>
-                                    <span class="stat-label">Explorers</span>
+                                <div class="benefit-item">
+                                    <span class="benefit-title">Find</span>
+                                    <span class="benefit-label">Let your customers discover your products.</span>
                                 </div>
                                 <div class="stat-divider"></div>
-                                <div class="stat-item">
-                                    <span class="stat-number">24/7</span>
-                                    <span class="stat-label">Support</span>
+                                <div class="benefit-item">
+                                    <span class="benefit-title">Feel</span>
+                                    <span class="benefit-label">Experience connection, trust, and community support.</span>
                                 </div>
                             </div>
                             <div class="cta-message">
                                 <v-icon icon="mdi-rocket-launch-outline" size="20" />
-                                <span class="text-white">Ready to elevate your business? Register today!</span>
+                                <span>Ready to elevate your business? Register today!</span>
                             </div>
                         </div>
                     </v-col>
@@ -219,7 +218,7 @@ export default {
     align-items: center;
     justify-content: center;
     position: relative;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e3fbff 100%);
+    background: linear-gradient(135deg, #faf8f5 0%, #fff6e3 100%);
     overflow: hidden;
 }
 
@@ -245,7 +244,7 @@ export default {
 .sphere-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(0,184,212,0.3) 0%, rgba(0,150,180,0.1) 100%);
+    background: radial-gradient(circle, rgba(212, 162, 0, 0.3) 0%, rgba(180, 126, 0, 0.1) 100%);
     top: -200px;
     left: -200px;
     animation-delay: 0s;
@@ -254,7 +253,7 @@ export default {
 .sphere-2 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(0,200,220,0.25) 0%, rgba(0,150,180,0.08) 100%);
+    background: radial-gradient(circle, rgba(220, 147, 0, 0.25) 0%, rgba(180, 126, 0, 0.08) 100%);
     bottom: -100px;
     right: -100px;
     animation-delay: -5s;
@@ -263,17 +262,11 @@ export default {
 .sphere-3 {
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, rgba(0,150,180,0.05) 100%);
+    background: radial-gradient(circle, rgba(255, 162, 0, 0.2) 0%, rgba(180, 108, 0, 0.05) 100%);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     animation-delay: -10s;
-}
-
-@keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -40px) scale(1.1); }
-    66% { transform: translate(-20px, 30px) scale(0.95); }
 }
 
 /* Login Card */
@@ -305,6 +298,16 @@ export default {
     padding: 25px;
 }
 
+.form-content h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    text-align: center;
+    margin: 6px 0 0;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
 /* Logo Animation */
 .logo-wrapper {
     position: relative;
@@ -320,14 +323,9 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(0, 184, 212, 0.762) 0%, rgba(0, 184, 212, 0.548) 70%) !important;
+    background: radial-gradient(circle, rgba(212, 120, 0, 0.762) 0%, rgba(212, 106, 0, 0.548) 70%) !important;
     border-radius: 50%;
     animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 .logo-img {
@@ -344,21 +342,16 @@ export default {
 }
 
 .brand-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    text-align: center;
-    margin: 4px 0 10px;
-    background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     position: relative;
-    display: inline-block;
-    width: 100%;
+    font-weight: 800;
 }
 
 .text-accent {
-    background: linear-gradient(135deg, #0090b6 0%, #00b8d4 100%);
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -368,23 +361,16 @@ export default {
     position: relative;
     top: -8px;
     margin-left: 8px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #0090b6, #00b8d4);
+    font-weight: 500;
+    background: linear-gradient(135deg, #5c3a21, #d49100);
     color: white;
     letter-spacing: 0.5px;
-}
-
-.welcome-text {
-    text-align: center;
-    font-size: 1rem !important;
-    font-weight: 700;
-    color: #1a2a3a;
 }
 
 .subtitle {
     text-align: center;
     color: #a2a2a2;
-    font-size: 0.8rem;
+    font-size: 1rem;
     margin-bottom: 25px;
 }
 
@@ -404,11 +390,11 @@ export default {
     margin-bottom: 5px;
     font-size: 0.85rem;
     font-weight: 500;
-    color: #2c3e50;
+    color: #50452c;
 }
 
 .label-icon {
-    color: #0090b6;
+    color: #5c3a21;
 }
 
 .custom-input :deep(.v-field) {
@@ -417,12 +403,12 @@ export default {
 }
 
 .custom-input :deep(.v-field:hover) {
-    border-color: #0090b6;
+    border-color: #5c3a21;
 }
 
 .custom-input :deep(.v-field--focused) {
-    border-color: #0090b6;
-    box-shadow: 0 0 0 2px rgba(0, 144, 182, 0.2);
+    border-color: #5c3a21;
+    box-shadow: 0 0 0 2px rgba(182, 112, 0, 0.2);
 }
 
 .forgot-pass-container {
@@ -432,7 +418,7 @@ export default {
 
 .forgot-password {
     font-size: 0.85rem;
-    color: #0090b6;
+    color: #5c3a21;
     cursor: pointer;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -440,13 +426,13 @@ export default {
 }
 
 .forgot-password:hover {
-    color: #00b8d4;
+    color: #d49f00;
     text-decoration: underline;
 }
 
 .login-btn {
-    background: linear-gradient(135deg, #0090b6 0%, #00b8d4 100%);
-    font-weight: 600;
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
+    font-weight: 500;
     letter-spacing: 0.5px;
     text-transform: none;
     font-size: 1rem;
@@ -473,21 +459,21 @@ export default {
 }
 
 .register-text {
-    color: #0090b6;
-    font-weight: 600;
+    color: #5c3a21;
+    font-weight: 500;
     cursor: pointer;
     margin-left: 5px;
     transition: color 0.2s ease;
 }
 
 .register-text:hover {
-    color: #00b8d4;
+    color: #d49f00;
     text-decoration: underline;
 }
 
 /* Visual Section */
 .visual-section {
-    background: linear-gradient(135deg, #0090b6 0%, #00b8d4 100%);
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -506,11 +492,6 @@ export default {
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path fill="white" d="M20,20 L30,20 L25,30 Z M70,30 L80,30 L75,40 Z M40,70 L50,70 L45,80 Z M80,80 L90,80 L85,90 Z M10,60 L20,60 L15,70 Z M90,10 L100,10 L95,20 Z"/><circle cx="50" cy="50" r="8"/><circle cx="30" cy="70" r="5"/><circle cx="70" cy="30" r="5"/></svg>') repeat;
     background-size: 30px;
     animation: movePattern 30s linear infinite;
-}
-
-@keyframes movePattern {
-    0% { background-position: 0 0; }
-    100% { background-position: 100px 100px; }
 }
 
 .visual-content {
@@ -548,15 +529,15 @@ export default {
 
 .feature-slide h3 {
     font-size: 1.8rem;
-    font-weight: 700;
+    font-weight: 500;
     margin-bottom: 16px;
     color: #f6f6f6;
 }
 
 .feature-slide p {
-    font-size: 1rem;
+    font-size: 0.9rem;
     opacity: 0.9;
-    max-width: 280px;
+    max-width: 480px;
     margin: 0 auto;
     line-height: 1.5;
     color: #ffffff;
@@ -583,34 +564,29 @@ export default {
     animation: blink 1.5s infinite;
 }
 
-@keyframes blink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.feature-stats {
+.benefits-container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     gap: 24px;
     margin-top: 48px;
     padding-top: 32px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.stat-item {
+.benefit-item {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.stat-number {
+.benefit-title {
     font-size: 1.8rem;
     font-weight: 800;
     line-height: 1.2;
 }
 
-.stat-label {
+.benefit-label {
     font-size: 0.75rem;
     opacity: 0.8;
     letter-spacing: 0.5px;
@@ -626,14 +602,39 @@ export default {
     margin-top: 32px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.53);
+    gap: 7px;
+    background: #f6f6f6;
     padding: 10px 20px;
-    border-radius: 40px;
-    font-size: 0.9rem;
+    border-radius: 10px;
+    font-size: 1rem;
     font-weight: 500;
     backdrop-filter: blur(2px);
     animation: pulse 2s infinite;
+}
+
+.cta-message span, .cta-message .v-icon {
+    color: #5c3a21;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.1); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes movePattern {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 100px; }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 @keyframes fadeInUp {
@@ -660,26 +661,26 @@ export default {
     .feature-slide h3 {
         font-size: 1.4rem;
     }
+
+    .cta-message span {
+        font-size: 0.6rem;
+    }
     
-    .stat-number {
+    .benefit-title {
         font-size: 1.4rem;
     }
 }
 
 @media (max-width: 600px) {
-    .brand-title {
+    .form-content h1 {
         font-size: 1.8rem;
     }
     
-    .welcome-text {
-        font-size: 1.2rem;
-    }
-    
-    .feature-stats {
+    .benefits-container {
         gap: 16px;
     }
     
-    .stat-number {
+    .benefit-title {
         font-size: 1.2rem;
     }
     
