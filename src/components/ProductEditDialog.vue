@@ -16,15 +16,15 @@
                     <v-text-field :model-value="product.cost_estimate ?? 0"
                         @update:modelValue="handleDecimalUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
-
-                    <v-autocomplete :model-value="product.temp_id"
-                        @update:modelValue="handleInputUpdate('temp_id', $event)" label="Product Temparature"
-                        :items="productTemperatureOption" item-title="temp_label" item-value="product_temp_id" outlined
-                        dense />
-
+                    
                     <v-autocomplete :model-value="product.size_id"
                         @update:modelValue="handleInputUpdate('size_id', $event)" label="Product Size"
                         :items="productSizeOption" item-title="size_label" item-value="product_size_id" outlined
+                        dense />
+                    
+                    <v-autocomplete :model-value="product.temp_id"
+                        @update:modelValue="handleInputUpdate('temp_id', $event)" label="Product Temparature"
+                        :items="productTemperatureOption" item-title="temp_label" item-value="product_temp_id" outlined
                         dense />
 
                     <v-autocomplete :model-value="product.category_id"
