@@ -332,6 +332,13 @@ export default {
     background-clip: text;
 }
 
+.text-accent:hover {
+    background: linear-gradient(135deg, #d46600 0%, #5c3a21 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .beta-chip {
     position: relative;
     top: -8px;
@@ -584,7 +591,6 @@ export default {
     font-size: 1rem;
     font-weight: 500;
     backdrop-filter: blur(2px);
-    /* animation: pulse 2s infinite; */
 }
 
 .cta-message p,
@@ -594,6 +600,8 @@ export default {
 
 .cta-message span {
     color: #5c3a21;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 @keyframes float {
@@ -676,8 +684,8 @@ export default {
         font-size: 1.4rem;
     }
 
-    .cta-message span {
-        font-size: 0.6rem;
+    .cta-message p {
+        font-size: 1rem;
     }
 
     .benefit-title {
@@ -701,6 +709,10 @@ export default {
     .feature-icon-wrapper {
         width: 60px;
         height: 60px;
+    }
+
+    .cta-message p {
+        font-size: 0.8rem;
     }
 }
 
