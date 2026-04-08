@@ -1,5 +1,5 @@
 <template>
-    <div class="login-container">
+    <div class="register-container">
         <!-- Animated background elements -->
         <div class="animated-bg">
             <div class="gradient-sphere sphere-1"></div>
@@ -16,58 +16,185 @@
                             <!-- Logo with enhanced animation -->
                             <div class="logo-wrapper">
                                 <div class="logo-glow"></div>
-                                <img :src="logo" class="logo-img" loading="lazy" alt="Poofsa Logo" />
+                                <img :src="logo" class="logo-img" loading="lazy" alt="Locinder Logo" />
                             </div>
 
                             <h1>
-                                Join the movement in <span class="brand-title">Locinder</span>
+                                Join the movement of <span class="brand-title">Locinder</span>
                             </h1>
 
                             <p class="subtitle">A food discovery app for local business in Sagay City</p>
 
-                            <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="login-form">
-                                <div class="input-wrapper">
-                                    <div class="input-label">
-                                        <v-icon icon="mdi-email-outline" size="18" class="label-icon" />
-                                        <span>Email Address</span>
+                            <!-- Step Indicator -->
+                            <div class="step-indicator">
+                                <div v-for="step in steps" :key="step.number" class="step-item" :class="{
+                                    active: currentStep === step.number,
+                                    completed: currentStep > step.number
+                                }" @click="goToStep(step.number)">
+                                    <div class="step-circle">
+                                        <v-icon v-if="currentStep > step.number" size="16"
+                                            color="white">mdi-check</v-icon>
+                                        <span v-else>{{ step.number }}</span>
                                     </div>
-                                    <v-text-field v-model="admin_email" :rules="[requiredRule, emailFormatRule]"
-                                        placeholder="admin@poofsa.com" variant="outlined" density="comfortable"
-                                        autocomplete="username" class="custom-input" :error="emailError"
-                                        hide-details="auto" />
+                                    <span class="step-label">{{ step.label }}</span>
                                 </div>
+                            </div>
 
-                                <div class="input-wrapper mt-4">
-                                    <div class="input-label">
-                                        <v-icon icon="mdi-lock-outline" size="18" class="label-icon" />
-                                        <span>Password</span>
+                            <v-form ref="form" @submit.prevent="handleRegister" v-model="isFormValid"
+                                class="register-form">
+                                <!-- Step 1: Business Info -->
+                                <div v-show="currentStep === 1" class="step-content" key="step1">
+                                    <div class="input-wrapper">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-account-outline" size="18" class="label-icon" />
+                                            <span>Owner's Full Name</span>
+                                        </div>
+                                        <v-text-field v-model="formData.owner_name" :rules="[requiredRule]"
+                                            placeholder="Juan Dela Cruz" variant="outlined" density="comfortable"
+                                            class="custom-input" hide-details="auto" />
                                     </div>
-                                    <v-text-field v-model="admin_password" :rules="[requiredRule]"
-                                        placeholder="Enter your password" variant="outlined" density="comfortable"
-                                        autocomplete="current-password" :type="showPassword ? 'text' : 'password'"
-                                        class="custom-input" hide-details="auto">
-                                        <template v-slot:append-inner>
-                                            <v-icon :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                                                @click="showPassword = !showPassword" class="cursor-pointer" />
-                                        </template>
-                                    </v-text-field>
+
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-storefront-outline" size="18" class="label-icon" />
+                                            <span>Store / Business Name</span>
+                                        </div>
+                                        <v-text-field v-model="formData.store_name" :rules="[requiredRule]"
+                                            placeholder="Cafe Delight" variant="outlined" density="comfortable"
+                                            class="custom-input" hide-details="auto" />
+                                    </div>
+
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-domain" size="18" class="label-icon" />
+                                            <span>Store Type</span>
+                                        </div>
+                                        <v-select v-model="formData.store_type" :items="storeTypes"
+                                            :rules="[requiredRule]" placeholder="Select store type" variant="outlined"
+                                            density="comfortable" class="custom-input" hide-details="auto" />
+                                    </div>
                                 </div>
 
-                                <div class="forgot-pass-container">
-                                    <p class="forgot-password" @click="$router.push('/forgot-password')">
-                                        Forgot password?
-                                    </p>
+                                <!-- Step 2: Location & Hours -->
+                                <div v-show="currentStep === 2" class="step-content" key="step2">
+                                    <div class="input-wrapper">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-map-marker-outline" size="18" class="label-icon" />
+                                            <span>Store Address</span>
+                                        </div>
+                                        <v-textarea v-model="formData.address" :rules="[requiredRule]"
+                                            placeholder="Street, Barangay, Sagay City, Negros Occidental"
+                                            variant="outlined" density="comfortable" rows="2" class="custom-input"
+                                            hide-details="auto" />
+                                    </div>
+
+                                    <div class="row mt-4">
+                                        <div class="col-6">
+                                            <div class="input-label">
+                                                <v-icon icon="mdi-clock-start-outline" size="18" class="label-icon" />
+                                                <span>Open Hour</span>
+                                            </div>
+                                            <v-text-field v-model="formData.open_hour"
+                                                :rules="[requiredRule, timeFormatRule]" placeholder="09:00 AM"
+                                                variant="outlined" density="comfortable" class="custom-input"
+                                                hide-details="auto" />
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="input-label">
+                                                <v-icon icon="mdi-clock-end-outline" size="18" class="label-icon" />
+                                                <span>Close Hour</span>
+                                            </div>
+                                            <v-text-field v-model="formData.close_hour"
+                                                :rules="[requiredRule, timeFormatRule]" placeholder="09:00 PM"
+                                                variant="outlined" density="comfortable" class="custom-input"
+                                                hide-details="auto" />
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <v-btn :disabled="!isFormValid || loading" color="primary" type="submit" size="large"
-                                    class="login-btn" height="52" block :loading="loading">
-                                    <span v-if="!loading">Sign In</span>
-                                    <span v-else>Authenticating...</span>
-                                </v-btn>
+                                <!-- Step 3: Contact & Auth -->
+                                <div v-show="currentStep === 3" class="step-content" key="step3">
+                                    <div class="input-wrapper">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-phone-outline" size="18" class="label-icon" />
+                                            <span>Mobile Number</span>
+                                        </div>
+                                        <v-text-field v-model="formData.mobile_number"
+                                            :rules="[requiredRule, mobileNumberRule]" placeholder="0912 345 6789"
+                                            variant="outlined" density="comfortable" class="custom-input"
+                                            hide-details="auto" />
+                                    </div>
 
-                                <div class="register-link">
-                                    <span>Don't have an account?</span>
-                                    <span class="register-text" @click="$router.push('/register')">Create one</span>
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-email-outline" size="18" class="label-icon" />
+                                            <span>Email Address</span>
+                                        </div>
+                                        <v-text-field v-model="formData.email" :rules="[requiredRule, emailFormatRule]"
+                                            placeholder="business@locinder.com" variant="outlined" density="comfortable"
+                                            class="custom-input" hide-details="auto" />
+                                    </div>
+
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-lock-outline" size="18" class="label-icon" />
+                                            <span>Password</span>
+                                        </div>
+                                        <v-text-field v-model="formData.password" :rules="[requiredRule, passwordRule]"
+                                            placeholder="Create a strong password" variant="outlined"
+                                            density="comfortable" :type="showPassword ? 'text' : 'password'"
+                                            class="custom-input" hide-details="auto">
+                                            <template v-slot:append-inner>
+                                                <v-icon :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                                                    @click="showPassword = !showPassword" class="cursor-pointer" />
+                                            </template>
+                                        </v-text-field>
+                                    </div>
+
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-lock-check-outline" size="18" class="label-icon" />
+                                            <span>Confirm Password</span>
+                                        </div>
+                                        <v-text-field v-model="formData.confirm_password"
+                                            :rules="[requiredRule, confirmPasswordRule]"
+                                            placeholder="Confirm your password" variant="outlined" density="comfortable"
+                                            :type="showConfirmPassword ? 'text' : 'password'" class="custom-input"
+                                            hide-details="auto">
+                                            <template v-slot:append-inner>
+                                                <v-icon :icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                                                    @click="showConfirmPassword = !showConfirmPassword"
+                                                    class="cursor-pointer" />
+                                            </template>
+                                        </v-text-field>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation Buttons -->
+                                <div class="navigation-buttons">
+                                    <v-btn v-if="currentStep > 1" variant="outlined" size="large"
+                                        class="nav-btn prev-btn" @click="prevStep" :disabled="loading">
+                                        <v-icon left>mdi-arrow-left</v-icon>
+                                        Previous
+                                    </v-btn>
+
+                                    <v-btn v-if="currentStep < totalSteps" color="primary" size="large"
+                                        class="nav-btn next-btn" @click="nextStep" :disabled="!isStepValid || loading">
+                                        Next
+                                        <v-icon right>mdi-arrow-right</v-icon>
+                                    </v-btn>
+
+                                    <v-btn v-if="currentStep === totalSteps" color="primary" type="submit" size="large"
+                                        class="nav-btn register-btn" :loading="loading"
+                                        :disabled="!isFormValid || loading">
+                                        <span v-if="!loading">Create Account</span>
+                                        <span v-else>Creating...</span>
+                                    </v-btn>
+                                </div>
+
+                                <div class="login-link">
+                                    <span>Already have an account?</span>
+                                    <span class="login-text" @click="$router.push('/')">Sign In</span>
                                 </div>
                             </v-form>
                         </div>
@@ -77,18 +204,16 @@
                     <v-col cols="12" lg="6" md="6" sm="12" class="visual-section">
                         <div class="visual-content">
                             <div class="feature-carousel">
-                                <div class="feature-slide">
+                                <div class="feature-slide" :key="currentStep">
                                     <div class="feature-icon-wrapper">
-                                        <v-icon size="48" color="white">mdi-map-marker-radius</v-icon>
+                                        <v-icon size="48" color="white">{{ stepIcons[currentStep - 1] }}</v-icon>
                                     </div>
-                                    <h3>Put your business where customers are already looking</h3>
-                                    <p>Register your business on Locinder for free and start connecting with customers
-                                        in your local
-                                        community today.</p>
+                                    <h3>{{ stepHeadings[currentStep - 1] }}</h3>
+                                    <p>{{ stepDescriptions[currentStep - 1] }}</p>
                                 </div>
                                 <div class="feature-badge">
                                     <span class="badge-dot"></span>
-                                    <span>Discovery Mode Active</span>
+                                    <span>Join the Local Food Movement</span>
                                 </div>
                             </div>
                             <div class="benefits-container">
@@ -109,12 +234,6 @@
                                         support.</span>
                                 </div>
                             </div>
-                            <div class="cta-message">
-                                <v-icon icon="mdi-rocket-launch-outline" size="20" />
-                                <p>Ready to elevate your business?
-                                    <span @click="$router.push('/register')" class="text-accent">Register today!</span>
-                                </p>
-                            </div>
                         </div>
                     </v-col>
                 </v-row>
@@ -126,24 +245,72 @@
 
 <script>
 import Snackbar from '@/components/Snackbar.vue';
-import { useAuthStore } from '@/stores/auth';
 
 export default {
-    name: 'LoginPage',
+    name: 'RegisterPage',
     components: { Snackbar },
-    setup() {
-        //
-    },
     data() {
         return {
             logo: require('@/assets/Poofsa-logo.png'),
-            admin_email: '',
-            admin_password: '',
+            currentStep: 1,
+            totalSteps: 3,
             showPassword: false,
-            isFormValid: false,
+            showConfirmPassword: false,
             loading: false,
-            emailError: false,
+            isFormValid: false,
+
+            formData: {
+                owner_name: '',
+                store_name: '',
+                store_type: '',
+                address: '',
+                open_hour: '',
+                close_hour: '',
+                mobile_number: '',
+                email: '',
+                password: '',
+                confirm_password: ''
+            },
+
+            steps: [
+                { number: 1, label: 'Business Info' },
+                { number: 2, label: 'Location & Hours' },
+                { number: 3, label: 'Contact & Auth' }
+            ],
+
+            storeTypes: [
+                'Restaurant', 'Coffee Shop', 'Cafe', 'Bakery', 'Fast Food',
+                'Food Court', 'Street Food', 'Dessert Shop', 'Other'
+            ],
+
+            stepIcons: ['mdi-storefront-outline', 'mdi-map-marker-radius', 'mdi-account-check-outline'],
+            stepHeadings: [
+                'Tell us about your business',
+                'Where and when can customers find you?',
+                'Almost there! Create your account'
+            ],
+            stepDescriptions: [
+                'Start by sharing your business identity. This helps customers recognize and trust your brand.',
+                'Help hungry customers discover your location and know when you\'re open for business.',
+                'Complete your registration by providing contact details and secure credentials.'
+            ]
         };
+    },
+    computed: {
+        isStepValid() {
+            if (this.currentStep === 1) {
+                return !!(this.formData.owner_name && this.formData.store_name && this.formData.store_type);
+            }
+            if (this.currentStep === 2) {
+                return !!(this.formData.address && this.formData.open_hour && this.formData.close_hour);
+            }
+            if (this.currentStep === 3) {
+                return !!(this.formData.mobile_number && this.formData.email &&
+                    this.formData.password && this.formData.confirm_password &&
+                    this.formData.password === this.formData.confirm_password);
+            }
+            return false;
+        }
     },
     methods: {
         requiredRule(v) {
@@ -153,40 +320,73 @@ export default {
             const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return pattern.test(v) || 'Please enter a valid email address';
         },
-        async handleLogin() {
-            const { valid } = await this.$refs.form.validate();
-            if (!valid) return;
+        mobileNumberRule(v) {
+            const pattern = /^(\+63|0)[0-9]{10}$/;
+            return pattern.test(v.replace(/\s/g, '')) || 'Enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)';
+        },
+        timeFormatRule(v) {
+            const pattern = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
+            return pattern.test(v) || 'Use format: 09:00 AM or 09:00 PM';
+        },
+        passwordRule(v) {
+            return v.length >= 8 || 'Password must be at least 8 characters';
+        },
+        confirmPasswordRule() {
+            return this.formData.password === this.formData.confirm_password || 'Passwords do not match';
+        },
+        nextStep() {
+            if (this.isStepValid) {
+                this.currentStep++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                this.showError('Please fill in all required fields before proceeding.');
+            }
+        },
+        prevStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        goToStep(step) {
+            if (step < this.currentStep) {
+                this.currentStep = step;
+            } else if (step > this.currentStep && this.isStepValid) {
+                this.currentStep = step;
+            } else if (step > this.currentStep) {
+                this.showError('Please complete current step first.');
+            }
+        },
+        async handleRegister() {
+            const isValid = await this.$refs.form.validate();
+            if (!isValid.valid) return;
 
             this.loading = true;
             try {
-                const authStore = useAuthStore();
-                const result = await authStore.login({
-                    admin_email: this.admin_email,
-                    admin_password: this.admin_password
-                });
-                if (result.success) {
-                    // Smooth transition to dashboard
-                    document.body.style.opacity = '0';
-                    setTimeout(() => {
-                        window.location.href = '/about';
-                    }, 300);
-                }
+                // Simulate API call - replace with actual registration logic
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Success
+                this.showError('Registration successful! Please check your email to verify your account.', 'success');
+                setTimeout(() => {
+                    this.$router.push('/login');
+                }, 2000);
             } catch (error) {
                 console.error(error);
-                this.showError(error?.message || 'Invalid credentials. Please try again.');
+                this.showError(error?.message || 'Registration failed. Please try again.');
             } finally {
                 this.loading = false;
             }
         },
-        showError(message) {
-            this.$refs.snackbarRef.showSnackbar(message, "error");
-        },
+        showError(message, type = 'error') {
+            this.$refs.snackbarRef.showSnackbar(message, type);
+        }
     }
 };
 </script>
 
 <style scoped>
-.login-container {
+.register-container {
     min-height: 100vh;
     width: 100%;
     display: flex;
@@ -194,12 +394,13 @@ export default {
     justify-content: center;
     position: relative;
     background: linear-gradient(135deg, #faf8f5 0%, #fff6e3 100%);
-    overflow: hidden;
+    overflow-x: hidden;
+    padding: 40px 0;
 }
 
 /* Animated Background */
 .animated-bg {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -244,7 +445,7 @@ export default {
     animation-delay: -10s;
 }
 
-/* Login Card */
+/* Register Card */
 .register-card {
     border-radius: 32px;
     overflow: hidden;
@@ -256,36 +457,35 @@ export default {
     margin: 0 auto;
 }
 
-
 /* Form Section */
 .form-section {
-    padding: 48px 40px;
+    padding: 40px 32px;
     background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-content {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 25px;
+    max-width: 480px;
+    margin: 25px;
 }
 
 .form-content h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 500;
     text-align: center;
-    margin: 6px 0 0;
-    position: relative;
-    display: inline-block;
+    margin: 6px 0 8px;
     width: 100%;
-    color: #000
+    color: #000;
 }
 
 /* Logo Animation */
 .logo-wrapper {
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 10px auto;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 16px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -295,7 +495,7 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(212, 120, 0, 0.762) 0%, rgba(212, 106, 0, 0.548) 70%) !important;
+    background: radial-gradient(circle, rgba(212, 120, 0, 0.762) 0%, rgba(212, 106, 0, 0.548) 70%);
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
@@ -318,44 +518,96 @@ export default {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    position: relative;
     font-weight: 800;
-}
-
-.text-accent {
-    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.text-accent:hover {
-    background: linear-gradient(135deg, #d46600 0%, #5c3a21 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.beta-chip {
-    position: relative;
-    top: -8px;
-    margin-left: 8px;
-    font-weight: 500;
-    background: linear-gradient(135deg, #5c3a21, #d49100);
-    color: white;
-    letter-spacing: 0.5px;
 }
 
 .subtitle {
     text-align: center;
     color: #a2a2a2;
-    font-size: 1rem;
-    margin-bottom: 25px;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+}
+
+/* Step Indicator */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    flex: 1;
+}
+
+.step-circle {
+    width: 34px;
+    height: 34px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #999;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+}
+
+.step-item.active .step-circle {
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.step-item.completed .step-circle {
+    background: #4caf50;
+    border-color: #4caf50;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.step-item.active .step-label {
+    color: #d46600;
+    font-weight: 600;
+}
+
+.step-item.completed .step-label {
+    color: #4caf50;
+}
+
+/* Step Content */
+.step-content {
+    animation: fadeIn 0.4s ease-out;
 }
 
 /* Form Elements */
-.login-form {
-    margin-top: 16px;
+.register-form {
+    margin-top: 8px;
 }
 
 .input-wrapper {
@@ -377,7 +629,7 @@ export default {
 }
 
 .custom-input :deep(.v-field) {
-    border-radius: 10px;
+    border-radius: 12px;
     transition: all 0.2s ease;
 }
 
@@ -387,66 +639,65 @@ export default {
 
 .custom-input :deep(.v-field--focused) {
     border-color: #5c3a21;
-    box-shadow: 0 0 0 2px rgba(182, 112, 0, 0.2);
+    box-shadow: 0 0 0 2px rgba(182, 112, 0, 0.15);
 }
 
-.forgot-pass-container {
-    text-align: right;
-    margin: 5px 0 20px;
+/* Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 32px;
 }
 
-.forgot-password {
-    font-size: 0.85rem;
-    color: #5c3a21;
-    cursor: pointer;
-    font-weight: 500;
-    transition: color 0.2s ease;
-    display: inline-block;
-}
-
-.forgot-password:hover {
-    color: #d49f00;
-    text-decoration: underline;
-}
-
-.login-btn {
-    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
-    font-weight: 500;
-    letter-spacing: 0.5px;
+.nav-btn {
+    flex: 1;
     text-transform: none;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 144, 182, 0.3);
-    border-radius: 30px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border-radius: 40px;
+    height: 48px;
 }
 
-.login-btn:hover {
+.prev-btn {
+    border-color: #d46600;
+    color: #d46600;
+}
+
+.prev-btn:hover {
+    background: rgba(212, 102, 0, 0.05);
+    border-color: #5c3a21;
+}
+
+.next-btn,
+.register-btn {
+    background: linear-gradient(135deg, #5c3a21 0%, #d46600 100%);
+    box-shadow: 0 4px 12px rgba(212, 102, 0, 0.3);
+}
+
+.next-btn:hover,
+.register-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 144, 182, 0.4);
+    box-shadow: 0 8px 20px rgba(212, 102, 0, 0.4);
 }
 
-.login-btn:disabled {
-    opacity: 0.7;
-    transform: none;
-}
-
-.register-link {
+.login-link {
     text-align: center;
-    margin-top: 20px;
-    font-size: 0.8rem;
+    margin-top: 24px;
+    font-size: 0.85rem;
     color: #6c7a8a;
 }
 
-.register-text {
-    color: #5c3a21;
-    font-weight: 500;
+.login-text {
+    color: #d46600;
+    font-weight: 600;
     cursor: pointer;
     margin-left: 5px;
     transition: color 0.2s ease;
 }
 
-.register-text:hover {
-    color: #d49f00;
+.login-text:hover {
+    color: #5c3a21;
     text-decoration: underline;
 }
 
@@ -486,14 +737,14 @@ export default {
 }
 
 .feature-slide {
-    animation: fadeInUp 0.8s ease-out;
+    animation: fadeInUp 0.5s ease-out;
 }
 
 .feature-icon-wrapper {
     width: 80px;
     height: 80px;
     margin: 0 auto 24px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 24px;
     display: flex;
     align-items: center;
@@ -502,12 +753,8 @@ export default {
     transition: transform 0.3s ease;
 }
 
-.feature-slide:hover .feature-icon-wrapper {
-    transform: scale(1.1) rotate(5deg);
-}
-
 .feature-slide h3 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 500;
     margin-bottom: 16px;
     color: #f6f6f6;
@@ -526,7 +773,7 @@ export default {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     padding: 8px 16px;
     border-radius: 40px;
@@ -560,47 +807,26 @@ export default {
 }
 
 .benefit-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 800;
     line-height: 1.2;
 }
 
 .benefit-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     opacity: 0.8;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+    text-align: center;
+    max-width: 100px;
 }
 
 .stat-divider {
     width: 1px;
-    height: 30px;
+    height: 40px;
     background: rgba(255, 255, 255, 0.3);
 }
 
-.cta-message {
-    margin-top: 32px;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: #f6f6f6;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    backdrop-filter: blur(2px);
-}
-
-.cta-message p,
-.cta-message .v-icon {
-    color: #7d7d7d;
-}
-
-.cta-message span {
-    color: #5c3a21;
-    font-weight: 700;
-    cursor: pointer;
-}
-
+/* Animations */
 @keyframes float {
 
     0%,
@@ -655,6 +881,18 @@ export default {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -678,29 +916,40 @@ export default {
     }
 
     .feature-slide h3 {
-        font-size: 1.4rem;
-    }
-
-    .cta-message p {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
 
     .benefit-title {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 }
 
 @media (max-width: 600px) {
     .form-content h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
+    }
+
+    .step-label {
+        font-size: 0.6rem;
+    }
+
+    .step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
     }
 
     .benefits-container {
-        gap: 16px;
+        gap: 12px;
     }
 
     .benefit-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+
+    .benefit-label {
+        font-size: 0.6rem;
+        max-width: 80px;
     }
 
     .feature-icon-wrapper {
@@ -708,13 +957,27 @@ export default {
         height: 60px;
     }
 
-    .cta-message p {
-        font-size: 0.8rem;
+    .navigation-buttons {
+        flex-direction: column;
+    }
+
+    .nav-btn {
+        width: 100%;
     }
 }
 
-/* Cursor pointer utility */
 .cursor-pointer {
     cursor: pointer;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -8px;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    padding: 0 8px;
 }
 </style>
