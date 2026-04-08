@@ -17,23 +17,23 @@
                         @update:modelValue="handleDecimalUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
 
-                    <v-autocomplete :model-value="product.temp_id"
-                        @update:modelValue="handleInputUpdate('temp_id', $event)" label="Product Temparature"
+                    <v-autocomplete :model-value="product.product_temp_id"
+                        @update:modelValue="handleInputUpdate('product_temp_id', $event)" label="Product Temparature"
                         :items="productTemperatureOption" item-title="temp_label" item-value="product_temp_id" outlined
                         dense />
 
-                    <v-autocomplete :model-value="product.size_id"
-                        @update:modelValue="handleInputUpdate('size_id', $event)" label="Product Size"
+                    <v-autocomplete :model-value="product.product_size_id"
+                        @update:modelValue="handleInputUpdate('product_size_id', $event)" label="Product Size"
                         :items="productSizeOption" item-title="size_label" item-value="product_size_id" outlined
                         dense />
 
-                    <v-autocomplete :model-value="product.category_id"
-                        @update:modelValue="handleInputUpdate('category_id', $event)" label="Product Category"
+                    <v-autocomplete :model-value="product.product_category_id"
+                        @update:modelValue="handleInputUpdate('product_category_id', $event)" label="Product Category"
                         :items="productCategoryOption" item-title="category_label" item-value="product_category_id"
                         outlined dense />
 
-                    <v-autocomplete :model-value="product.station_id"
-                        @update:modelValue="handleInputUpdate('station_id', $event)" label="Station"
+                    <v-autocomplete :model-value="product.shop_station_id"
+                        @update:modelValue="handleInputUpdate('shop_station_id', $event)" label="Station"
                         :items="shopStationOption" item-title="station_name" item-value="shop_station_id" outlined
                         dense />
 
