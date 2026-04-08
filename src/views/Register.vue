@@ -211,10 +211,6 @@
                                     <h3>{{ stepHeadings[currentStep - 1] }}</h3>
                                     <p>{{ stepDescriptions[currentStep - 1] }}</p>
                                 </div>
-                                <div class="feature-badge">
-                                    <span class="badge-dot"></span>
-                                    <span>Join the Local Food Movement</span>
-                                </div>
                             </div>
                             <div class="benefits-container">
                                 <div class="benefit-item">
@@ -475,7 +471,7 @@ export default {
     font-size: 1.8rem;
     font-weight: 500;
     text-align: center;
-    margin: 6px 0 8px;
+    margin: 6px 0 0;
     width: 100%;
     color: #000;
 }
@@ -642,6 +638,7 @@ export default {
     box-shadow: 0 0 0 2px rgba(182, 112, 0, 0.15);
 }
 
+
 /* Navigation Buttons */
 .navigation-buttons {
     display: flex;
@@ -651,7 +648,6 @@ export default {
 }
 
 .nav-btn {
-    flex: 1;
     text-transform: none;
     font-weight: 500;
     letter-spacing: 0.3px;
@@ -767,27 +763,6 @@ export default {
     margin: 0 auto;
     line-height: 1.5;
     color: #ffffff;
-}
-
-.feature-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    padding: 8px 16px;
-    border-radius: 40px;
-    margin-top: 24px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.badge-dot {
-    width: 8px;
-    height: 8px;
-    background: #4cff9e;
-    border-radius: 50%;
-    animation: blink 1.5s infinite;
 }
 
 .benefits-container {

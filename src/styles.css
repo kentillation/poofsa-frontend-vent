@@ -2,7 +2,11 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-h2, h3, h4, h5, p, .v-list-item {
+h2,
+h3,
+h4,
+h5,
+p {
     color: #0090b6;
     font-weight: normal !important;
 }
@@ -12,8 +16,6 @@ h2, h3, h4, h5, p, .v-list-item {
 }
 
 .v-list-item:hover {
-    background-color: #0090b6;
-    color: #e8faff;
     transition: all 0.3s ease-in-out;
 }
 
@@ -37,7 +39,8 @@ h2, h3, h4, h5, p, .v-list-item {
     font-weight: normal !important;
 }
 
-.v-btn--size-default, .v-icon {
+.v-btn--size-default,
+.v-icon {
     min-width: 0 !important;
 }
 
@@ -134,61 +137,61 @@ thead .v-data-table__th .v-data-table-header__content {
 }
 
 ::v-deep(.hover-table .v-data-table__tr) {
-  background-color: rgba(159, 164, 165, 0);
-  transition: background-color 0.5s ease-in-out;
-  cursor: pointer;
+    background-color: rgba(159, 164, 165, 0);
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
 }
 
 ::v-deep(.hover-table .v-data-table__tr:hover) {
-  animation: backgroundFade 2s infinite;
+    animation: backgroundFade 2s infinite;
 }
 
 @keyframes backgroundFade {
-  0% {
-    background-color: rgba(224, 247, 250, 0);
-  }
+    0% {
+        background-color: rgba(224, 247, 250, 0);
+    }
 
-  50% {
-    background-color: rgba(117, 62, 62, 0.442);
-  }
+    50% {
+        background-color: rgba(117, 62, 62, 0.442);
+    }
 
-  100% {
-    background-color: rgba(224, 247, 250, 0);
-  }
+    100% {
+        background-color: rgba(224, 247, 250, 0);
+    }
 }
 
 .connection-container {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .connection-banner {
-  text-align: center;
-  padding: 6px 30px;
-  border-radius: 0 0 30px 30px;
-  font-size: 12px;
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    text-align: center;
+    padding: 6px 30px;
+    border-radius: 0 0 30px 30px;
+    font-size: 12px;
+    gap: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .connection-banner.offline {
-  background: #8a1515;
-  color: #fffafa;
+    background: #8a1515;
+    color: #fffafa;
 }
 
 .connection-banner.slow {
-  background: #b88d20;
-  color: #fffafa;
+    background: #b88d20;
+    color: #fffafa;
 }
 
 .connection-banner.waiting {
-  background: #118aa0;
-  color: #fffafa;
+    background: #118aa0;
+    color: #fffafa;
 }
