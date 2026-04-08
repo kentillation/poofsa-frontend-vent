@@ -125,16 +125,12 @@
 <script>
 import Snackbar from '@/components/Snackbar.vue';
 import { useAuthStore } from '@/stores/auth';
-import { useLoadingStore } from '@/stores/loading';
 
 export default {
     name: 'LoginPage',
     components: { Snackbar },
     setup() {
-        const loadingStore = useLoadingStore();
-        return {
-            loadingStore,
-        };
+        //
     },
     data() {
         return {
@@ -161,7 +157,6 @@ export default {
 
             this.loading = true;
             try {
-                this.loadingStore.show('');
                 const authStore = useAuthStore();
                 const result = await authStore.login({
                     admin_email: this.admin_email,
@@ -179,7 +174,6 @@ export default {
                 this.showError(error?.message || 'Invalid credentials. Please try again.');
             } finally {
                 this.loading = false;
-                this.loadingStore.hide();
             }
         },
         showError(message) {
