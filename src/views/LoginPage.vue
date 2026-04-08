@@ -31,17 +31,10 @@
                                         <v-icon icon="mdi-email-outline" size="18" class="label-icon" />
                                         <span>Email Address</span>
                                     </div>
-                                    <v-text-field 
-                                        v-model="admin_email" 
-                                        :rules="[requiredRule, emailFormatRule]"
-                                        placeholder="admin@poofsa.com" 
-                                        variant="outlined"
-                                        density="comfortable"
-                                        autocomplete="username"
-                                        class="custom-input"
-                                        :error="emailError"
-                                        hide-details="auto"
-                                    />
+                                    <v-text-field v-model="admin_email" :rules="[requiredRule, emailFormatRule]"
+                                        placeholder="admin@poofsa.com" variant="outlined" density="comfortable"
+                                        autocomplete="username" class="custom-input" :error="emailError"
+                                        hide-details="auto" />
                                 </div>
 
                                 <div class="input-wrapper mt-4">
@@ -49,23 +42,13 @@
                                         <v-icon icon="mdi-lock-outline" size="18" class="label-icon" />
                                         <span>Password</span>
                                     </div>
-                                    <v-text-field 
-                                        v-model="admin_password" 
-                                        :rules="[requiredRule]" 
-                                        placeholder="Enter your password"
-                                        variant="outlined" 
-                                        density="comfortable"
-                                        autocomplete="current-password" 
-                                        :type="showPassword ? 'text' : 'password'"
-                                        class="custom-input"
-                                        hide-details="auto"
-                                    >
+                                    <v-text-field v-model="admin_password" :rules="[requiredRule]"
+                                        placeholder="Enter your password" variant="outlined" density="comfortable"
+                                        autocomplete="current-password" :type="showPassword ? 'text' : 'password'"
+                                        class="custom-input" hide-details="auto">
                                         <template v-slot:append-inner>
-                                            <v-icon 
-                                                :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                                                @click="showPassword = !showPassword"
-                                                class="cursor-pointer"
-                                            />
+                                            <v-icon :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                                                @click="showPassword = !showPassword" class="cursor-pointer" />
                                         </template>
                                     </v-text-field>
                                 </div>
@@ -76,16 +59,8 @@
                                     </p>
                                 </div>
 
-                                <v-btn 
-                                    :disabled="!isFormValid || loading" 
-                                    color="primary" 
-                                    type="submit" 
-                                    size="large"
-                                    class="login-btn" 
-                                    height="52"
-                                    block 
-                                    :loading="loading"
-                                >
+                                <v-btn :disabled="!isFormValid || loading" color="primary" type="submit" size="large"
+                                    class="login-btn" height="52" block :loading="loading">
                                     <span v-if="!loading">Sign In</span>
                                     <span v-else>Authenticating...</span>
                                 </v-btn>
@@ -107,7 +82,9 @@
                                         <v-icon size="48" color="white">mdi-map-marker-radius</v-icon>
                                     </div>
                                     <h3>Put your business where customers are already looking</h3>
-                                    <p>Register your business on Locinder for free and start connecting with customers in your local community today.</p>
+                                    <p>Register your business on Locinder for free and start connecting with customers
+                                        in your local
+                                        community today.</p>
                                 </div>
                                 <div class="feature-badge">
                                     <span class="badge-dot"></span>
@@ -117,7 +94,8 @@
                             <div class="benefits-container">
                                 <div class="benefit-item">
                                     <span class="benefit-title">Free</span>
-                                    <span class="benefit-label">Easy entry for your businesses. No barrier to start.</span>
+                                    <span class="benefit-label">Easy entry for your businesses. No barrier to
+                                        start.</span>
                                 </div>
                                 <div class="stat-divider"></div>
                                 <div class="benefit-item">
@@ -127,7 +105,8 @@
                                 <div class="stat-divider"></div>
                                 <div class="benefit-item">
                                     <span class="benefit-title">Feel</span>
-                                    <span class="benefit-label">Experience connection, trust, and community support.</span>
+                                    <span class="benefit-label">Experience connection, trust, and community
+                                        support.</span>
                                 </div>
                             </div>
                             <div class="cta-message">
@@ -612,29 +591,63 @@ export default {
     animation: pulse 2s infinite;
 }
 
-.cta-message span, .cta-message .v-icon {
+.cta-message span,
+.cta-message .v-icon {
     color: #5c3a21;
 }
 
 @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -40px) scale(1.1); }
-    66% { transform: translate(-20px, 30px) scale(0.95); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -40px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 30px) scale(0.95);
+    }
 }
 
 @keyframes movePattern {
-    0% { background-position: 0 0; }
-    100% { background-position: 100px 100px; }
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 100px 100px;
+    }
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 0.8; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
 }
 
 @keyframes fadeInUp {
@@ -642,6 +655,7 @@ export default {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -653,11 +667,11 @@ export default {
     .form-section {
         padding: 32px 24px;
     }
-    
+
     .visual-section {
         min-height: 400px;
     }
-    
+
     .feature-slide h3 {
         font-size: 1.4rem;
     }
@@ -665,7 +679,7 @@ export default {
     .cta-message span {
         font-size: 0.6rem;
     }
-    
+
     .benefit-title {
         font-size: 1.4rem;
     }
@@ -675,15 +689,15 @@ export default {
     .form-content h1 {
         font-size: 1.8rem;
     }
-    
+
     .benefits-container {
         gap: 16px;
     }
-    
+
     .benefit-title {
         font-size: 1.2rem;
     }
-    
+
     .feature-icon-wrapper {
         width: 60px;
         height: 60px;
