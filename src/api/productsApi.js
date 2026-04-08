@@ -22,12 +22,14 @@ export const PRODUCTS_API = {
 
     async fetchAllProductsApi({ branchId, page = 1, itemsPerPage = 10, search = '' }) {
         try {
+            const shopId = localStorage.getItem('shop_id');
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
                 throw new Error('No authentication token found');
             }
 
             const params = {
+                shop_id: shopId,
                 branch_id: branchId,
                 page,
                 itemsPerPage,
@@ -78,7 +80,7 @@ export const PRODUCTS_API = {
             }
             return response.data;
         } catch (error) {
-            console.error('[fetchTotalProductsCountApi] Error fetching sales:', error);
+            console.error('[api] Error fetching sales:', error);
             throw error;
         }
     },

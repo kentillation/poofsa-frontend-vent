@@ -6,10 +6,10 @@ export const useProductsStore = defineStore('products', {
     state: () => ({
         products: [],
         productsHistory: [],
-        productsOnly: null,
+        // productsOnly: null,
         productItems: [],
         productAlone: '',
-        total: 0,
+        totalProducts: 0,
         productsHistoryTotal: 0,
         loading: false,
         loadingProducts: false,
@@ -198,14 +198,14 @@ export const useProductsStore = defineStore('products', {
 
                 // Transform products once and store
                 this.products = rawProducts.map(p => this._transformProduct(p));
-                this.total = totalCount;
+                this.totalProducts = totalCount;
                 this._lastFetchHash = cacheKey;
                 this._fetchCache = { rawProducts, totalCount };
 
             } catch (error) {
                 this.error = error.message || 'Failed to fetch products';
                 this.products = [];
-                this.total = 0;
+                this.totalProducts = 0;
                 this._lastFetchHash = null;
                 throw error;
             } finally {

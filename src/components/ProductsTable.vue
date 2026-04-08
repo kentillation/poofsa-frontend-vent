@@ -16,7 +16,7 @@
     <SkeletonTable v-if="store.loadingProducts && !store.products.length"  />
 
     <!-- Products Table -->
-    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.total"
+    <BaseDataTable v-else :key="tableKey" :headers="headers" :items="displayItems" :total-items="store.totalProducts"
         :loading="store.loadingProducts" :options="options" @update:options="onOptionsUpdate" class="elevation-1 hover-table">
         <!-- Toolbar -->
         <template #top>
