@@ -111,7 +111,9 @@
                             </div>
                             <div class="cta-message">
                                 <v-icon icon="mdi-rocket-launch-outline" size="20" />
-                                <span>Ready to elevate your business? Register today!</span>
+                                <p>Ready to elevate your business?
+                                    <span @click="$router.push('/register')" class="text-accent">Register today!</span>
+                                </p>
                             </div>
                         </div>
                     </v-col>
@@ -582,11 +584,15 @@ export default {
     font-size: 1rem;
     font-weight: 500;
     backdrop-filter: blur(2px);
-    animation: pulse 2s infinite;
+    /* animation: pulse 2s infinite; */
 }
 
-.cta-message span,
+.cta-message p,
 .cta-message .v-icon {
+    color: #7d7d7d;
+}
+
+.cta-message span {
     color: #5c3a21;
 }
 
