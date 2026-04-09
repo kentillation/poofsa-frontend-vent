@@ -50,7 +50,7 @@
                                             <span>Owner's Full Name</span>
                                         </div>
                                         <v-text-field v-model="formData.owner_name" :rules="[requiredRule]"
-                                            placeholder="Juan Dela Cruz" variant="outlined" density="comfortable"
+                                            placeholder="Juan Dela Cruz" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
 
@@ -60,7 +60,7 @@
                                             <span>Store / Business Name</span>
                                         </div>
                                         <v-text-field v-model="formData.store_name" :rules="[requiredRule]"
-                                            placeholder="Cafe Delight" variant="outlined" density="comfortable"
+                                            placeholder="Cafe Delight" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
 
@@ -71,7 +71,7 @@
                                         </div>
                                         <v-select v-model="formData.store_type" :items="storeTypes"
                                             :rules="[requiredRule]" placeholder="Select store type" variant="outlined"
-                                            density="comfortable" class="custom-input" hide-details="auto" />
+                                            density="compact" class="custom-input" hide-details="auto" />
                                     </div>
                                 </div>
 
@@ -84,7 +84,7 @@
                                         </div>
                                         <v-textarea v-model="formData.address" :rules="[requiredRule]"
                                             placeholder="Street, Barangay, Sagay City, Negros Occidental"
-                                            variant="outlined" density="comfortable" rows="1" class="custom-input"
+                                            variant="outlined" density="compact" rows="1" class="custom-input"
                                             hide-details="auto" />
                                     </div>
 
@@ -95,7 +95,7 @@
                                         </div>
                                         <v-text-field v-model="formData.open_hour"
                                             :rules="[requiredRule, timeFormatRule]" placeholder="07:00 AM"
-                                            variant="outlined" density="comfortable" class="custom-input"
+                                            variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
                                     </div>
 
@@ -106,7 +106,7 @@
                                         </div>
                                         <v-text-field v-model="formData.close_hour"
                                             :rules="[requiredRule, timeFormatRule]" placeholder="08:00 PM"
-                                            variant="outlined" density="comfortable" class="custom-input"
+                                            variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
                                         </div>
                                         <v-text-field v-model="formData.mobile_number"
                                             :rules="[requiredRule, mobileNumberRule]" placeholder="0912 345 6789"
-                                            variant="outlined" density="comfortable" class="custom-input"
+                                            variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
                                     </div>
 
@@ -130,7 +130,7 @@
                                             <span>Email Address</span>
                                         </div>
                                         <v-text-field v-model="formData.email" :rules="[requiredRule, emailFormatRule]"
-                                            placeholder="business@locinder.com" variant="outlined" density="comfortable"
+                                            placeholder="business@locinder.com" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
 
@@ -141,7 +141,7 @@
                                         </div>
                                         <v-text-field v-model="formData.password" :rules="[requiredRule, passwordRule]"
                                             placeholder="Create a strong password" variant="outlined"
-                                            density="comfortable" :type="showPassword ? 'text' : 'password'"
+                                            density="compact" :type="showPassword ? 'text' : 'password'"
                                             class="custom-input" hide-details="auto">
                                             <template v-slot:append-inner>
                                                 <v-icon :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -157,7 +157,7 @@
                                         </div>
                                         <v-text-field v-model="formData.confirm_password"
                                             :rules="[requiredRule, confirmPasswordRule]"
-                                            placeholder="Confirm your password" variant="outlined" density="comfortable"
+                                            placeholder="Confirm your password" variant="outlined" density="compact"
                                             :type="showConfirmPassword ? 'text' : 'password'" class="custom-input"
                                             hide-details="auto">
                                             <template v-slot:append-inner>
@@ -233,19 +233,19 @@
                     </v-col>
                 </v-row>
             </v-card>
-            <Snackbar ref="snackbarRef" />
         </v-container>
     </div>
 </template>
 
 <script>
-import Snackbar from '@/components/Snackbar.vue';
-// import { useToast } from 'vue-toastification';
+import { useToast } from 'vue-toastification';
 
 export default {
     name: 'RegisterPage',
 
-    components: { Snackbar },
+    components: { 
+        // 
+    },
 
     data() {
         return {
@@ -297,11 +297,11 @@ export default {
     },
 
     setup() {
-        // const toast = useToast();
+        const toast = useToast();
 
-        // return {
-        //     toast,
-        // };
+        return {
+            toast,
+        };
     },
 
     computed: {
@@ -348,8 +348,7 @@ export default {
                 this.currentStep++;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                // this.showError('Please fill in all required fields before proceeding.');
-                // this.toast.error('Please fill in all required fields before proceeding');
+                this.toast.error('Please fill in all required fields before proceeding');
             }
         },
         prevStep() {
@@ -364,8 +363,7 @@ export default {
             } else if (step > this.currentStep && this.isStepValid) {
                 this.currentStep = step;
             } else if (step > this.currentStep) {
-                // this.showError('Please complete current step first');
-                // this.toast.error('Please complete current step first.');
+                this.toast.error('Please complete current step first.');
 
             }
         },
@@ -378,17 +376,14 @@ export default {
                 // Simulate API call - replace with actual registration logic
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                // Success
-                // this.showError('Registration successful! Please check your email to verify your account.', 'success');
-                // this.toast.info('Registration successful!');
+                this.toast.info('Registration successful!');
 
                 setTimeout(() => {
                     this.$router.push('/login');
                 }, 2000);
             } catch (error) {
                 console.error(error);
-                // this.showError(error?.message || 'Registration failed. Please try again.');
-                // this.toast.error(error?.message || 'Registration failed. Please try again.');
+                this.toast.error(error?.message || 'Registration failed. Please try again.');
 
                 
             } finally {
@@ -396,9 +391,6 @@ export default {
             }
         },
 
-        showError(message, type = 'error') {
-            this.$refs.snackbarRef.showSnackbar(message, type);
-        }
     }
 };
 </script>

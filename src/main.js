@@ -4,8 +4,8 @@ import App from './App.vue';
 import router from './router';
 import vuetify from './plugins/vuetify';
 import { loadFonts } from './plugins/webfontloader';
-// import Toast from 'vue-toastification'
-// import 'vue-toastification/dist/index.css'
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 import './styles.css';
 import LoaderUI from '@/components/LoaderUI.vue';
 
@@ -17,25 +17,25 @@ app.use(createPinia());
 app.component('LoaderUI', LoaderUI);
 app.use(router);
 app.use(vuetify);
-// app.use(Toast, {
-//   position: 'top-center',
-//   timeout: 3000,
-//   closeOnClick: false,
-//   pauseOnFocusLoss: false,
-//   pauseOnHover: false,
-//   draggable: true,
-//   draggablePercent: 0.6,
-//   showCloseButtonOnHover: false,
-//   hideProgressBar: true,
-//   closeButton: false,
-//   icon: true,
-//   rtl: false,
-//   transition: 'Vue-Toastification__fade',
-//   maxToasts: 5,
-//   newestOnTop: true,
-//   toastClassName: 'custom-toast',
-//   bodyClassName: 'custom-toast-body',
-// });
+app.use(Toast, {
+  position: 'top-center',
+  timeout: 3000,
+  closeOnClick: false,
+  pauseOnFocusLoss: false,
+  pauseOnHover: false,
+  draggable: true,
+  draggablePercent: 0.6,
+  showCloseButtonOnHover: false,
+  hideProgressBar: true,
+  closeButton: false,
+  icon: true,
+  rtl: false,
+  transition: 'Vue-Toastification__fade',
+  maxToasts: 5,
+  newestOnTop: true,
+  toastClassName: 'custom-toast',
+  bodyClassName: 'custom-toast-body',
+});
 
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
