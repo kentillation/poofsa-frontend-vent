@@ -90,6 +90,7 @@ export default {
             const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return pattern.test(v) || 'Invalid email format';
         },
+
         async handleLogin() {
             const isValid = await this.$refs.form.validate();
             if (!isValid) return;
@@ -103,7 +104,7 @@ export default {
                     admin_password: this.admin_password
                 });
                 if (result.success) {
-                    window.location.href = '/about';
+                    window.location.href = '/branch/branchName';
                 }
             } catch (error) {
                 console.error(error);
@@ -113,6 +114,7 @@ export default {
                 this.loadingStore.hide();
             }
         },
+
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },
