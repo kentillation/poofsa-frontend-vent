@@ -49,7 +49,7 @@
                                             <v-icon icon="mdi-account-outline" size="18" class="label-icon" />
                                             <span>Owner's Full Name</span>
                                         </div>
-                                        <v-text-field v-model="formData.owner_name" :rules="[requiredRule]"
+                                        <v-text-field v-model="formData.shop_owner" :rules="[requiredRule]"
                                             placeholder="Juan Dela Cruz" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
@@ -59,7 +59,7 @@
                                             <v-icon icon="mdi-storefront-outline" size="18" class="label-icon" />
                                             <span>Store / Business Name</span>
                                         </div>
-                                        <v-text-field v-model="formData.store_name" :rules="[requiredRule]"
+                                        <v-text-field v-model="formData.shop_name" :rules="[requiredRule]"
                                             placeholder="Cafe Delight" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
@@ -69,7 +69,7 @@
                                             <v-icon icon="mdi-domain" size="18" class="label-icon" />
                                             <span>Store Type</span>
                                         </div>
-                                        <v-select v-model="formData.store_type" :items="storeTypes"
+                                        <v-select v-model="formData.shop_type" :items="storeTypes"
                                             :rules="[requiredRule]" placeholder="Select store type" variant="outlined"
                                             density="compact" class="custom-input" hide-details="auto" />
                                     </div>
@@ -82,7 +82,7 @@
                                             <v-icon icon="mdi-map-marker-outline" size="18" class="label-icon" />
                                             <span>Store Address</span>
                                         </div>
-                                        <v-textarea v-model="formData.address" :rules="[requiredRule]"
+                                        <v-textarea v-model="formData.shop_address" :rules="[requiredRule]"
                                             placeholder="Street, Barangay, Sagay City, Negros Occidental"
                                             variant="outlined" density="compact" rows="1" class="custom-input"
                                             hide-details="auto" />
@@ -93,7 +93,7 @@
                                             <v-icon icon="mdi-clock-outline" size="18" class="label-icon" />
                                             <span>Open Hour</span>
                                         </div>
-                                        <v-text-field v-model="formData.open_hour"
+                                        <v-text-field v-model="formData.open_at"
                                             :rules="[requiredRule, timeFormatRule]" placeholder="07:00 AM"
                                             variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
@@ -104,7 +104,7 @@
                                             <v-icon icon="mdi-clock-outline" size="18" class="label-icon" />
                                             <span>Close Hour</span>
                                         </div>
-                                        <v-text-field v-model="formData.close_hour"
+                                        <v-text-field v-model="formData.close_at"
                                             :rules="[requiredRule, timeFormatRule]" placeholder="08:00 PM"
                                             variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
@@ -118,7 +118,7 @@
                                             <v-icon icon="mdi-phone-outline" size="18" class="label-icon" />
                                             <span>Mobile Number</span>
                                         </div>
-                                        <v-text-field v-model="formData.mobile_number"
+                                        <v-text-field v-model="formData.shop_contact_number"
                                             :rules="[requiredRule, mobileNumberRule]" placeholder="0912 345 6789"
                                             variant="outlined" density="compact" class="custom-input"
                                             hide-details="auto" />
@@ -129,7 +129,7 @@
                                             <v-icon icon="mdi-email-outline" size="18" class="label-icon" />
                                             <span>Email Address</span>
                                         </div>
-                                        <v-text-field v-model="formData.email" :rules="[requiredRule, emailFormatRule]"
+                                        <v-text-field v-model="formData.shop_email" :rules="[requiredRule, emailFormatRule]"
                                             placeholder="business@locinder.com" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
@@ -139,7 +139,7 @@
                                             <v-icon icon="mdi-lock-outline" size="18" class="label-icon" />
                                             <span>Password</span>
                                         </div>
-                                        <v-text-field v-model="formData.password" :rules="[requiredRule, passwordRule]"
+                                        <v-text-field v-model="formData.admin_password" :rules="[requiredRule, passwordRule]"
                                             placeholder="Create a strong password" variant="outlined"
                                             density="compact" :type="showPassword ? 'text' : 'password'"
                                             class="custom-input" hide-details="auto">
@@ -239,6 +239,7 @@
 
 <script>
 import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/stores/auth';
 
 export default {
     name: 'RegisterPage',
@@ -258,17 +259,18 @@ export default {
             isFormValid: false,
 
             formData: {
-                owner_name: '',
-                store_name: '',
-                store_type: '',
-                address: '',
-                open_hour: '',
-                close_hour: '',
-                mobile_number: '',
-                email: '',
-                password: '',
+                shop_name: '',
+                shop_type: '',
+                shop_owner: '',
+                shop_address: '',
+                shop_email: '',
+                shop_contact_number: '',
+                open_at: '',
+                close_at: '',
+                admin_password: '',
                 confirm_password: ''
             },
+            validationErrors: {},
 
             steps: [
                 { number: 1, label: 'Business Info' },
@@ -307,15 +309,15 @@ export default {
     computed: {
         isStepValid() {
             if (this.currentStep === 1) {
-                return !!(this.formData.owner_name && this.formData.store_name && this.formData.store_type);
+                return !!(this.formData.shop_owner && this.formData.shop_name && this.formData.shop_type);
             }
             if (this.currentStep === 2) {
-                return !!(this.formData.address && this.formData.open_hour && this.formData.close_hour);
+                return !!(this.formData.shop_address && this.formData.open_at && this.formData.close_at);
             }
             if (this.currentStep === 3) {
-                return !!(this.formData.mobile_number && this.formData.email &&
-                    this.formData.password && this.formData.confirm_password &&
-                    this.formData.password === this.formData.confirm_password);
+                return !!(this.formData.shop_contact_number && this.formData.shop_email &&
+                    this.formData.admin_password && this.formData.confirm_password &&
+                    this.formData.admin_password === this.formData.confirm_password);
             }
             return false;
         }
@@ -325,24 +327,30 @@ export default {
         requiredRule(v) {
             return !!v || 'This field is required';
         },
+
         emailFormatRule(v) {
             const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return pattern.test(v) || 'Please enter a valid email address';
         },
+
         mobileNumberRule(v) {
             const pattern = /^(\+63|0)[0-9]{10}$/;
             return pattern.test(v.replace(/\s/g, '')) || 'Enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)';
         },
+
         timeFormatRule(v) {
             const pattern = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
             return pattern.test(v) || 'Use format: 07:00 AM or 08:00 PM';
         },
+
         passwordRule(v) {
             return v.length >= 8 || 'Password must be at least 8 characters';
         },
+
         confirmPasswordRule() {
-            return this.formData.password === this.formData.confirm_password || 'Passwords do not match';
+            return this.formData.admin_password === this.formData.confirm_password || 'Passwords do not match';
         },
+
         nextStep() {
             if (this.isStepValid) {
                 this.currentStep++;
@@ -351,12 +359,14 @@ export default {
                 this.toast.error('Please fill in all required fields before proceeding');
             }
         },
+
         prevStep() {
             if (this.currentStep > 1) {
                 this.currentStep--;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
+
         goToStep(step) {
             if (step < this.currentStep) {
                 this.currentStep = step;
@@ -367,27 +377,68 @@ export default {
 
             }
         },
+
         async handleRegister() {
             const isValid = await this.$refs.form.validate();
             if (!isValid.valid) return;
 
+            // Clear previous errors
+            this.validationErrors = {};
+            
             this.loading = true;
             try {
-                // Simulate API call - replace with actual registration logic
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                this.toast.info('Registration successful!');
-
-                setTimeout(() => {
-                    this.$router.push('/login');
-                }, 2000);
+                const authStore = useAuthStore();
+                const result = await authStore.shopRegistration(this.formData);
+                
+                if (result.success) {
+                    this.toast.success('Registration successful!');
+                    setTimeout(() => {
+                        window.location.href = '/about';
+                    }, 2000);
+                }
+                
             } catch (error) {
                 console.error(error);
-                this.toast.error(error?.message || 'Registration failed. Please try again.');
-
                 
+                if (error.response?.status === 422) {
+                    // Validation errors from backend
+                    this.validationErrors = error.response.data.errors || {};
+                    
+                    // Display first error message
+                    const firstError = Object.values(this.validationErrors)[0]?.[0];
+                    if (firstError) {
+                        this.toast.error(firstError);
+                    } else {
+                        this.toast.error(error.response.data.message || 'Validation failed');
+                    }
+                    
+                    // Optionally focus on first field with error
+                    const firstErrorField = Object.keys(this.validationErrors)[0];
+                    if (firstErrorField && this.$refs[firstErrorField]) {
+                        this.$refs[firstErrorField][0]?.focus();
+                    }
+                } else {
+                    this.toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+                }
             } finally {
                 this.loading = false;
+            }
+        },
+
+        // Helper method to handle validation errors
+        handleValidationErrors(errors) {
+            // Method 1: Set errors on form fields (if using VeeValidate or similar)
+            if (this.$refs.form && this.$refs.form.setErrors) {
+                this.$refs.form.setErrors(errors);
+            }
+            
+            // Method 2: Store errors in a reactive property
+            this.validationErrors = errors;
+            
+            // Method 3: Display specific error messages
+            for (const [field, messages] of Object.entries(errors)) {
+                const errorMessage = messages.join(', ');
+                this.toast.error(`${field}: ${errorMessage}`);
             }
         },
 

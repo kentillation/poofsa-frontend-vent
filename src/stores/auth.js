@@ -45,6 +45,34 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    const shopRegistration = async (credentials) => {
+        error.value = null;
+        try {
+            const response = await apiClient.post('/v1/public/shop-registration', credentials);
+
+            if (response.status === 200) {
+                localStorage.setItem('auth_token', response.data.access_token);
+                localStorage.setItem('shop_id', response.data.shop_id);
+                localStorage.setItem('shop_name', response.data.shop_name);
+
+                token.value = response.data.access_token;
+                shopId.value = response.data.shop_id;
+                shopName.value = response.data.shop_name;
+                
+                return { 
+                    success: true,
+                    shop_id: response.data.shop_id,
+                    shop_name: response.data.shop_name,
+                };
+            }
+        } catch (err) {
+            error.value = err.response?.data?.message ||
+                err.message ||
+                'Login failed. Please try again.';
+            throw error.value;
+        }
+    };
+
     const logout = async () => {
         const currentToken = token.value;
         token.value = null;
@@ -90,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         getShopName,
         login,
+        shopRegistration,
         logout,
         checkAuth,
     };
