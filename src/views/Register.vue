@@ -382,43 +382,48 @@ export default {
             const isValid = await this.$refs.form.validate();
             if (!isValid.valid) return;
 
-            // Clear previous errors
-            this.validationErrors = {};
-            
             this.loading = true;
             try {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
                 const authStore = useAuthStore();
                 const result = await authStore.shopRegistration(this.formData);
                 
                 if (result.success) {
-                    this.toast.success('Registration successful!');
+                    this.toast.info('Registration successful!');
                     setTimeout(() => {
                         window.location.href = '/about';
                     }, 2000);
+                } else {
+                    // Handle backend validation errors
+                    this.handleValidationErrors(result.errors);
                 }
                 
             } catch (error) {
                 console.error(error);
                 
-                if (error.response?.status === 422) {
-                    // Validation errors from backend
-                    this.validationErrors = error.response.data.errors || {};
+                // Handle different error types
+                if (error.response) {
+                    // Server responded with error status
+                    const status = error.response.status;
+                    const data = error.response.data;
                     
-                    // Display first error message
-                    const firstError = Object.values(this.validationErrors)[0]?.[0];
-                    if (firstError) {
-                        this.toast.error(firstError);
+                    if (status === 422 && data.errors) {
+                        // Validation errors
+                        this.handleValidationErrors(data.errors);
+                        this.toast.error(data.message || 'Validation failed');
+                    } else if (status === 500) {
+                        // Server error
+                        this.toast.error(data.message || 'Server error occurred');
                     } else {
-                        this.toast.error(error.response.data.message || 'Validation failed');
+                        this.toast.error(data.message || 'Registration failed');
                     }
-                    
-                    // Optionally focus on first field with error
-                    const firstErrorField = Object.keys(this.validationErrors)[0];
-                    if (firstErrorField && this.$refs[firstErrorField]) {
-                        this.$refs[firstErrorField][0]?.focus();
-                    }
+                } else if (error.request) {
+                    // Request was made but no response
+                    this.toast.error('Network error. Please check your connection.');
                 } else {
-                    this.toast.error(error.response?.data?.message || 'Registration failed. Please try again.');
+                    // Other errors
+                    this.toast.error(error.message || 'An unexpected error occurred');
                 }
             } finally {
                 this.loading = false;
