@@ -84,31 +84,30 @@
                                         </div>
                                         <v-textarea v-model="formData.address" :rules="[requiredRule]"
                                             placeholder="Street, Barangay, Sagay City, Negros Occidental"
-                                            variant="outlined" density="comfortable" rows="2" class="custom-input"
+                                            variant="outlined" density="comfortable" rows="1" class="custom-input"
                                             hide-details="auto" />
                                     </div>
 
-                                    <div class="row mt-4">
-                                        <div class="col-6">
-                                            <div class="input-label">
-                                                <v-icon icon="mdi-clock-start-outline" size="18" class="label-icon" />
-                                                <span>Open Hour</span>
-                                            </div>
-                                            <v-text-field v-model="formData.open_hour"
-                                                :rules="[requiredRule, timeFormatRule]" placeholder="09:00 AM"
-                                                variant="outlined" density="comfortable" class="custom-input"
-                                                hide-details="auto" />
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-clock-outline" size="18" class="label-icon" />
+                                            <span>Open Hour</span>
                                         </div>
-                                        <div class="col-6">
-                                            <div class="input-label">
-                                                <v-icon icon="mdi-clock-end-outline" size="18" class="label-icon" />
-                                                <span>Close Hour</span>
-                                            </div>
-                                            <v-text-field v-model="formData.close_hour"
-                                                :rules="[requiredRule, timeFormatRule]" placeholder="09:00 PM"
-                                                variant="outlined" density="comfortable" class="custom-input"
-                                                hide-details="auto" />
+                                        <v-text-field v-model="formData.open_hour"
+                                            :rules="[requiredRule, timeFormatRule]" placeholder="07:00 AM"
+                                            variant="outlined" density="comfortable" class="custom-input"
+                                            hide-details="auto" />
+                                    </div>
+
+                                    <div class="input-wrapper mt-4">
+                                        <div class="input-label">
+                                            <v-icon icon="mdi-clock-outline" size="18" class="label-icon" />
+                                            <span>Close Hour</span>
                                         </div>
+                                        <v-text-field v-model="formData.close_hour"
+                                            :rules="[requiredRule, timeFormatRule]" placeholder="08:00 PM"
+                                            variant="outlined" density="comfortable" class="custom-input"
+                                            hide-details="auto" />
                                     </div>
                                 </div>
 
@@ -241,10 +240,13 @@
 
 <script>
 import Snackbar from '@/components/Snackbar.vue';
+// import { useToast } from 'vue-toastification';
 
 export default {
     name: 'RegisterPage',
+
     components: { Snackbar },
+
     data() {
         return {
             logo: require('@/assets/Poofsa-logo.png'),
@@ -275,8 +277,9 @@ export default {
             ],
 
             storeTypes: [
-                'Restaurant', 'Coffee Shop', 'Cafe', 'Bakery', 'Fast Food',
-                'Food Court', 'Street Food', 'Dessert Shop', 'Other'
+                'Restaurant', 'Coffee Shop', 'Cafe', 'Carinderia', 
+                'Bakery', 'Street Food', 'Dessert Shop', 'Food Stall', 
+                'Other'
             ],
 
             stepIcons: ['mdi-storefront-outline', 'mdi-map-marker-radius', 'mdi-account-check-outline'],
@@ -292,6 +295,15 @@ export default {
             ]
         };
     },
+
+    setup() {
+        // const toast = useToast();
+
+        // return {
+        //     toast,
+        // };
+    },
+
     computed: {
         isStepValid() {
             if (this.currentStep === 1) {
@@ -308,6 +320,7 @@ export default {
             return false;
         }
     },
+
     methods: {
         requiredRule(v) {
             return !!v || 'This field is required';
@@ -322,7 +335,7 @@ export default {
         },
         timeFormatRule(v) {
             const pattern = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
-            return pattern.test(v) || 'Use format: 09:00 AM or 09:00 PM';
+            return pattern.test(v) || 'Use format: 07:00 AM or 08:00 PM';
         },
         passwordRule(v) {
             return v.length >= 8 || 'Password must be at least 8 characters';
@@ -335,7 +348,8 @@ export default {
                 this.currentStep++;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                this.showError('Please fill in all required fields before proceeding.');
+                // this.showError('Please fill in all required fields before proceeding.');
+                // this.toast.error('Please fill in all required fields before proceeding');
             }
         },
         prevStep() {
@@ -350,7 +364,9 @@ export default {
             } else if (step > this.currentStep && this.isStepValid) {
                 this.currentStep = step;
             } else if (step > this.currentStep) {
-                this.showError('Please complete current step first.');
+                // this.showError('Please complete current step first');
+                // this.toast.error('Please complete current step first.');
+
             }
         },
         async handleRegister() {
@@ -363,17 +379,23 @@ export default {
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 // Success
-                this.showError('Registration successful! Please check your email to verify your account.', 'success');
+                // this.showError('Registration successful! Please check your email to verify your account.', 'success');
+                // this.toast.info('Registration successful!');
+
                 setTimeout(() => {
                     this.$router.push('/login');
                 }, 2000);
             } catch (error) {
                 console.error(error);
-                this.showError(error?.message || 'Registration failed. Please try again.');
+                // this.showError(error?.message || 'Registration failed. Please try again.');
+                // this.toast.error(error?.message || 'Registration failed. Please try again.');
+
+                
             } finally {
                 this.loading = false;
             }
         },
+
         showError(message, type = 'error') {
             this.$refs.snackbarRef.showSnackbar(message, type);
         }
@@ -648,6 +670,7 @@ export default {
 }
 
 .nav-btn {
+    width: 50%;
     text-transform: none;
     font-weight: 500;
     letter-spacing: 0.3px;
