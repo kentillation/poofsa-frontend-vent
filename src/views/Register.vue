@@ -130,7 +130,7 @@
                                             <span>Email Address</span>
                                         </div>
                                         <v-text-field v-model="formData.shop_email" :rules="[requiredRule, emailFormatRule]"
-                                            placeholder="business@locinder.com" variant="outlined" density="compact"
+                                            placeholder="admin@example.com" variant="outlined" density="compact"
                                             class="custom-input" hide-details="auto" />
                                     </div>
 
@@ -395,34 +395,27 @@ export default {
                         window.location.href = '/about';
                     }, 2000);
                 } else {
-                    // Handle backend validation errors
                     this.handleValidationErrors(result.errors);
                 }
                 
             } catch (error) {
                 console.error(error);
                 
-                // Handle different error types
                 if (error.response) {
-                    // Server responded with error status
                     const status = error.response.status;
                     const data = error.response.data;
                     
                     if (status === 422 && data.errors) {
-                        // Validation errors
                         this.handleValidationErrors(data.errors);
                         this.toast.error(data.message || 'Validation failed');
                     } else if (status === 500) {
-                        // Server error
                         this.toast.error(data.message || 'Server error occurred');
                     } else {
                         this.toast.error(data.message || 'Registration failed');
                     }
                 } else if (error.request) {
-                    // Request was made but no response
                     this.toast.error('Network error. Please check your connection.');
                 } else {
-                    // Other errors
                     this.toast.error(error.message || 'An unexpected error occurred');
                 }
             } finally {
@@ -430,17 +423,12 @@ export default {
             }
         },
 
-        // Helper method to handle validation errors
         handleValidationErrors(errors) {
-            // Method 1: Set errors on form fields (if using VeeValidate or similar)
             if (this.$refs.form && this.$refs.form.setErrors) {
                 this.$refs.form.setErrors(errors);
             }
-            
-            // Method 2: Store errors in a reactive property
             this.validationErrors = errors;
             
-            // Method 3: Display specific error messages
             for (const [field, messages] of Object.entries(errors)) {
                 const errorMessage = messages.join(', ');
                 this.toast.error(`${field}: ${errorMessage}`);
