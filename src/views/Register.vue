@@ -93,10 +93,9 @@
                                             <v-icon icon="mdi-clock-outline" size="18" class="label-icon" />
                                             <span>Open Hour</span>
                                         </div>
-                                        <v-text-field v-model="formData.open_at"
-                                            :rules="[requiredRule, timeFormatRule]" placeholder="07:00 AM"
-                                            variant="outlined" density="compact" class="custom-input"
-                                            hide-details="auto" />
+                                        <v-text-field v-model="formData.open_at" :rules="[requiredRule, timeFormatRule]"
+                                            placeholder="07:00 AM" variant="outlined" density="compact"
+                                            class="custom-input" hide-details="auto" />
                                     </div>
 
                                     <div class="input-wrapper mt-4">
@@ -129,9 +128,10 @@
                                             <v-icon icon="mdi-email-outline" size="18" class="label-icon" />
                                             <span>Email Address</span>
                                         </div>
-                                        <v-text-field v-model="formData.shop_email" :rules="[requiredRule, emailFormatRule]"
-                                            placeholder="admin@example.com" variant="outlined" density="compact"
-                                            class="custom-input" hide-details="auto" />
+                                        <v-text-field v-model="formData.shop_email"
+                                            :rules="[requiredRule, emailFormatRule]" placeholder="admin@example.com"
+                                            variant="outlined" density="compact" class="custom-input"
+                                            hide-details="auto" />
                                     </div>
 
                                     <div class="input-wrapper mt-4">
@@ -139,10 +139,11 @@
                                             <v-icon icon="mdi-lock-outline" size="18" class="label-icon" />
                                             <span>Password</span>
                                         </div>
-                                        <v-text-field v-model="formData.admin_password" :rules="[requiredRule, passwordRule]"
-                                            placeholder="Create a strong password" variant="outlined"
-                                            density="compact" :type="showPassword ? 'text' : 'password'"
-                                            class="custom-input" hide-details="auto">
+                                        <v-text-field v-model="formData.admin_password"
+                                            :rules="[requiredRule, passwordRule]" placeholder="Create a strong password"
+                                            variant="outlined" density="compact"
+                                            :type="showPassword ? 'text' : 'password'" class="custom-input"
+                                            hide-details="auto">
                                             <template v-slot:append-inner>
                                                 <v-icon :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                                                     @click="showPassword = !showPassword" class="cursor-pointer" />
@@ -244,7 +245,7 @@ import { useAuthStore } from '@/stores/auth';
 export default {
     name: 'RegisterPage',
 
-    components: { 
+    components: {
         // 
     },
 
@@ -279,8 +280,8 @@ export default {
             ],
 
             storeTypes: [
-                'Restaurant', 'Coffee Shop', 'Cafe', 'Carinderia', 
-                'Bakery', 'Street Food', 'Dessert Shop', 'Food Stall', 
+                'Restaurant', 'Coffee Shop', 'Cafe', 'Carinderia',
+                'Bakery', 'Street Food', 'Dessert Shop', 'Food Stall',
                 'Other'
             ],
 
@@ -388,7 +389,7 @@ export default {
 
                 const authStore = useAuthStore();
                 const result = await authStore.shopRegistration(this.formData);
-                
+
                 if (result.success) {
                     this.toast.info('Registration successful!');
                     setTimeout(() => {
@@ -397,14 +398,14 @@ export default {
                 } else {
                     this.handleValidationErrors(result.errors);
                 }
-                
+
             } catch (error) {
                 console.error(error);
-                
+
                 if (error.response) {
                     const status = error.response.status;
                     const data = error.response.data;
-                    
+
                     if (status === 422 && data.errors) {
                         this.handleValidationErrors(data.errors);
                         this.toast.error(data.message || 'Validation failed');
@@ -428,7 +429,7 @@ export default {
                 this.$refs.form.setErrors(errors);
             }
             this.validationErrors = errors;
-            
+
             for (const [field, messages] of Object.entries(errors)) {
                 const errorMessage = messages.join(', ');
                 this.toast.error(`${field}: ${errorMessage}`);
