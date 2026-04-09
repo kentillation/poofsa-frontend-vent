@@ -324,7 +324,39 @@ export default {
         }
     },
 
+    mounted() {
+        //
+    },
+
     methods: {
+        // Time conversion methods
+        formatTimeForDisplay(dbTime) {
+            if (!dbTime) return '';
+            // Handle time in format "07:00:00" or "07:00"
+            const parts = dbTime.split(':');
+            const hours = parts[0];
+            const minutes = parts[1];
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+        },
+
+        formatTimeForDB(displayTime) {
+            if (!displayTime) return null;
+            const match = displayTime.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+            if (!match) return null;
+
+            let hour = parseInt(match[1], 10);
+            const minute = match[2];
+            const period = match[3].toUpperCase();
+
+            if (period === 'PM' && hour !== 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+
+            return `${hour.toString().padStart(2, '0')}:${minute}:00`;
+        },
+
         requiredRule(v) {
             return !!v || 'This field is required';
         },
@@ -340,6 +372,7 @@ export default {
         },
 
         timeFormatRule(v) {
+            if (!v) return true; // Let requiredRule handle empty values
             const pattern = /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i;
             return pattern.test(v) || 'Use format: 07:00 AM or 08:00 PM';
         },
@@ -388,7 +421,18 @@ export default {
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 const authStore = useAuthStore();
-                const result = await authStore.shopRegistration(this.formData);
+
+                // Prepare data for submission - convert time formats
+                const submissionData = {
+                    ...this.formData,
+                    open_at: this.formatTimeForDB(this.formData.open_at),
+                    close_at: this.formatTimeForDB(this.formData.close_at)
+                };
+
+                // Remove confirm_password as it's not needed in the backend
+                delete submissionData.confirm_password;
+
+                const result = await authStore.shopRegistration(submissionData);
 
                 if (result.success) {
                     this.toast.info('Registration successful!');
