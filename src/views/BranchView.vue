@@ -250,7 +250,7 @@
                                                     <v-col v-for="(detail, i) in cashier_Details" :key="i" cols="12"
                                                         lg="4" md="4" sm="6">
                                                         <p class="text-grey-darken-1">{{ detail.label }}</p>
-                                                        <h4 class="mb-5">{{ detail.value }}</h4>
+                                                        <h4 class="mb-5">{{ detail.value ?? '-'}}</h4>
                                                     </v-col>
                                                 </v-row>
                                             </v-container>
@@ -260,7 +260,7 @@
                                                     <v-col v-for="(detail, i) in barista_Details" :key="i" cols="12"
                                                         lg="4" md="4" sm="6">
                                                         <p class="text-grey-darken-1">{{ detail.label }}</p>
-                                                        <h4 class="mb-5">{{ detail.value }}</h4>
+                                                        <h4 class="mb-5">{{ detail.value ?? '-' }}</h4>
                                                     </v-col>
                                                 </v-row>
                                             </v-container>
@@ -270,7 +270,7 @@
                                                     <v-col v-for="(detail, i) in kitchen_Details" :key="i" cols="12"
                                                         lg="4" md="4" sm="6">
                                                         <p class="text-grey-darken-1">{{ detail.label }}</p>
-                                                        <h4 class="mb-5">{{ detail.value }}</h4>
+                                                        <h4 class="mb-5">{{ detail.value ?? '-' }}</h4>
                                                     </v-col>
                                                 </v-row>
                                             </v-container>
