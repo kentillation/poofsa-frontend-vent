@@ -168,7 +168,7 @@ export default {
                     // Smooth transition to dashboard
                     document.body.style.opacity = '0';
                     setTimeout(() => {
-                        window.location.href = '/about';
+                        window.location.href = '/branch/Main';
                     }, 300);
                 }
             } catch (error) {

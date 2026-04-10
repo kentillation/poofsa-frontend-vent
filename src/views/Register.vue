@@ -435,9 +435,9 @@ export default {
                 const result = await authStore.shopRegistration(submissionData);
 
                 if (result.success) {
-                    this.toast.info('Registration successful!');
+                    this.toast.info('Your registration is successful!');
                     setTimeout(() => {
-                        window.location.href = '/about';
+                        window.location.href = '/branch/Main';
                     }, 2000);
                 } else {
                     this.handleValidationErrors(result.errors);
