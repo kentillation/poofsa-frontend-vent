@@ -231,9 +231,7 @@ const fetchProducts = async () => {
             search: search.value,
         })
 
-        await optionStore.fetchAllOptions({
-            shop_id: props.shopId
-        })
+        await optionStore.fetchAllOptions()
 
         updateDisplayItems()
 
