@@ -41,6 +41,7 @@ export const useProductOptionsStore = defineStore('productOptions', {
           this.fetchOptions('/admin/product-temperature-option'),
           this.fetchOptions('/admin/product-size-option'),
           this.fetchOptions('/admin/product-category-option'),
+          // this.fetchOptions('/v1/public/product-category'),
           this.fetchOptions('/admin/product-availability-option'),
           this.fetchOptions('/admin/product-station-option'),
         ]);
