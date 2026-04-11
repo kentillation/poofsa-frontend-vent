@@ -17,7 +17,7 @@
                         @update:modelValue="handleDecimalUpdate('cost_estimate', $event)" label="Estimated Cost (₱)"
                         :rules="[v => !isNaN(parseFloat(v)) || 'Must be a valid number']" type="text" outlined dense />
                     
-                    <v-autocomplete :model-value="product.size_id"
+                    <v-autocomplete :model-value="Number(product.size_id)"
                         @update:modelValue="handleInputUpdate('size_id', $event)" label="Product Size"
                         :items="productSizeOption" item-title="size_label" item-value="product_size_id" outlined
                         dense />
