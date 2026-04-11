@@ -105,6 +105,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductsStore } from '@/stores/productsStore'
+import { useProductOptionsStore } from '@/stores/productOptionsStore'
 import SkeletonTable from '@/components/SkeletonTable.vue'
 import BaseDataTable from '@/components/BaseDataTable.vue'
 import Snackbar from '@/components/Snackbar.vue'
@@ -130,6 +131,7 @@ const emit = defineEmits(['edit-product', 'view-ingredients'])
 // Router & store
 const router = useRouter()
 const store = useProductsStore()
+const optionStore = useProductOptionsStore()
 
 // Local state
 const displayItems = ref([])
@@ -228,6 +230,8 @@ const fetchProducts = async () => {
             itemsPerPage: options.value.itemsPerPage,
             search: search.value,
         })
+
+        await optionStore.fetchAllOptions()
 
         updateDisplayItems()
 
