@@ -1,10 +1,10 @@
-# Poofsa
+# Poofsa (Admin)
 
-An end-to-end retail and operations management platform designed to centralize POS, inventory, order fulfillment, and multi-branch management. By providing real-time analytics, inventory synchronization, and centralized operational oversight, the system enhances efficiency, scalability, and decision-making across business locations.
+An end-to-end retail and operations management platform designed to centralize POS, inventory, order fulfilment, and multi-branch management. By providing real-time analytics, inventory synchronization, and centralized operational oversight, the system enhances efficiency, scalability, and decision-making across business locations.
 
 ## Problem Statement
 
-Many growing businesses struggle to efficiently manage sales, inventory, orders, and branch operations due to the use of disconnected systems, manual processes, and limited visibility into business performance. This often leads to inventory inaccuracies, delayed order fulfillment, inconsistent branch operations, and challenges in making informed business decisions.
+Many growing businesses struggle to efficiently manage sales, inventory, orders, and branch operations due to the use of disconnected systems, manual processes, and limited visibility into business performance. This often leads to inventory inaccuracies, delayed order fulfilment, inconsistent branch operations, and challenges in making informed business decisions.
 
 Poofsa solves this by:
 * Consolidates POS, inventory, order management, and multi-branch administration into a single platform, eliminating the need for multiple disconnected systems.
